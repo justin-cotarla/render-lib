@@ -2,6 +2,20 @@ import { Mat2 } from './Mat2'
 import { Vec2 } from './Vec2'
 
 describe('Mat2', () => {
+  describe('clone', () => {
+    it('clones the matrix', () => {
+      const matrix = new Mat2([
+        [1, 2],
+        [3, 4],
+      ])
+
+      const clone = matrix.clone()
+
+      expect(matrix).not.toBe(clone)
+      expect(matrix.toArray()).toEqual(clone.toArray())
+    })
+  })
+
   describe('fromRows', () => {
     it('returns a Mat2', () => {
       const matrix = Mat2.fromRows([new Vec2(1, 2), new Vec2(3, 4)])
