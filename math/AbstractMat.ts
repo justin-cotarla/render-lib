@@ -12,6 +12,7 @@ abstract class AbstractMat<
   [index: number]: number[]
 
   public abstract clone: () => M
+  // public abstract determinant: () => number
 
   public toArray = (): number[] => {
     return this.toRowVectors().flatMap((row) => row.toArray())
@@ -88,6 +89,28 @@ abstract class AbstractMat<
     }
 
     return this
+  }
+
+  protected minorElements = (x: number, y: number): number[][] => {
+    const elements = []
+
+    let currentRow
+
+    for (let i = 0; i < this.ARITY; i++) {
+      if (i === x) {
+        continue
+      }
+      currentRow = []
+      for (let j = 0; j < this.ARITY; j++) {
+        if (j === y) {
+          continue
+        }
+        currentRow.push(this[i][j])
+      }
+      elements.push(currentRow)
+    }
+
+    return elements
   }
 }
 

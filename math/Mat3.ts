@@ -1,4 +1,5 @@
 import { AbstractMat } from './AbstractMat'
+import { Mat2 } from './Mat2'
 import { Vec3 } from './Vec3'
 
 class Mat3 extends AbstractMat<Mat3, Vec3> {
@@ -50,6 +51,25 @@ class Mat3 extends AbstractMat<Mat3, Vec3> {
 
   public static fromCols = (cols: [Vec3, Vec3, Vec3]): Mat3 => {
     return Mat3.fromRows(cols).transpose()
+  }
+
+  public determinant = (): number => {
+    let determinant = 0
+
+    for (let i = 0; i < this.ARITY; i++) {
+      const multiplier = i % 2 === 0 ? 1 : -1
+      const element = this[0][i]
+
+      const cofactor =
+        multiplier *
+        new Mat2(
+          this.minorElements(0, i) as [[number, number], [number, number]]
+        ).determinant()
+
+      determinant += element * cofactor
+    }
+
+    return determinant
   }
 }
 
