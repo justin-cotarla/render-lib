@@ -29,7 +29,7 @@ class Mat3 extends AbstractMat<Mat3, Vec3> {
   }
 
   get 2(): number[] {
-    return this.elements[1]
+    return this.elements[2]
   }
 
   set 0(value: [number, number, number]) {
