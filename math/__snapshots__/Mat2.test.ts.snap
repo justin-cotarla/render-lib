@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Mat2 toString prints its value 1`] = `
+"[ 1, 2
+  3, 4 ]
+"
+`;
