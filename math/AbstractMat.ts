@@ -18,7 +18,12 @@ abstract class AbstractMat<
   }
 
   public toString = (): string => {
-    return `[ ${this[0].join(', ')}\n  ${this[1].join(', ')} ]\n`
+    let output = ''
+
+    for (let i = 0; i < this.ARITY; i++) {
+      output = `${output} ${this[i].join(', ')}\n`
+    }
+    return `[\n${output}]`
   }
 
   public toRowVectors = (): V[] => {
