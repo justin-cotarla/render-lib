@@ -1,15 +1,15 @@
 import { AbstractMat } from './AbstractMat'
-import { Mat2 } from './Mat2'
+import { Mat2, Mat2ElementTuple } from './Mat2'
 import { Vec3 } from './Vec3'
 
-class Mat3 extends AbstractMat<Mat3, Vec3> {
-  constructor(
-    private readonly elements: [
-      [number, number, number],
-      [number, number, number],
-      [number, number, number],
-    ]
-  ) {
+export type Mat3ElementTuple = [
+  [number, number, number],
+  [number, number, number],
+  [number, number, number],
+]
+
+export class Mat3 extends AbstractMat<Mat3, Vec3> {
+  constructor(private readonly elements: Mat3ElementTuple) {
     super(3, Vec3.fromArray as (elements: number[]) => Vec3)
   }
 
@@ -41,7 +41,7 @@ class Mat3 extends AbstractMat<Mat3, Vec3> {
     this.elements[1] = value
   }
 
-  set 3(value: [number, number, number]) {
+  set 2(value: [number, number, number]) {
     this.elements[2] = value
   }
 
@@ -54,10 +54,10 @@ class Mat3 extends AbstractMat<Mat3, Vec3> {
   }
 
   protected minor = (x: number, y: number): number => {
-    return new Mat2(
-      this.minorElements(x, y) as [[number, number], [number, number]]
-    ).determinant()
+    return new Mat2(this.minorElements(x, y) as Mat2ElementTuple).determinant()
+  }
+
+  protected classicalAdjoint = (): Mat3 => {
+    return new Mat3(this.classicalAdjointElements() as Mat3ElementTuple)
   }
 }
-
-export { Mat3 }

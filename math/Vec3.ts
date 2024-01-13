@@ -1,6 +1,6 @@
 import { AbstractVec } from './AbstractVec'
 
-class Vec3 extends AbstractVec<Vec3> {
+export class Vec3 extends AbstractVec<Vec3> {
   private _x: number
   private _y: number
   private _z: number
@@ -67,5 +67,3 @@ class Vec3 extends AbstractVec<Vec3> {
     )
   }
 }
-
-export { Vec3 }

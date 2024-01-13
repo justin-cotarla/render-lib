@@ -105,4 +105,15 @@ describe('Mat2', () => {
       expect(matrix.determinant()).toBe(-2)
     })
   })
+
+  describe('inverse', () => {
+    it('computes the inverse', () => {
+      const matrix = new Mat2([
+        [4, 3],
+        [3, 2],
+      ])
+
+      expect(matrix.inverse().toArray()).toEqual([-2, 3, 3, -4])
+    })
+  })
 })

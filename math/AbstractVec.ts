@@ -1,4 +1,4 @@
-abstract class AbstractVec<V extends AbstractVec<V>> {
+export abstract class AbstractVec<V extends AbstractVec<V>> {
   constructor(readonly ARITY: number) {}
 
   [index: number]: number
@@ -51,5 +51,3 @@ abstract class AbstractVec<V extends AbstractVec<V>> {
     return Math.acos(this.dot(v) / (this.magnitude() * v.magnitude()))
   }
 }
-
-export { AbstractVec }

@@ -15,6 +15,7 @@ describe('Mat3', () => {
       expect(matrix.toArray()).toEqual(clone.toArray())
     })
   })
+
   describe('determinant', () => {
     it('computes the determinant', () => {
       const matrix = new Mat3([
@@ -24,6 +25,18 @@ describe('Mat3', () => {
       ])
 
       expect(matrix.determinant()).toBe(420)
+    })
+  })
+
+  describe('inverse', () => {
+    it('computes the inverse', () => {
+      const matrix = new Mat3([
+        [1, 2, -1],
+        [-2, 0, 1],
+        [1, -1, 0],
+      ])
+
+      expect(matrix.inverse().toArray()).toEqual([1, 1, 2, 1, 1, 1, 2, 3, 4])
     })
   })
 })

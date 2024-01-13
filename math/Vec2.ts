@@ -1,6 +1,6 @@
 import { AbstractVec } from './AbstractVec'
 
-class Vec2 extends AbstractVec<Vec2> {
+export class Vec2 extends AbstractVec<Vec2> {
   private _x: number
   private _y: number
 
@@ -47,5 +47,3 @@ class Vec2 extends AbstractVec<Vec2> {
     this._y = value
   }
 }
-
-export { Vec2 }

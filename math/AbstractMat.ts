@@ -1,6 +1,6 @@
 import { AbstractVec } from './AbstractVec'
 
-abstract class AbstractMat<
+export abstract class AbstractMat<
   M extends AbstractMat<M, V>,
   V extends AbstractVec<V>,
 > {
@@ -12,8 +12,6 @@ abstract class AbstractMat<
   [index: number]: number[]
 
   public abstract clone: () => M
-
-  protected abstract minor: (x: number, y: number) => number
 
   public toArray = (): number[] => {
     return this.toRowVectors().flatMap((row) => row.toArray())
@@ -92,18 +90,43 @@ abstract class AbstractMat<
     return this
   }
 
+  public determinant = (): number => {
+    let determinant = 0
+
+    for (let i = 0; i < this.ARITY; i++) {
+      const element = this[0][i]
+
+      determinant += element * this.cofactor(i, 0)
+    }
+
+    return determinant
+  }
+
+  public inverse = (): M => {
+    const det = this.determinant()
+
+    if (det === 0) {
+      throw new Error('Matrix is not invertible')
+    }
+
+    return this.classicalAdjoint().scale(1 / this.determinant())
+  }
+
+  protected abstract minor: (x: number, y: number) => number
+  protected abstract classicalAdjoint: () => M
+
   protected minorElements = (x: number, y: number): number[][] => {
     const elements = []
 
     let currentRow
 
     for (let i = 0; i < this.ARITY; i++) {
-      if (i === x) {
+      if (i === y) {
         continue
       }
       currentRow = []
       for (let j = 0; j < this.ARITY; j++) {
-        if (j === y) {
+        if (j === x) {
           continue
         }
         currentRow.push(this[i][j])
@@ -120,17 +143,19 @@ abstract class AbstractMat<
     return multiplier * this.minor(x, y)
   }
 
-  public determinant = (): number => {
-    let determinant = 0
+  protected classicalAdjointElements = (): number[][] => {
+    const elements = []
+
+    let currentRow
 
     for (let i = 0; i < this.ARITY; i++) {
-      const element = this[0][i]
-
-      determinant += element * this.cofactor(0, i)
+      currentRow = []
+      for (let j = 0; j < this.ARITY; j++) {
+        currentRow.push(this.cofactor(i, j))
+      }
+      elements.push(currentRow)
     }
 
-    return determinant
+    return elements
   }
 }
-
-export { AbstractMat }

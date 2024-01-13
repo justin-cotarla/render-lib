@@ -1,8 +1,10 @@
 import { AbstractMat } from './AbstractMat'
 import { Vec2 } from './Vec2'
 
-class Mat2 extends AbstractMat<Mat2, Vec2> {
-  constructor(private readonly elements: [[number, number], [number, number]]) {
+export type Mat2ElementTuple = [[number, number], [number, number]]
+
+export class Mat2 extends AbstractMat<Mat2, Vec2> {
+  constructor(private readonly elements: Mat2ElementTuple) {
     super(2, Vec2.fromArray as (elements: number[]) => Vec2)
   }
 
@@ -37,13 +39,15 @@ class Mat2 extends AbstractMat<Mat2, Vec2> {
     return Mat2.fromRows(cols).transpose()
   }
 
-  protected minor = (x: number, y: number): number => {
-    return this[x][y]
-  }
-
   public determinant = (): number => {
     return this[0][0] * this[1][1] - this[0][1] * this[1][0]
   }
-}
 
-export { Mat2 }
+  protected minor = (x: number, y: number): number => {
+    return this.minorElements(x, y)[0][0]
+  }
+
+  protected classicalAdjoint = (): Mat2 => {
+    return new Mat2(this.classicalAdjointElements() as Mat2ElementTuple)
+  }
+}
