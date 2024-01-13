@@ -53,23 +53,10 @@ class Mat3 extends AbstractMat<Mat3, Vec3> {
     return Mat3.fromRows(cols).transpose()
   }
 
-  public determinant = (): number => {
-    let determinant = 0
-
-    for (let i = 0; i < this.ARITY; i++) {
-      const multiplier = i % 2 === 0 ? 1 : -1
-      const element = this[0][i]
-
-      const cofactor =
-        multiplier *
-        new Mat2(
-          this.minorElements(0, i) as [[number, number], [number, number]]
-        ).determinant()
-
-      determinant += element * cofactor
-    }
-
-    return determinant
+  protected minor = (x: number, y: number): number => {
+    return new Mat2(
+      this.minorElements(x, y) as [[number, number], [number, number]]
+    ).determinant()
   }
 }
 

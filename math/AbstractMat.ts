@@ -12,7 +12,8 @@ abstract class AbstractMat<
   [index: number]: number[]
 
   public abstract clone: () => M
-  // public abstract determinant: () => number
+
+  protected abstract minor: (x: number, y: number) => number
 
   public toArray = (): number[] => {
     return this.toRowVectors().flatMap((row) => row.toArray())
@@ -111,6 +112,24 @@ abstract class AbstractMat<
     }
 
     return elements
+  }
+
+  protected cofactor = (x: number, y: number): number => {
+    const multiplier = (x + y) % 2 === 0 ? 1 : -1
+
+    return multiplier * this.minor(x, y)
+  }
+
+  public determinant = (): number => {
+    let determinant = 0
+
+    for (let i = 0; i < this.ARITY; i++) {
+      const element = this[0][i]
+
+      determinant += element * this.cofactor(0, i)
+    }
+
+    return determinant
   }
 }
 

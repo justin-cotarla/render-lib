@@ -37,6 +37,10 @@ class Mat2 extends AbstractMat<Mat2, Vec2> {
     return Mat2.fromRows(cols).transpose()
   }
 
+  protected minor = (x: number, y: number): number => {
+    return this[x][y]
+  }
+
   public determinant = (): number => {
     return this[0][0] * this[1][1] - this[0][1] * this[1][0]
   }
