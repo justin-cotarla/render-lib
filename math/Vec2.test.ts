@@ -1,3 +1,4 @@
+import { Mat2 } from './Mat2'
 import { Vec2 } from './Vec2'
 
 describe('Vec2', () => {
@@ -56,6 +57,18 @@ describe('Vec2', () => {
       const v1 = new Vec2(0, 1)
       const v2 = new Vec2(1, 0)
       expect((v1.angle(v2) * 180) / Math.PI).toBe(90)
+    })
+  })
+
+  describe('applyMatrix', () => {
+    it('multiplies by a given matrix', () => {
+      const v1 = new Vec2(0, 1)
+      const rotationMatrix = new Mat2([
+        [0, 1],
+        [-1, 0],
+      ])
+
+      expect(v1.applyMatrix(rotationMatrix).toArray()).toEqual([-1, 0])
     })
   })
 })

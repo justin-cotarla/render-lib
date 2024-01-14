@@ -1,7 +1,17 @@
+import { AbstractMat } from './AbstractMat'
+
 export abstract class AbstractVec<V extends AbstractVec<V>> {
-  constructor(readonly ARITY: number) {}
+  constructor(protected readonly ARITY: number) {}
 
   [index: number]: number
+
+  public set = (elements: number[]): this => {
+    elements.forEach((element, index) => {
+      this[index] = element
+    })
+
+    return this
+  }
 
   public abstract clone: () => V
 
@@ -49,5 +59,11 @@ export abstract class AbstractVec<V extends AbstractVec<V>> {
 
   public angle = (v: V): number => {
     return Math.acos(this.dot(v) / (this.magnitude() * v.magnitude()))
+  }
+
+  public applyMatrix = <M extends AbstractMat<M, V>>(m: M): this => {
+    const elements = m.toColVectors().map((col) => this.dot(col))
+
+    return this.set(elements)
   }
 }
