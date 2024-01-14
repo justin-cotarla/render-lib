@@ -12,6 +12,7 @@ const config: Config = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   collectCoverageFrom: ['math/**/*.ts'],
+  prettierPath: null,
 }
 
 export default config
