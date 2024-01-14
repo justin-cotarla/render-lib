@@ -30,6 +30,28 @@ describe('Mat2', () => {
     })
   })
 
+  describe('accessors', () => {
+    let matrix: Mat2
+    beforeEach(() => {
+      matrix = new Mat2([
+        [1, 2],
+        [3, 4],
+      ])
+    })
+
+    it('sets using indices', () => {
+      matrix[0] = [10, 20]
+      matrix[1] = [30, 40]
+
+      expect(matrix.toArray()).toEqual([10, 20, 30, 40])
+    })
+
+    it('gets using indices', () => {
+      expect(matrix[0]).toEqual([1, 2])
+      expect(matrix[1]).toEqual([3, 4])
+    })
+  })
+
   describe('toString', () => {
     it('prints its value', () => {
       const matrix = new Mat2([
@@ -114,6 +136,15 @@ describe('Mat2', () => {
       ])
 
       expect(matrix.inverse().toArray()).toEqual([-2, 3, 3, -4])
+    })
+
+    it('throws an error if the matrix is not invertible', () => {
+      const matrix = new Mat2([
+        [4, 3],
+        [0, 0],
+      ])
+
+      expect(() => matrix.inverse()).toThrow()
     })
   })
 })
