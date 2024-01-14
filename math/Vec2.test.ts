@@ -9,6 +9,40 @@ describe('Vec2', () => {
     })
   })
 
+  describe('clone', () => {
+    it('returns a copy of the vector', () => {
+      const vector = new Vec2(1, 2)
+      const copy = vector.clone()
+
+      expect(vector.toArray()).toEqual(copy.toArray())
+      expect(vector).not.toBe(copy)
+    })
+  })
+
+  describe('accessors', () => {
+    let vector: Vec2
+    beforeEach(() => {
+      vector = new Vec2(1, 2)
+    })
+
+    it('sets using indices', () => {
+      vector[0] = 10
+      vector[1] = 20
+
+      expect(vector.toArray()).toEqual([10, 20])
+    })
+
+    it('gets using indices', () => {
+      expect(vector[0]).toEqual(1)
+      expect(vector[1]).toEqual(2)
+    })
+
+    it('gets using component names', () => {
+      expect(vector.x).toEqual(1)
+      expect(vector.y).toEqual(2)
+    })
+  })
+
   describe('toString', () => {
     it('prints its value', () => {
       const vector = new Vec2(1, 2)
@@ -62,13 +96,13 @@ describe('Vec2', () => {
 
   describe('applyMatrix', () => {
     it('multiplies by a given matrix', () => {
-      const v1 = new Vec2(0, 1)
-      const rotationMatrix = new Mat2([
-        [0, 1],
-        [-1, 0],
+      const v1 = new Vec2(1, 2)
+      const matrix = new Mat2([
+        [1, 2],
+        [3, 4],
       ])
 
-      expect(v1.applyMatrix(rotationMatrix).toArray()).toEqual([-1, 0])
+      expect(v1.applyMatrix(matrix).toArray()).toEqual([7, 10])
     })
   })
 })
