@@ -1,3 +1,4 @@
+import { Mat4 } from './Mat4'
 import { Vec4 } from './Vec4'
 
 describe('Vec4', () => {
@@ -96,6 +97,20 @@ describe('Vec4', () => {
       const v1 = new Vec4(0, 1, 0, 0)
       const v2 = new Vec4(0, 0, 1, 0)
       expect((v1.angle(v2) * 180) / Math.PI).toBe(90)
+    })
+  })
+
+  describe('applyMatrix', () => {
+    it('multiplies by a given matrix', () => {
+      const vector = new Vec4(1, 2, 3, 4)
+      const matrix = new Mat4([
+        [1, 2, 3, 4],
+        [5, 6, 7, 8],
+        [9, 10, 11, 12],
+        [13, 14, 15, 16],
+      ])
+
+      expect(vector.applyMatrix(matrix).toArray()).toEqual([90, 100, 110, 120])
     })
   })
 })

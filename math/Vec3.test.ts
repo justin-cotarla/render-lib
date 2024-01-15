@@ -106,14 +106,14 @@ describe('Vec3', () => {
 
   describe('applyMatrix', () => {
     it('multiplies by a given matrix', () => {
-      const v1 = new Vec3(1, 2, 3)
+      const vector = new Vec3(1, 2, 3)
       const matrix = new Mat3([
         [1, 2, 3],
         [4, 5, 6],
         [7, 8, 9],
       ])
 
-      expect(v1.applyMatrix(matrix).toArray()).toEqual([30, 36, 42])
+      expect(vector.applyMatrix(matrix).toArray()).toEqual([30, 36, 42])
     })
   })
 })
