@@ -33,15 +33,15 @@ export class Mat3 extends AbstractMat<Mat3, Vec3> {
     return this.elements[2]
   }
 
-  set 0(value: [number, number, number]) {
+  set 0(value: Mat3ElementTuple[0]) {
     this.elements[0] = value
   }
 
-  set 1(value: [number, number, number]) {
+  set 1(value: Mat3ElementTuple[0]) {
     this.elements[1] = value
   }
 
-  set 2(value: [number, number, number]) {
+  set 2(value: Mat3ElementTuple[0]) {
     this.elements[2] = value
   }
 

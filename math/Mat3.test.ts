@@ -42,10 +42,10 @@ describe('Mat3', () => {
   describe('accessors', () => {
     let matrix: Mat3
     beforeEach(() => {
-      matrix = Mat3.fromRows([
-        new Vec3(1, 2, 3),
-        new Vec3(4, 5, 6),
-        new Vec3(7, 8, 9),
+      matrix = new Mat3([
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
       ])
     })
 
