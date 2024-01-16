@@ -3,7 +3,7 @@
     "target": "es2016",
     "lib": ["DOM"],
     "module": "commonjs",
-    "types": ["@webgpu/types"],
+    "types": ["@webgpu/types", "jest"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
