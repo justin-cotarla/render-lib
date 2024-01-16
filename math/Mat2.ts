@@ -4,8 +4,22 @@ import { Vec2 } from './Vec2'
 export type Mat2ElementTuple = [[number, number], [number, number]]
 
 export class Mat2 extends AbstractMat<Mat2, Vec2> {
+  static ARITY = 2
+
   constructor(private readonly elements: Mat2ElementTuple) {
-    super(2, Vec2.fromArray as (elements: number[]) => Vec2)
+    super(Mat2.ARITY, Vec2.fromArray as (elements: number[]) => Vec2)
+  }
+
+  public static fromRows = (rows: [Vec2, Vec2]): Mat2 => {
+    return new Mat2([rows[0].toArray(), rows[1].toArray()])
+  }
+
+  public static fromCols = (cols: [Vec2, Vec2]): Mat2 => {
+    return Mat2.fromRows(cols).transpose()
+  }
+
+  public static identity = (): Mat2 => {
+    return new Mat2(this.identityElements(Mat2.ARITY) as Mat2ElementTuple)
   }
 
   public clone = (): Mat2 => {
@@ -29,14 +43,6 @@ export class Mat2 extends AbstractMat<Mat2, Vec2> {
 
   set 1(value: Mat2ElementTuple[0]) {
     this.elements[1] = value
-  }
-
-  public static fromRows = (rows: [Vec2, Vec2]): Mat2 => {
-    return new Mat2([rows[0].toArray(), rows[1].toArray()])
-  }
-
-  public static fromCols = (cols: [Vec2, Vec2]): Mat2 => {
-    return Mat2.fromRows(cols).transpose()
   }
 
   public determinant = (): number => {

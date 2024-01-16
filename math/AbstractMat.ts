@@ -158,4 +158,24 @@ export abstract class AbstractMat<
 
     return elements
   }
+
+  protected static identityElements = (arity: number): number[][] => {
+    const elements = []
+
+    let currentRow
+
+    for (let i = 0; i < arity; i++) {
+      currentRow = []
+      for (let j = 0; j < arity; j++) {
+        if (i === j) {
+          currentRow.push(1)
+          continue
+        }
+        currentRow.push(0)
+      }
+      elements.push(currentRow)
+    }
+
+    return elements
+  }
 }

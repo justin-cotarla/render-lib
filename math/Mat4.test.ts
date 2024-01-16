@@ -46,6 +46,15 @@ describe('Mat4', () => {
     })
   })
 
+  describe('identity', () => {
+    it('returns the identity matrix', () => {
+      const matrix = Mat4.identity()
+      expect(matrix.toArray()).toEqual([
+        1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+      ])
+    })
+  })
+
   describe('accessors', () => {
     let matrix: Mat4
     beforeEach(() => {

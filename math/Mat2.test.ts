@@ -30,6 +30,13 @@ describe('Mat2', () => {
     })
   })
 
+  describe('identity', () => {
+    it('returns the identity matrix', () => {
+      const matrix = Mat2.identity()
+      expect(matrix.toArray()).toEqual([1, 0, 0, 1])
+    })
+  })
+
   describe('accessors', () => {
     let matrix: Mat2
     beforeEach(() => {
