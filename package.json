@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "prepare": "npx husky install",
+    "start": "npx vite --host",
     "test": "jest"
   },
   "author": "Justin Cotarla",

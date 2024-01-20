@@ -1,3 +1,4 @@
+import { loadObj } from './loaders/loadObj'
 import { passthroughVertDescriptor } from './shaders/passthrough.vert'
 import { redFragDescriptor } from './shaders/red.frag'
 
@@ -62,7 +63,7 @@ const render = (
   device.queue.submit([commandEncoder.finish()])
 }
 
-const start = async () => {
+const renderMesh = async () => {
   const device = await getDevice()
   const context = getRenderContext(device)
 
@@ -93,4 +94,19 @@ const start = async () => {
   )
 }
 
-void start()
+const fileInput = document.querySelector('#obj') as HTMLInputElement
+fileInput.addEventListener('change', async (event) => {
+  const target = event.target as HTMLInputElement
+
+  const meshFile = target.files?.[0]
+
+  if (!meshFile) {
+    return
+  }
+
+  const mesh = await loadObj(meshFile)
+
+  console.log(mesh.toFloat32Array())
+
+  renderMesh()
+})
