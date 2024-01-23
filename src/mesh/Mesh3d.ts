@@ -22,4 +22,6 @@ export class Mesh3d {
       )
     )
   }
+
+  public vertexCount = (): number => this.faces.length * 3
 }

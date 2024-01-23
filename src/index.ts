@@ -1,4 +1,5 @@
-import { loadObj } from './loaders/loadObj'
+import { parseObj } from './loaders/parseObj'
+import { Mesh3d } from './mesh/Mesh3d'
 import { passthroughVertDescriptor } from './shaders/passthrough.vert'
 import { redFragDescriptor } from './shaders/red.frag'
 
@@ -36,19 +37,34 @@ const getRenderContext = (device: GPUDevice): GPUCanvasContext => {
 
 const render = (
   device: GPUDevice,
-  view: GPUTextureView,
+  context: GPUCanvasContext,
   pipeline: GPURenderPipeline,
-  buffer: GPUBuffer
+  buffer: GPUBuffer,
+  vertexCount: number
 ): void => {
+  const canvasTexture = context.getCurrentTexture()
+
+  const depthTexture = device.createTexture({
+    size: [canvasTexture.width, canvasTexture.height],
+    format: 'depth24plus',
+    usage: GPUTextureUsage.RENDER_ATTACHMENT,
+  })
+
   const renderPassDescriptor: GPURenderPassDescriptor = {
     colorAttachments: [
       {
         clearValue: { r: 1.0, b: 1.0, g: 1.0, a: 1.0 },
         loadOp: 'clear',
         storeOp: 'store',
-        view,
+        view: canvasTexture.createView(),
       },
     ],
+    depthStencilAttachment: {
+      view: depthTexture.createView(),
+      depthClearValue: 1.0,
+      depthLoadOp: 'clear',
+      depthStoreOp: 'store',
+    },
   }
 
   const commandEncoder = device.createCommandEncoder()
@@ -57,13 +73,13 @@ const render = (
 
   passEncoder.setVertexBuffer(0, buffer)
 
-  passEncoder.draw(3)
+  passEncoder.draw(vertexCount)
 
   passEncoder.end()
   device.queue.submit([commandEncoder.finish()])
 }
 
-const renderMesh = async () => {
+const renderMesh = async (mesh: Mesh3d) => {
   const device = await getDevice()
   const context = getRenderContext(device)
 
@@ -74,24 +90,23 @@ const renderMesh = async () => {
     primitive: {
       topology: 'triangle-list',
     },
+    depthStencil: {
+      depthWriteEnabled: true,
+      depthCompare: 'less',
+      format: 'depth24plus',
+    },
   })
 
-  const vertices = new Float32Array([
-    -0.7, -0.7, 0.0, 1.0, 0.7, -0.7, 0.0, 1.0, 0, 0.7, 0.0, 1.0,
-  ])
+  const vertexData = mesh.toFloat32Array()
+
   const vertexBuffer = device.createBuffer({
-    size: vertices.byteLength,
+    size: vertexData.byteLength,
     usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   })
 
-  device.queue.writeBuffer(vertexBuffer, 0, vertices, 0, vertices.length)
+  device.queue.writeBuffer(vertexBuffer, 0, vertexData, 0, vertexData.length)
 
-  render(
-    device,
-    context.getCurrentTexture().createView(),
-    renderPipeline,
-    vertexBuffer
-  )
+  render(device, context, renderPipeline, vertexBuffer, mesh.vertexCount())
 }
 
 const fileInput = document.querySelector('#obj') as HTMLInputElement
@@ -104,9 +119,7 @@ fileInput.addEventListener('change', async (event) => {
     return
   }
 
-  const mesh = await loadObj(meshFile)
+  const mesh = parseObj(await meshFile.text())
 
-  console.log(mesh.toFloat32Array())
-
-  renderMesh()
+  renderMesh(mesh)
 })

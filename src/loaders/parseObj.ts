@@ -1,7 +1,7 @@
 import { Vec3, Vec3Tuple } from '../math/Vec3'
 import { Face, Mesh3d, Vertex } from '../mesh/Mesh3d'
 
-const KEYWORDS = ['v', 'vn', 'f'] as const
+const KEYWORDS = ['v', 'vn', 'f', '#'] as const
 
 const parseVec3Data = (data: string): Vec3 => {
   const components = data.split(' ').map((value) => parseFloat(value))
@@ -15,16 +15,14 @@ const parseVec3Data = (data: string): Vec3 => {
   )
 }
 
-export const loadObj = async (file: File): Promise<Mesh3d> => {
-  const meshData = await file.text()
-
+export const parseObj = (rawMesh: string): Mesh3d => {
   const vertices: Vec3[] = []
   const normals: Vec3[] = []
   const faces: Face[] = []
 
   let currentKeyword
 
-  for (const line of meshData.split('\n')) {
+  for (const line of rawMesh.split('\n')) {
     if (!line.length) {
       continue
     }
@@ -75,6 +73,9 @@ export const loadObj = async (file: File): Promise<Mesh3d> => {
           }) as [Vertex, Vertex, Vertex],
         })
 
+        break
+      }
+      case '#': {
         break
       }
       default:
