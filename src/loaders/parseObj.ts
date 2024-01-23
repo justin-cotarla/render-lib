@@ -1,5 +1,5 @@
 import { Vec3, Vec3Tuple } from '../math/Vec3'
-import { Face, Mesh3d, Vertex } from '../mesh/Mesh3d'
+import { Mesh3d, Face, Vertex } from '../nodes/Mesh3d'
 
 const KEYWORDS = ['v', 'vn', 'f', '#'] as const
 

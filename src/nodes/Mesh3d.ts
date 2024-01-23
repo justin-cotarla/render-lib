@@ -1,4 +1,5 @@
 import { Vec3 } from '../math/Vec3'
+import { RigidNode } from './RigidNode'
 
 export interface Vertex {
   position: Vec3
@@ -9,8 +10,10 @@ export interface Face {
   vertices: [Vertex, Vertex, Vertex]
 }
 
-export class Mesh3d {
-  constructor(readonly faces: Face[]) {}
+export class Mesh3d extends RigidNode {
+  constructor(readonly faces: Face[]) {
+    super()
+  }
 
   public toFloat32Array = (): Float32Array => {
     return new Float32Array(
