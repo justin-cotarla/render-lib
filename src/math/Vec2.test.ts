@@ -86,6 +86,14 @@ describe('Vec2', () => {
     })
   })
 
+  describe('mul', () => {
+    it('computes the component-wise multiplication between two vectors', () => {
+      const v1 = new Vec2(1, 2)
+      const v2 = new Vec2(3, 4)
+      expect(v1.mul(v2).toArray()).toEqual([3, 8])
+    })
+  })
+
   describe('angle', () => {
     it('computes the angle between two vectors', () => {
       const v1 = new Vec2(0, 1)

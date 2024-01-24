@@ -11,7 +11,7 @@
   "license": "ISC",
   "description": "",
   "lint-staged": {
-    "./math/**/*.ts": [
+    "./src/math/**/*.ts": [
       "jest --findRelatedTests --passWithNoTests",
       "eslint",
       "tsc-files --noEmit"

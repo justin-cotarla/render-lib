@@ -57,6 +57,13 @@ export abstract class AbstractVec<V extends AbstractVec<V>> {
     )
   }
 
+  public mul = (v: V): this => {
+    this.toArray().forEach((_, index) => {
+      this[index] *= v[index]
+    })
+    return this
+  }
+
   public angle = (v: V): number => {
     return Math.acos(this.dot(v) / (this.magnitude() * v.magnitude()))
   }
