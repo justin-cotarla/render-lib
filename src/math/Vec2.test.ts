@@ -57,6 +57,16 @@ describe('Vec2', () => {
     })
   })
 
+  describe('normalize', () => {
+    it('normalizes the vector', () => {
+      const vector = new Vec2(2, 3)
+      vector.normalize()
+
+      expect(vector.x).toBeCloseTo(0.555)
+      expect(vector.y).toBeCloseTo(0.832)
+    })
+  })
+
   describe('add', () => {
     it('computes the addition of two vectors', () => {
       const vector = new Vec2(1, 3).add(new Vec2(-1, 10))

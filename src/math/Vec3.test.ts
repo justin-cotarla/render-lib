@@ -67,6 +67,17 @@ describe('Vec3', () => {
     })
   })
 
+  describe('normalize', () => {
+    it('normalizes the vector', () => {
+      const vector = new Vec3(2, 3, 4)
+      vector.normalize()
+
+      expect(vector.x).toBeCloseTo(0.371)
+      expect(vector.y).toBeCloseTo(0.557)
+      expect(vector.z).toBeCloseTo(0.743)
+    })
+  })
+
   describe('add', () => {
     it('computes the addition of two vectors', () => {
       const vector = new Vec3(1, 2, 3).add(new Vec3(-1, 10, 0))

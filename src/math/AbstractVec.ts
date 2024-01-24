@@ -29,6 +29,15 @@ export abstract class AbstractVec<V extends AbstractVec<V>> {
     return Math.sqrt(squareSum)
   }
 
+  public normalize = (): this => {
+    const magnitude = this.magnitude()
+
+    this.toArray().forEach((_, index) => {
+      this[index] /= magnitude
+    })
+    return this
+  }
+
   public add = (v: V): this => {
     this.toArray().forEach((_, index) => {
       this[index] += v[index]
