@@ -28,16 +28,7 @@ fn main(vertex: Vertex) -> vOutput
     0.0, 0.0, 1.0, 0.0
   );
 
-
-  let oMatrix: mat4x4f = mat4x4f(
-    zoom, 0.0, 0.0, 0.0,
-    0.0, zoom, 0.0, 0.0,
-    0.0, 0.0, 1 / (farPlane - nearPlane), nearPlane / (nearPlane - farPlane),
-    0.0, 0.0, 0.0, 1.0
-  );
-
   output.position = vertex.position * transform * pMatrix;
-  // output.position = vertex.position * oMatrix;
   output.normal = vertex.normal;
   return output;
 }

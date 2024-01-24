@@ -11,6 +11,12 @@ export interface Face {
 }
 
 export class Mesh3d extends RigidNode {
+  private _ID = `MESH_${crypto.randomUUID()}`
+
+  get ID() {
+    return this._ID
+  }
+
   constructor(readonly faces: Face[]) {
     super()
   }

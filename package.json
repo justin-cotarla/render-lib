@@ -11,10 +11,10 @@
   "license": "ISC",
   "description": "",
   "lint-staged": {
-    "./src/math/**/*.ts": [
+    "./src/**/*.ts": [
       "jest --findRelatedTests --passWithNoTests",
       "eslint",
-      "tsc-files --noEmit"
+      "tsc-files --noEmit src/ambient.ts"
     ]
   },
   "devDependencies": {
