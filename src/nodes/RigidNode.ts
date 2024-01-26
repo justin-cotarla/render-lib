@@ -1,10 +1,16 @@
 import { Mat4 } from '../math/Mat4'
-import { Vec4 } from '../math/Vec4'
+import { Vec3 } from '../math/Vec3'
 
 export class RigidNode {
   private _parent: RigidNode | null = null
   private children: RigidNode[] = []
-  private _position: Vec4 = new Vec4(0, 0, 0, 1)
+  private _position: Vec3 = new Vec3(0, 0, 0)
+
+  private _ID = crypto.randomUUID()
+
+  get ID() {
+    return this._ID
+  }
 
   public set parent(node: RigidNode | null) {
     if (this._parent) {
@@ -17,11 +23,15 @@ export class RigidNode {
     return this._parent
   }
 
-  public get position(): Vec4 {
+  public get position(): Vec3 {
     return this._position
   }
 
-  public move = (displacement: Vec4): this => {
+  public set position(value: Vec3) {
+    this._position = value
+  }
+
+  public move = (displacement: Vec3): this => {
     this._position.add(displacement)
     return this
   }
@@ -43,7 +53,7 @@ export class RigidNode {
       [1, 0, 0, 0],
       [0, 1, 0, 0],
       [0, 0, 1, 0],
-      this._position.toArray(),
+      [...this._position.toArray(), 1],
     ])
   }
 

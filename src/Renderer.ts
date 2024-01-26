@@ -1,10 +1,9 @@
 import { Mesh3d } from './nodes/Mesh3d'
 import { RigidNode } from './nodes/RigidNode'
-import { redFragDescriptor } from './shaders/red.frag'
+import { phongFragDescriptor } from './shaders/phong.frag'
 import { scaleVertDescriptor } from './shaders/scale.vert'
 
 export class Renderer {
-  private device: GPUDevice | null = null
   private context: GPUCanvasContext | null = null
   private pipeline: GPURenderPipeline | null = null
 
@@ -13,12 +12,25 @@ export class Renderer {
     {
       mesh: Mesh3d
       vertexBuffer: GPUBuffer
-      uniformBuffer: GPUBuffer
-      bindGroup: GPUBindGroup
     }
   >()
 
-  private getDevice = async (): Promise<GPUDevice> => {
+  private bindGroup: GPUBindGroup | null = null
+
+  private transformBuffer: GPUBuffer | null = null
+  private cameraBuffer: GPUBuffer | null = null
+  private lightBuffer: GPUBuffer | null = null
+
+  private light: RigidNode | null = null
+
+  private constructor(readonly device: GPUDevice) {}
+
+  public static create = async (): Promise<Renderer> => {
+    const device = await this.getDevice()
+    return new Renderer(device)
+  }
+
+  private static getDevice = async (): Promise<GPUDevice> => {
     if (!navigator.gpu) {
       throw new Error('WebGPU not supports')
     }
@@ -61,7 +73,7 @@ export class Renderer {
 
     return this.device.createRenderPipeline({
       vertex: scaleVertDescriptor(this.device),
-      fragment: redFragDescriptor(this.device),
+      fragment: phongFragDescriptor(this.device),
       layout: 'auto',
       primitive: {
         topology: 'triangle-list',
@@ -72,12 +84,6 @@ export class Renderer {
         format: 'depth24plus',
       },
     })
-  }
-
-  init = async () => {
-    this.device = await this.getDevice()
-    this.context = this.getRenderContext()
-    this.pipeline = this.getRenderPipeline()
   }
 
   private getRenderPass = (
@@ -104,7 +110,7 @@ export class Renderer {
     const renderPassDescriptor: GPURenderPassDescriptor = {
       colorAttachments: [
         {
-          clearValue: { r: 1.0, b: 1.0, g: 1.0, a: 1.0 },
+          clearValue: { r: 0.2, b: 0.2, g: 0.2, a: 1.0 },
           loadOp: 'clear',
           storeOp: 'store',
           view: canvasTexture.createView(),
@@ -124,7 +130,36 @@ export class Renderer {
     return pass
   }
 
-  loadMesh = (mesh: Mesh3d) => {
+  public init = async () => {
+    this.context = this.getRenderContext()
+    this.pipeline = this.getRenderPipeline()
+
+    this.transformBuffer = this.device.createBuffer({
+      size: Float32Array.BYTES_PER_ELEMENT * 16,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    })
+
+    this.cameraBuffer = this.device.createBuffer({
+      size: Float32Array.BYTES_PER_ELEMENT * 4,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    })
+
+    this.lightBuffer = this.device.createBuffer({
+      size: Float32Array.BYTES_PER_ELEMENT * 4,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    })
+
+    this.bindGroup = this.device.createBindGroup({
+      layout: this.pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: this.transformBuffer } },
+        { binding: 1, resource: { buffer: this.cameraBuffer } },
+        { binding: 2, resource: { buffer: this.lightBuffer } },
+      ],
+    })
+  }
+
+  public loadMesh = (mesh: Mesh3d) => {
     if (!this.device) {
       throw new Error('Device not loaded')
     }
@@ -139,16 +174,6 @@ export class Renderer {
       usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
     })
 
-    const uniformBuffer = this.device.createBuffer({
-      size: Float32Array.BYTES_PER_ELEMENT * 16,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    })
-
-    const bindGroup = this.device.createBindGroup({
-      layout: this.pipeline.getBindGroupLayout(0),
-      entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
-    })
-
     this.device.queue.writeBuffer(
       vertexBuffer,
       0,
@@ -160,33 +185,69 @@ export class Renderer {
     this.meshMap.set(mesh.ID, {
       mesh,
       vertexBuffer,
-      uniformBuffer,
-      bindGroup,
     })
   }
 
-  renderAll = async (camera: RigidNode) => {
+  public setLight = (lightNode: RigidNode): void => {
     if (!this.device) {
       throw new Error('Device not loaded')
+    }
+    if (!this.pipeline) {
+      throw new Error('No pipeline')
+    }
+
+    this.light = lightNode
+  }
+
+  public renderAll = async (camera: RigidNode) => {
+    if (!this.device) {
+      throw new Error('Device not loaded')
+    }
+
+    if (!this.light) {
+      throw new Error('Light not set')
+    }
+
+    if (!this.transformBuffer || !this.cameraBuffer || !this.lightBuffer) {
+      throw new Error('Buffers not set')
     }
 
     const commandEncoder = this.device.createCommandEncoder()
     const pass = this.getRenderPass(commandEncoder)
 
-    const cameraTransform = camera.getRootTransform().inverse()
+    const worldCameraTransform = camera.getRootTransform().inverse()
 
-    for (const {
-      bindGroup,
-      mesh,
-      vertexBuffer,
-      uniformBuffer,
-    } of this.meshMap.values()) {
-      const transform = mesh.getRootTransform().multiply(cameraTransform)
-      const transformData = new Float32Array(transform.transpose().toArray())
-      this.device.queue.writeBuffer(uniformBuffer, 0, transformData)
+    for (const { mesh, vertexBuffer } of this.meshMap.values()) {
+      const meshCameraTransform = mesh
+        .getRootTransform()
+        .multiply(worldCameraTransform)
+
+      const meshCameraTransformData = new Float32Array(
+        meshCameraTransform.transpose().toArray()
+      )
+      this.device.queue.writeBuffer(
+        this.transformBuffer,
+        0,
+        meshCameraTransformData
+      )
+
+      const worldModelTransform = mesh.getRootTransform().inverse()
+
+      const cameraPosModel = new Float32Array(
+        camera.position.upgrade(1).applyMatrix(worldModelTransform).toArray()
+      )
+      const lightPosModel = new Float32Array(
+        this.light.position
+          .upgrade(1)
+          .applyMatrix(worldModelTransform)
+          .toArray()
+      )
+
+      this.device.queue.writeBuffer(this.cameraBuffer, 0, cameraPosModel)
+      this.device.queue.writeBuffer(this.lightBuffer, 0, lightPosModel)
 
       pass.setVertexBuffer(0, vertexBuffer)
-      pass.setBindGroup(0, bindGroup)
+      pass.setBindGroup(0, this.bindGroup)
 
       pass.draw(mesh.vertexCount())
     }

@@ -11,12 +11,6 @@ export interface Face {
 }
 
 export class Mesh3d extends RigidNode {
-  private _ID = `MESH_${crypto.randomUUID()}`
-
-  get ID() {
-    return this._ID
-  }
-
   constructor(readonly faces: Face[]) {
     super()
   }
@@ -26,7 +20,9 @@ export class Mesh3d extends RigidNode {
       this.faces.flatMap(({ vertices }) =>
         vertices.flatMap(({ normal, position }) => [
           ...position.toArray(),
+          1,
           ...normal.toArray(),
+          0,
         ])
       )
     )
