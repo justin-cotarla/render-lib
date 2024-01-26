@@ -19,7 +19,7 @@ fn main(input: Input) -> @location(0) vec4f
   let m_diff = vec4(1.0, 0.0, 0.0, 1.0);
   let m_spec = vec4(1.0, 1.0, 1.0, 1.0);
   let m_amb = m_diff;
-  let m_gls = 7.0;
+  let m_gls = 8.0;
 
   let s_spec = vec4(1.0, 1.0, 1.0, 1.0);
   let s_diff = s_spec;

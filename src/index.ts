@@ -5,18 +5,18 @@ import { Mesh3d } from './nodes/Mesh3d'
 import { RigidNode } from './nodes/RigidNode'
 
 let direction = 'right'
-const bounds = 10
+const bounds = 13
 
 const update = (node: RigidNode) => {
   if (direction === 'right') {
     if (node.position.x < bounds) {
-      node.move(new Vec3(0.3, 0, 0))
+      node.position.x += 0.1
     } else if (node.position.x >= bounds) {
       direction = 'left'
     }
   } else if (direction === 'left') {
     if (node.position.x > -bounds) {
-      node.move(new Vec3(-0.3, 0, 0))
+      node.position.x -= 0.1
     } else if (node.position.x <= -bounds) {
       direction = 'right'
     }
@@ -30,12 +30,10 @@ const start = async (mesh: Mesh3d) => {
   const rootNode = new RigidNode()
 
   const camera = new RigidNode()
-  camera.position = new Vec3(0, 5, -30)
+  camera.position = new Vec3(0, 0, -20)
 
   const light = new RigidNode()
   light.position = new Vec3(20, 20, -10)
-
-  // mesh.position = new Vec4(0, -10, 0, 1)
 
   rootNode.addChild(mesh)
   rootNode.addChild(camera)
@@ -45,7 +43,7 @@ const start = async (mesh: Mesh3d) => {
   renderer.setLight(light)
 
   const cycle = () => {
-    update(light)
+    update(mesh)
 
     renderer.renderAll(camera)
     requestAnimationFrame(cycle)
@@ -66,5 +64,5 @@ fileInput.addEventListener('change', async (event) => {
 
   const mesh = parseObj(await meshFile.text())
 
-  start(mesh)
+  start(mesh.renormalize())
 })
