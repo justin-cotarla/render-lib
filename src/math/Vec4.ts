@@ -45,6 +45,22 @@ export class Vec4 extends AbstractVec<Vec4> {
     return this._w
   }
 
+  set x(value: number) {
+    this._x = value
+  }
+
+  set y(value: number) {
+    this._y = value
+  }
+
+  set z(value: number) {
+    this._z = value
+  }
+
+  set w(value: number) {
+    this._w = value
+  }
+
   get 0(): number {
     return this._x
   }

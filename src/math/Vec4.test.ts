@@ -34,6 +34,15 @@ describe('Vec4', () => {
       expect(vector.toArray()).toEqual([10, 20, 30, 40])
     })
 
+    it('sets using component names', () => {
+      vector.x = 10
+      vector.y = 20
+      vector.z = 30
+      vector.w = 40
+
+      expect(vector.toArray()).toEqual([10, 20, 30, 40])
+    })
+
     it('gets using indices', () => {
       expect(vector[0]).toEqual(1)
       expect(vector[1]).toEqual(2)

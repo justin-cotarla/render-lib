@@ -31,6 +31,14 @@ export class Vec2 extends AbstractVec<Vec2> {
     return this._y
   }
 
+  set x(value: number) {
+    this._x = value
+  }
+
+  set y(value: number) {
+    this._y = value
+  }
+
   get 0(): number {
     return this._x
   }

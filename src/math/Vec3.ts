@@ -39,6 +39,18 @@ export class Vec3 extends AbstractVec<Vec3> {
     return this._z
   }
 
+  set x(value: number) {
+    this._x = value
+  }
+
+  set y(value: number) {
+    this._y = value
+  }
+
+  set z(value: number) {
+    this._z = value
+  }
+
   get 0(): number {
     return this._x
   }
