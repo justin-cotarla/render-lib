@@ -135,4 +135,11 @@ describe('Vec3', () => {
       expect(vector.applyMatrix(matrix).toArray()).toEqual([30, 36, 42])
     })
   })
+
+  describe('upgrade', () => {
+    it('ugrades to a Vec4 with the given w value', () => {
+      const vector = new Vec3(0, 1, 2)
+      expect(vector.upgrade(3).toArray()).toEqual([0, 1, 2, 3])
+    })
+  })
 })

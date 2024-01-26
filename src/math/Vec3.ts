@@ -1,6 +1,7 @@
 import { AbstractVec } from './AbstractVec'
+import { Vec4 } from './Vec4'
 
-export type Vec3Tuple = [number, number, number]
+export type Vec3ElementTuple = [number, number, number]
 
 export class Vec3 extends AbstractVec<Vec3> {
   private _x: number
@@ -23,8 +24,8 @@ export class Vec3 extends AbstractVec<Vec3> {
     return new Vec3(...elements)
   }
 
-  public toArray(): Vec3Tuple {
-    return super.toArray() as Vec3Tuple
+  public toArray(): Vec3ElementTuple {
+    return super.toArray() as Vec3ElementTuple
   }
 
   get x(): number {
@@ -67,5 +68,9 @@ export class Vec3 extends AbstractVec<Vec3> {
       this.z * v.x - this.x * v.z,
       this.x * v.y - this.y * v.x
     )
+  }
+
+  public upgrade = (w: number): Vec4 => {
+    return new Vec4(this.x, this.y, this.z, w)
   }
 }
