@@ -1,8 +1,9 @@
 import { AbstractVec } from './AbstractVec'
 
 export abstract class AbstractMat<
-  M extends AbstractMat<M, V>,
-  V extends AbstractVec<V>,
+  M extends AbstractMat<M, V, T>,
+  V extends AbstractVec<V, T>,
+  T extends number[],
 > {
   constructor(
     protected readonly ARITY: number,
@@ -131,7 +132,7 @@ export abstract class AbstractMat<
         }
         currentRow.push(this[i][j])
       }
-      elements.push(currentRow)
+      elements.push(currentRow as T)
     }
 
     return elements
@@ -143,8 +144,8 @@ export abstract class AbstractMat<
     return multiplier * this.minor(x, y)
   }
 
-  protected classicalAdjointElements = (): number[][] => {
-    const elements = []
+  protected classicalAdjointElements = (): T[] => {
+    const elements: T[] = []
 
     let currentRow
 
@@ -153,7 +154,7 @@ export abstract class AbstractMat<
       for (let j = 0; j < this.ARITY; j++) {
         currentRow.push(this.cofactor(i, j))
       }
-      elements.push(currentRow)
+      elements.push(currentRow as T)
     }
 
     return elements

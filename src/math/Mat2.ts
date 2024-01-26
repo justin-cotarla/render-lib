@@ -1,9 +1,9 @@
 import { AbstractMat } from './AbstractMat'
-import { Vec2 } from './Vec2'
+import { Vec2, Vec2ElementTuple } from './Vec2'
 
-export type Mat2ElementTuple = [[number, number], [number, number]]
+export type Mat2ElementTuple = [Vec2ElementTuple, Vec2ElementTuple]
 
-export class Mat2 extends AbstractMat<Mat2, Vec2> {
+export class Mat2 extends AbstractMat<Mat2, Vec2, Vec2ElementTuple> {
   static ARITY = 2
 
   constructor(private readonly elements: Mat2ElementTuple) {

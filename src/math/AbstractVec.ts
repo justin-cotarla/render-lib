@@ -1,11 +1,14 @@
 import { AbstractMat } from './AbstractMat'
 
-export abstract class AbstractVec<V extends AbstractVec<V>> {
+export abstract class AbstractVec<
+  V extends AbstractVec<V, T>,
+  T extends number[],
+> {
   constructor(protected readonly ARITY: number) {}
 
   [index: number]: number
 
-  public set = (elements: number[]): this => {
+  public set = (elements: T): this => {
     elements.forEach((element, index) => {
       this[index] = element
     })
@@ -15,8 +18,10 @@ export abstract class AbstractVec<V extends AbstractVec<V>> {
 
   public abstract clone: () => V
 
-  public toArray(): number[] {
-    return Array.from({ length: this.ARITY }).map((_, index) => this[index])
+  public toArray(): T {
+    return Array.from({ length: this.ARITY }).map(
+      (_, index) => this[index]
+    ) as T
   }
 
   public toString = (): string => {
@@ -77,9 +82,9 @@ export abstract class AbstractVec<V extends AbstractVec<V>> {
     return Math.acos(this.dot(v) / (this.magnitude() * v.magnitude()))
   }
 
-  public applyMatrix = <M extends AbstractMat<M, V>>(m: M): this => {
+  public applyMatrix = <M extends AbstractMat<M, V, T>>(m: M): this => {
     const elements = m.toColVectors().map((col) => this.dot(col))
 
-    return this.set(elements)
+    return this.set(elements as T)
   }
 }

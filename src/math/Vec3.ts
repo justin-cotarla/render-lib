@@ -3,7 +3,7 @@ import { Vec4 } from './Vec4'
 
 export type Vec3ElementTuple = [number, number, number]
 
-export class Vec3 extends AbstractVec<Vec3> {
+export class Vec3 extends AbstractVec<Vec3, Vec3ElementTuple> {
   private _x: number
   private _y: number
   private _z: number
