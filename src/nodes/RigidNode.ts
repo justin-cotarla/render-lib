@@ -48,7 +48,7 @@ export class RigidNode {
     return this
   }
 
-  public getTransform = (): Mat4 => {
+  public getParentNodeTransform = (): Mat4 => {
     return new Mat4([
       [1, 0, 0, 0],
       [0, 1, 0, 0],
@@ -57,11 +57,13 @@ export class RigidNode {
     ])
   }
 
-  public getRootTransform = (): Mat4 => {
+  public getRootNodeTransform = (): Mat4 => {
     if (!this._parent) {
-      return this.getTransform()
+      return this.getParentNodeTransform()
     }
 
-    return this.getTransform().multiply(this._parent.getRootTransform())
+    return this.getParentNodeTransform().multiply(
+      this._parent.getRootNodeTransform()
+    )
   }
 }

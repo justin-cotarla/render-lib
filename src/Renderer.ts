@@ -1,7 +1,8 @@
 import { Mesh3d } from './nodes/Mesh3d'
+import { PerspectiveCamera } from './nodes/PerpectiveCamera'
 import { RigidNode } from './nodes/RigidNode'
 import { phongFragDescriptor } from './shaders/phong.frag'
-import { scaleVertDescriptor } from './shaders/scale.vert'
+import { perspectiveVertDescriptor } from './shaders/perspective.vert'
 
 export class Renderer {
   private context: GPUCanvasContext | null = null
@@ -17,18 +18,25 @@ export class Renderer {
 
   private bindGroup: GPUBindGroup | null = null
 
-  private transformBuffer: GPUBuffer | null = null
+  private meshCliptransformBuffer: GPUBuffer | null = null
   private cameraBuffer: GPUBuffer | null = null
   private lightBuffer: GPUBuffer | null = null
 
   private light: RigidNode | null = null
 
-  private constructor(readonly device: GPUDevice) {}
+  private constructor(
+    readonly device: GPUDevice,
+    readonly canvas: HTMLCanvasElement
+  ) {}
 
-  public static create = async (): Promise<Renderer> => {
+  public static create = async (
+    canvas: HTMLCanvasElement
+  ): Promise<Renderer> => {
     const device = await this.getDevice()
-    return new Renderer(device)
+    return new Renderer(device, canvas)
   }
+
+  public getDeviceLimits = (): GPUSupportedLimits => this.device.limits
 
   private static getDevice = async (): Promise<GPUDevice> => {
     if (!navigator.gpu) {
@@ -72,7 +80,7 @@ export class Renderer {
     }
 
     return this.device.createRenderPipeline({
-      vertex: scaleVertDescriptor(this.device),
+      vertex: perspectiveVertDescriptor(this.device),
       fragment: phongFragDescriptor(this.device),
       layout: 'auto',
       primitive: {
@@ -134,7 +142,7 @@ export class Renderer {
     this.context = this.getRenderContext()
     this.pipeline = this.getRenderPipeline()
 
-    this.transformBuffer = this.device.createBuffer({
+    this.meshCliptransformBuffer = this.device.createBuffer({
       size: Float32Array.BYTES_PER_ELEMENT * 16,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     })
@@ -152,7 +160,7 @@ export class Renderer {
     this.bindGroup = this.device.createBindGroup({
       layout: this.pipeline.getBindGroupLayout(0),
       entries: [
-        { binding: 0, resource: { buffer: this.transformBuffer } },
+        { binding: 0, resource: { buffer: this.meshCliptransformBuffer } },
         { binding: 1, resource: { buffer: this.cameraBuffer } },
         { binding: 2, resource: { buffer: this.lightBuffer } },
       ],
@@ -199,7 +207,7 @@ export class Renderer {
     this.light = lightNode
   }
 
-  public renderAll = async (camera: RigidNode) => {
+  public renderAll = async (camera: PerspectiveCamera) => {
     if (!this.device) {
       throw new Error('Device not loaded')
     }
@@ -208,30 +216,32 @@ export class Renderer {
       throw new Error('Light not set')
     }
 
-    if (!this.transformBuffer || !this.cameraBuffer || !this.lightBuffer) {
+    if (
+      !this.meshCliptransformBuffer ||
+      !this.cameraBuffer ||
+      !this.lightBuffer
+    ) {
       throw new Error('Buffers not set')
     }
 
     const commandEncoder = this.device.createCommandEncoder()
     const pass = this.getRenderPass(commandEncoder)
 
-    const worldCameraTransform = camera.getRootTransform().inverse()
-
     for (const { mesh, vertexBuffer } of this.meshMap.values()) {
-      const meshCameraTransform = mesh
-        .getRootTransform()
-        .multiply(worldCameraTransform)
+      const meshClipTransform = mesh
+        .getRootNodeTransform()
+        .multiply(camera.rootClipTransform)
 
-      const meshCameraTransformData = new Float32Array(
-        meshCameraTransform.transpose().toArray()
+      const meshClipTransformData = new Float32Array(
+        meshClipTransform.transpose().toArray()
       )
       this.device.queue.writeBuffer(
-        this.transformBuffer,
+        this.meshCliptransformBuffer,
         0,
-        meshCameraTransformData
+        meshClipTransformData
       )
 
-      const worldModelTransform = mesh.getRootTransform().inverse()
+      const worldModelTransform = mesh.getRootNodeTransform().inverse()
 
       const cameraPosModel = new Float32Array(
         camera.position.upgrade(1).applyMatrix(worldModelTransform).toArray()

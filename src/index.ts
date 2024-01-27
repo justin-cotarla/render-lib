@@ -2,21 +2,26 @@ import { Renderer } from './Renderer'
 import { parseObj } from './loaders/parseObj'
 import { Vec3 } from './math/Vec3'
 import { Mesh3d } from './nodes/Mesh3d'
+import { PerspectiveCamera } from './nodes/PerpectiveCamera'
 import { RigidNode } from './nodes/RigidNode'
+import { spherestring } from './sphere'
+import { setupResizeObserver } from './util/window'
 
 let direction = 'right'
-const bounds = 13
+const bounds = 30
+
+const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
 const update = (node: RigidNode) => {
   if (direction === 'right') {
     if (node.position.x < bounds) {
-      node.position.x += 0.1
+      node.position.x += 0.3
     } else if (node.position.x >= bounds) {
       direction = 'left'
     }
   } else if (direction === 'left') {
     if (node.position.x > -bounds) {
-      node.position.x -= 0.1
+      node.position.x -= 0.3
     } else if (node.position.x <= -bounds) {
       direction = 'right'
     }
@@ -24,13 +29,15 @@ const update = (node: RigidNode) => {
 }
 
 const start = async (mesh: Mesh3d) => {
-  const renderer = await Renderer.create()
+  const renderer = await Renderer.create(canvas)
   await renderer.init()
 
   const rootNode = new RigidNode()
 
-  const camera = new RigidNode()
-  camera.position = new Vec3(0, 0, -20)
+  const camera = new PerspectiveCamera()
+  camera.position = new Vec3(0, 0, -60)
+
+  mesh.position.x = 14
 
   const light = new RigidNode()
   light.position = new Vec3(20, 20, -10)
@@ -42,6 +49,16 @@ const start = async (mesh: Mesh3d) => {
   renderer.loadMesh(mesh)
   renderer.setLight(light)
 
+  const { maxTextureDimension2D } = renderer.getDeviceLimits()
+
+  const resizeObserver = setupResizeObserver((width, height) => {
+    canvas.width = Math.max(1, Math.min(width, maxTextureDimension2D))
+    canvas.height = Math.max(1, Math.min(height, maxTextureDimension2D))
+    camera.aspectRatio = width / height
+  })
+
+  resizeObserver.observe(canvas)
+
   const cycle = () => {
     update(mesh)
 
@@ -52,17 +69,20 @@ const start = async (mesh: Mesh3d) => {
   cycle()
 }
 
-const fileInput = document.querySelector('#obj') as HTMLInputElement
-fileInput.addEventListener('change', async (event) => {
-  const target = event.target as HTMLInputElement
+start(parseObj(spherestring))
 
-  const meshFile = target.files?.[0]
+// const fileInput = document.querySelector('#obj') as HTMLInputElement
 
-  if (!meshFile) {
-    return
-  }
+// fileInput.addEventListener('change', async (event) => {
+//   const target = event.target as HTMLInputElement
 
-  const mesh = parseObj(await meshFile.text())
+//   const meshFile = target.files?.[0]
 
-  start(mesh.renormalize())
-})
+//   if (!meshFile) {
+//     return
+//   }
+
+//   const mesh = parseObj(await meshFile.text())
+
+//   start(mesh.renormalize())
+// })
