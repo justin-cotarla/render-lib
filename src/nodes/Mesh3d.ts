@@ -1,31 +1,30 @@
 import { Vec3 } from '../math/Vec3'
 import { RigidNode } from './RigidNode'
 
-export interface Vertex {
-  position: Vec3
-  normal: Vec3
-}
-
 export interface Triangle {
   vertexIndices: [number, number, number]
+  normalIndices: [number, number, number]
 }
 
 export class Mesh3d extends RigidNode {
+  private normals: Vec3[]
+
   constructor(
     readonly triangles: Triangle[],
-    readonly vertices: Vertex[]
+    readonly vertices: Vec3[],
+    normals: Vec3[]
   ) {
     super()
-    this.renormalize()
+    this.normals = normals
   }
 
   public toFloat32Array = (): Float32Array => {
     return new Float32Array(
-      this.triangles.flatMap(({ vertexIndices }) =>
-        vertexIndices.flatMap((index) => [
-          ...this.vertices[index].position.toArray(),
+      this.triangles.flatMap(({ vertexIndices, normalIndices }) =>
+        Array.from({ length: 3 }).flatMap((_, index) => [
+          ...this.vertices[vertexIndices[index]].toArray(),
           1,
-          ...this.vertices[index].normal.toArray(),
+          ...this.normals[normalIndices[index]].toArray(),
           0,
         ])
       )
@@ -33,16 +32,14 @@ export class Mesh3d extends RigidNode {
   }
 
   public renormalize = (): this => {
-    this.triangles.forEach(({ vertexIndices }) =>
-      vertexIndices.forEach((index) =>
-        this.vertices[index].normal.set([0, 0, 0])
-      )
+    this.triangles.forEach(({ normalIndices }) =>
+      normalIndices.forEach((index) => this.normals[index].set([0, 0, 0]))
     )
 
-    this.triangles.forEach(({ vertexIndices }) => {
-      const v0 = this.vertices[vertexIndices[0]].position
-      const v1 = this.vertices[vertexIndices[1]].position
-      const v2 = this.vertices[vertexIndices[2]].position
+    this.triangles.forEach(({ vertexIndices, normalIndices }) => {
+      const v0 = this.vertices[vertexIndices[0]]
+      const v1 = this.vertices[vertexIndices[1]]
+      const v2 = this.vertices[vertexIndices[2]]
 
       const triangleNormal = v1
         .clone()
@@ -51,12 +48,12 @@ export class Mesh3d extends RigidNode {
         .normalize()
 
       for (let i = 0; i < 3; i++) {
-        this.vertices[vertexIndices[i]].normal.add(triangleNormal)
+        this.normals[normalIndices[i]].add(triangleNormal)
       }
     })
 
-    this.triangles.forEach(({ vertexIndices }) =>
-      vertexIndices.forEach((index) => this.vertices[index].normal.normalize())
+    this.triangles.forEach(({ normalIndices }) =>
+      normalIndices.forEach((index) => this.normals[index].normalize())
     )
 
     return this

@@ -4,24 +4,24 @@ import { Vec3 } from './math/Vec3'
 import { Mesh3d } from './nodes/Mesh3d'
 import { PerspectiveCamera } from './nodes/PerpectiveCamera'
 import { RigidNode } from './nodes/RigidNode'
-import { spherestring } from './sphere'
+import flatCubeModel from '../models/flat_cube.obj?raw'
 import { setupResizeObserver } from './util/window'
 
 let direction = 'right'
-const bounds = 30
+const bounds = 5
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
 const update = (node: RigidNode) => {
   if (direction === 'right') {
     if (node.position.x < bounds) {
-      node.position.x += 0.3
+      node.position.x += 0.07
     } else if (node.position.x >= bounds) {
       direction = 'left'
     }
   } else if (direction === 'left') {
     if (node.position.x > -bounds) {
-      node.position.x -= 0.3
+      node.position.x -= 0.07
     } else if (node.position.x <= -bounds) {
       direction = 'right'
     }
@@ -35,9 +35,7 @@ const start = async (mesh: Mesh3d) => {
   const rootNode = new RigidNode()
 
   const camera = new PerspectiveCamera()
-  camera.position = new Vec3(0, 0, -60)
-
-  mesh.position.x = 14
+  camera.position = new Vec3(0, 3, -12)
 
   const light = new RigidNode()
   light.position = new Vec3(20, 20, -10)
@@ -69,7 +67,7 @@ const start = async (mesh: Mesh3d) => {
   cycle()
 }
 
-start(parseObj(spherestring))
+start(parseObj(flatCubeModel))
 
 // const fileInput = document.querySelector('#obj') as HTMLInputElement
 
@@ -83,6 +81,4 @@ start(parseObj(spherestring))
 //   }
 
 //   const mesh = parseObj(await meshFile.text())
-
-//   start(mesh.renormalize())
 // })
