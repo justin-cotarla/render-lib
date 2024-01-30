@@ -4,6 +4,7 @@ import { Vec3 } from './math/Vec3'
 import { PerspectiveCamera } from './nodes/PerpectiveCamera'
 import { RigidNode } from './nodes/RigidNode'
 import flatCubeModel from '../models/flat_cube.obj?raw'
+import sphereModel from '../models/sphere.obj?raw'
 import { setupResizeObserver } from './util/window'
 import { Key, KeyboardObserver } from './input/KeyboardObserver'
 
@@ -11,23 +12,28 @@ const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
 const start = async () => {
   const renderer = await Renderer.create(canvas)
-  await renderer.init()
 
   const rootNode = new RigidNode()
 
   const camera = new PerspectiveCamera()
-  camera.position = new Vec3(0, 3, -12)
+  camera.position = new Vec3(0, 3, -20)
 
   const light = new RigidNode()
   light.position = new Vec3(20, 20, -10)
 
   const cubeMesh = parseObj(flatCubeModel)
+  const sphereMesh = parseObj(sphereModel)
+
+  sphereMesh.position.x = 5
+  cubeMesh.position.x = -5
 
   rootNode.addChild(cubeMesh)
+  rootNode.addChild(sphereMesh)
   rootNode.addChild(camera)
   rootNode.addChild(light)
 
   renderer.loadMesh(cubeMesh)
+  renderer.loadMesh(sphereMesh)
   renderer.setLight(light)
 
   new KeyboardObserver({
@@ -79,6 +85,7 @@ const start = async () => {
 
     camera.tick(deltaMs)
     cubeMesh.tick(deltaMs)
+    sphereMesh.tick(deltaMs)
 
     renderer.renderAll(camera)
     requestAnimationFrame(cycle)

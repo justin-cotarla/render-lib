@@ -6,28 +6,28 @@ import { perspectiveVertDescriptor } from './shaders/perspective.vert'
 
 export class Renderer {
   private context: GPUCanvasContext | null = null
-  private pipeline: GPURenderPipeline | null = null
 
   private meshMap = new Map<
     string,
     {
       mesh: Mesh3d
+      renderPipeline: GPURenderPipeline
+      bindGroup: GPUBindGroup
       vertexBuffer: GPUBuffer
+      vsBuffer: GPUBuffer
+      fsBuffer: GPUBuffer
+      data: Float32Array
     }
   >()
-
-  private bindGroup: GPUBindGroup | null = null
-
-  private meshCliptransformBuffer: GPUBuffer | null = null
-  private cameraBuffer: GPUBuffer | null = null
-  private lightBuffer: GPUBuffer | null = null
 
   private light: RigidNode | null = null
 
   private constructor(
     readonly device: GPUDevice,
     readonly canvas: HTMLCanvasElement
-  ) {}
+  ) {
+    this.context = this.getRenderContext()
+  }
 
   public static create = async (
     canvas: HTMLCanvasElement
@@ -103,9 +103,6 @@ export class Renderer {
     if (!this.context) {
       throw new Error('No context')
     }
-    if (!this.pipeline) {
-      throw new Error('No pipeline')
-    }
 
     const canvasTexture = this.context.getCurrentTexture()
 
@@ -133,75 +130,60 @@ export class Renderer {
     }
 
     const pass = commandEncoder.beginRenderPass(renderPassDescriptor)
-    pass.setPipeline(this.pipeline)
 
     return pass
-  }
-
-  public init = async () => {
-    this.context = this.getRenderContext()
-    this.pipeline = this.getRenderPipeline()
-
-    this.meshCliptransformBuffer = this.device.createBuffer({
-      size: Float32Array.BYTES_PER_ELEMENT * 16,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    })
-
-    this.cameraBuffer = this.device.createBuffer({
-      size: Float32Array.BYTES_PER_ELEMENT * 4,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    })
-
-    this.lightBuffer = this.device.createBuffer({
-      size: Float32Array.BYTES_PER_ELEMENT * 4,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    })
-
-    this.bindGroup = this.device.createBindGroup({
-      layout: this.pipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: this.meshCliptransformBuffer } },
-        { binding: 1, resource: { buffer: this.cameraBuffer } },
-        { binding: 2, resource: { buffer: this.lightBuffer } },
-      ],
-    })
   }
 
   public loadMesh = (mesh: Mesh3d) => {
     if (!this.device) {
       throw new Error('Device not loaded')
     }
-    if (!this.pipeline) {
-      throw new Error('No pipeline')
-    }
-
-    const vertexData = mesh.toFloat32Array()
 
     const vertexBuffer = this.device.createBuffer({
-      size: vertexData.byteLength,
+      label: 'vs_input',
+      size: mesh.data.byteLength,
       usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
     })
 
-    this.device.queue.writeBuffer(
-      vertexBuffer,
-      0,
-      vertexData,
-      0,
-      vertexData.length
-    )
+    const vsBuffer = this.device.createBuffer({
+      label: 'vs_uni',
+      size: Float32Array.BYTES_PER_ELEMENT * 16,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    })
+
+    const fsBuffer = this.device.createBuffer({
+      label: 'fs_uni',
+      size: Float32Array.BYTES_PER_ELEMENT * 8,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    })
+
+    const renderPipeline = this.getRenderPipeline()
+
+    const bindGroup = this.device.createBindGroup({
+      layout: renderPipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: vsBuffer } },
+        { binding: 1, resource: { buffer: fsBuffer } },
+      ],
+    })
+
+    const data = new Float32Array(mesh.data.length + 16 + 8)
+    data.set(mesh.data)
 
     this.meshMap.set(mesh.ID, {
       mesh,
       vertexBuffer,
+      bindGroup,
+      renderPipeline,
+      vsBuffer,
+      fsBuffer,
+      data,
     })
   }
 
   public setLight = (lightNode: RigidNode): void => {
     if (!this.device) {
       throw new Error('Device not loaded')
-    }
-    if (!this.pipeline) {
-      throw new Error('No pipeline')
     }
 
     this.light = lightNode
@@ -216,51 +198,80 @@ export class Renderer {
       throw new Error('Light not set')
     }
 
-    if (
-      !this.meshCliptransformBuffer ||
-      !this.cameraBuffer ||
-      !this.lightBuffer
-    ) {
-      throw new Error('Buffers not set')
-    }
-
     const commandEncoder = this.device.createCommandEncoder()
     const pass = this.getRenderPass(commandEncoder)
 
-    for (const { mesh, vertexBuffer } of this.meshMap.values()) {
-      const meshClipTransform = mesh
+    for (const {
+      mesh,
+      vertexBuffer,
+      renderPipeline,
+      bindGroup,
+      vsBuffer,
+      fsBuffer,
+      data,
+    } of this.meshMap.values()) {
+      pass.setPipeline(renderPipeline)
+
+      let offset = 0
+
+      this.device.queue.writeBuffer(vertexBuffer, 0, data, 0, mesh.data.length)
+      offset += mesh.data.length
+
+      // Mesh clip transform
+      const meshClipTransformData = mesh
         .getRootNodeTransform()
         .multiply(
           camera.getRootNodeTransform().inverse().multiply(camera.clipTransform)
         )
+        .transpose()
+        .toArray()
 
-      const meshClipTransformData = new Float32Array(
-        meshClipTransform.transpose().toArray()
-      )
+      data.set(meshClipTransformData, offset)
       this.device.queue.writeBuffer(
-        this.meshCliptransformBuffer,
+        vsBuffer,
         0,
-        meshClipTransformData
+        data,
+        offset,
+        meshClipTransformData.length
       )
+      offset += meshClipTransformData.length
 
       const worldModelTransform = mesh.getRootNodeTransform().inverse()
 
-      const cameraPosModel = new Float32Array(
-        camera.position.upgrade(1).applyMatrix(worldModelTransform).toArray()
-      )
-      const lightPosModel = new Float32Array(
-        this.light.position
-          .upgrade(1)
-          .applyMatrix(worldModelTransform)
-          .toArray()
-      )
+      // Camera Position
+      const cameraPosModelData = camera.position
+        .upgrade(1)
+        .applyMatrix(worldModelTransform)
+        .toArray()
 
-      this.device.queue.writeBuffer(this.cameraBuffer, 0, cameraPosModel)
-      this.device.queue.writeBuffer(this.lightBuffer, 0, lightPosModel)
+      data.set(cameraPosModelData, offset)
+      this.device.queue.writeBuffer(
+        fsBuffer,
+        0,
+        data,
+        offset,
+        cameraPosModelData.length
+      )
+      offset += cameraPosModelData.length
+
+      // Light Position
+      const lightPosModelData = this.light.position
+        .upgrade(1)
+        .applyMatrix(worldModelTransform)
+        .toArray()
+
+      data.set(lightPosModelData, offset)
+      this.device.queue.writeBuffer(
+        fsBuffer,
+        cameraPosModelData.length * Float32Array.BYTES_PER_ELEMENT,
+        data,
+        offset,
+        lightPosModelData.length
+      )
+      offset += lightPosModelData.length
 
       pass.setVertexBuffer(0, vertexBuffer)
-      pass.setBindGroup(0, this.bindGroup)
-
+      pass.setBindGroup(0, bindGroup)
       pass.draw(mesh.vertexCount())
     }
 
