@@ -230,7 +230,9 @@ export class Renderer {
     for (const { mesh, vertexBuffer } of this.meshMap.values()) {
       const meshClipTransform = mesh
         .getRootNodeTransform()
-        .multiply(camera.rootClipTransform)
+        .multiply(
+          camera.getRootNodeTransform().inverse().multiply(camera.clipTransform)
+        )
 
       const meshClipTransformData = new Float32Array(
         meshClipTransform.transpose().toArray()

@@ -87,4 +87,8 @@ export abstract class AbstractVec<
 
     return this.set(elements as T)
   }
+
+  public isZero = (): boolean => {
+    return this.toArray().every((value) => value === 0)
+  }
 }

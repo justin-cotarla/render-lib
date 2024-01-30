@@ -2,7 +2,7 @@ import { Mat4 } from '../math/Mat4'
 import { RigidNode } from './RigidNode'
 
 export class PerspectiveCamera extends RigidNode {
-  private _nearPlane = 10
+  private _nearPlane = 1
   private _farPlane = 100
   private _fov = 60
   private _aspectRatio = 1
@@ -40,19 +40,17 @@ export class PerspectiveCamera extends RigidNode {
     this.computeRootClipTransform()
   }
 
-  private _rootClipTransform = Mat4.identity()
+  private _clipTransform = Mat4.identity()
 
-  public get rootClipTransform(): Mat4 {
-    return this._rootClipTransform
+  public get clipTransform(): Mat4 {
+    return this._clipTransform
   }
 
   private computeRootClipTransform = () => {
-    const rootCameraTransform = this.getRootNodeTransform().inverse()
-
     const zoomX = 1 / Math.tan((this.fov * Math.PI) / 360)
     const zoomY = zoomX / this.aspectRatio
 
-    const cameraClipTransfrom = new Mat4([
+    this._clipTransform = new Mat4([
       [zoomX, 0, 0, 0],
       [0, zoomY, 0, 0],
       [0, 0, this.farPlane / (this.farPlane - this.nearPlane), 1],
@@ -63,7 +61,5 @@ export class PerspectiveCamera extends RigidNode {
         0,
       ],
     ])
-
-    this._rootClipTransform = rootCameraTransform.multiply(cameraClipTransfrom)
   }
 }

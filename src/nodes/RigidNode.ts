@@ -6,10 +6,16 @@ export class RigidNode {
   private children: RigidNode[] = []
   private _position: Vec3 = new Vec3(0, 0, 0)
 
+  protected _velocity: Vec3 = new Vec3(0, 0, 0)
+
   private _ID = crypto.randomUUID()
 
   get ID() {
     return this._ID
+  }
+
+  public get velocity(): Vec3 {
+    return this._velocity
   }
 
   public set parent(node: RigidNode | null) {
@@ -65,5 +71,13 @@ export class RigidNode {
     return this.getParentNodeTransform().multiply(
       this._parent.getRootNodeTransform()
     )
+  }
+
+  public tick = (timeDelta: number) => {
+    if (this.velocity.isZero()) {
+      return
+    }
+
+    this.position.add(this.velocity.clone().scale(timeDelta))
   }
 }
