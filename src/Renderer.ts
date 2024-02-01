@@ -220,9 +220,7 @@ export class Renderer {
       // Mesh clip transform
       const meshClipTransformData = mesh
         .getRootNodeTransform()
-        .multiply(
-          camera.getRootNodeTransform().inverse().multiply(camera.clipTransform)
-        )
+        .multiply(camera.getNodeRootTransform().multiply(camera.clipTransform))
         .transpose()
         .toArray()
 
@@ -236,7 +234,7 @@ export class Renderer {
       )
       offset += meshClipTransformData.length
 
-      const worldModelTransform = mesh.getRootNodeTransform().inverse()
+      const worldModelTransform = mesh.getNodeRootTransform()
 
       // Camera Position
       const cameraPosModelData = camera.position

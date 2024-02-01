@@ -1,4 +1,5 @@
 import { AbstractVec } from './AbstractVec'
+import { Vec3 } from './Vec3'
 
 export type Vec4ElementTuple = [number, number, number, number]
 
@@ -91,5 +92,9 @@ export class Vec4 extends AbstractVec<Vec4, Vec4ElementTuple> {
 
   set 3(value: number) {
     this._w = value
+  }
+
+  public downgrade = (): Vec3 => {
+    return new Vec3(this.x, this.y, this.z)
   }
 }
