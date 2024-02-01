@@ -7,6 +7,7 @@ import flatCubeModel from '../models/flat_cube.obj?raw'
 import sphereModel from '../models/sphere.obj?raw'
 import { setupResizeObserver } from './util/window'
 import { Key, KeyboardObserver } from './input/KeyboardObserver'
+import { MouseObserver } from './input/MouseObserver'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
@@ -67,6 +68,11 @@ const start = async () => {
     },
   })
 
+  new MouseObserver((movementX, movementY) => {
+    camera.orientation.heading += movementX / 1000
+    camera.orientation.pitch += movementY / 1000
+  })
+
   const { maxTextureDimension2D } = renderer.getDeviceLimits()
 
   const resizeObserver = setupResizeObserver((width, height) => {
@@ -82,6 +88,8 @@ const start = async () => {
   const cycle: FrameRequestCallback = (time) => {
     const deltaMs = previousTime ? time - previousTime : 0
     previousTime = time
+
+    cubeMesh.orientation.heading += (deltaMs / 10) * (Math.PI / 180)
 
     camera.tick(deltaMs)
     cubeMesh.tick(deltaMs)
