@@ -8,6 +8,7 @@ import sphereModel from '../models/sphere.obj?raw'
 import { setupResizeObserver } from './util/window'
 import { Key, KeyboardObserver } from './input/KeyboardObserver'
 import { MouseObserver } from './input/MouseObserver'
+import { Vec4 } from './math/Vec4'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
@@ -23,10 +24,29 @@ const start = async () => {
   light.position = new Vec3(20, 20, -10)
 
   const cubeMesh = parseObj(flatCubeModel)
+  cubeMesh.material = {
+    diffuse: new Vec4(0, 1, 0, 1),
+    specular: new Vec4(0, 0, 0, 0),
+    ambient: new Vec4(0, 1, 0, 1),
+    gloss: 16,
+  }
+
+  const c2 = parseObj(flatCubeModel)
+  c2.material = {
+    diffuse: new Vec4(0, 0, 1, 1),
+    specular: new Vec4(0, 0, 0, 0),
+    ambient: new Vec4(0, 0, 1, 1),
+    gloss: 16,
+  }
+
   const sphereMesh = parseObj(sphereModel)
 
   sphereMesh.position.x = 5
   cubeMesh.position.x = -5
+  cubeMesh.orientation.heading = Math.PI / 4
+
+  cubeMesh.addChild(c2)
+  c2.position.z = 5
 
   rootNode.addChild(cubeMesh)
   rootNode.addChild(sphereMesh)
@@ -34,6 +54,7 @@ const start = async () => {
   rootNode.addChild(light)
 
   renderer.loadMesh(cubeMesh)
+  renderer.loadMesh(c2)
   renderer.loadMesh(sphereMesh)
   renderer.setLight(light)
 
@@ -90,6 +111,7 @@ const start = async () => {
     previousTime = time
 
     cubeMesh.orientation.heading += (deltaMs / 10) * (Math.PI / 180)
+    c2.orientation.pitch += (deltaMs / 10) * (Math.PI / 180)
 
     camera.tick(deltaMs)
     cubeMesh.tick(deltaMs)

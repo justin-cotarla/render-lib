@@ -6,9 +6,9 @@ export interface Triangle {
   normalIndices: [number, number, number]
 }
 
-export class Mesh3d extends RigidNode {
+export abstract class Mesh extends RigidNode {
   private normals: Vec3[]
-  private _data: Float32Array
+  protected _vertexData: Float32Array
 
   constructor(
     readonly triangles: Triangle[],
@@ -17,16 +17,15 @@ export class Mesh3d extends RigidNode {
   ) {
     super()
     this.normals = normals
-    this._data = new Float32Array(this.triangles.length * 8 * 3)
-    this.setData()
+    this._vertexData = this.computeVertexData()
   }
 
-  public get data(): Float32Array {
-    return this._data
+  public get vertexData(): Float32Array {
+    return this._vertexData
   }
 
-  private setData = () => {
-    this._data.set(
+  protected computeVertexData = (): Float32Array => {
+    return new Float32Array(
       this.triangles.flatMap(({ vertexIndices, normalIndices }) =>
         Array.from({ length: 3 }).flatMap((_, index) => [
           ...this.vertices[vertexIndices[index]].toArray(),
@@ -63,7 +62,7 @@ export class Mesh3d extends RigidNode {
       normalIndices.forEach((index) => this.normals[index].normalize())
     )
 
-    this.setData()
+    this.computeVertexData()
     return this
   }
 

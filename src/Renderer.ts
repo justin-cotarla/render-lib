@@ -1,4 +1,4 @@
-import { Mesh3d } from './nodes/Mesh3d'
+import { MonoMesh } from './nodes/MonoMesh'
 import { PerspectiveCamera } from './nodes/PerpectiveCamera'
 import { RigidNode } from './nodes/RigidNode'
 import { phongFragDescriptor } from './shaders/phong.frag'
@@ -10,7 +10,7 @@ export class Renderer {
   private meshMap = new Map<
     string,
     {
-      mesh: Mesh3d
+      mesh: MonoMesh
       renderPipeline: GPURenderPipeline
       bindGroup: GPUBindGroup
       vertexBuffer: GPUBuffer
@@ -134,14 +134,14 @@ export class Renderer {
     return pass
   }
 
-  public loadMesh = (mesh: Mesh3d) => {
+  public loadMesh = (mesh: MonoMesh) => {
     if (!this.device) {
       throw new Error('Device not loaded')
     }
 
     const vertexBuffer = this.device.createBuffer({
       label: 'vs_input',
-      size: mesh.data.byteLength,
+      size: mesh.vertexData.byteLength,
       usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
     })
 
@@ -153,7 +153,7 @@ export class Renderer {
 
     const fsBuffer = this.device.createBuffer({
       label: 'fs_uni',
-      size: Float32Array.BYTES_PER_ELEMENT * 8,
+      size: Float32Array.BYTES_PER_ELEMENT * 24,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     })
 
@@ -167,8 +167,8 @@ export class Renderer {
       ],
     })
 
-    const data = new Float32Array(mesh.data.length + 16 + 8)
-    data.set(mesh.data)
+    const data = new Float32Array(mesh.vertexData.length + 16 + 24)
+    data.set(mesh.vertexData)
 
     this.meshMap.set(mesh.ID, {
       mesh,
@@ -212,10 +212,20 @@ export class Renderer {
     } of this.meshMap.values()) {
       pass.setPipeline(renderPipeline)
 
-      let offset = 0
+      let dataOffset = 0
+      let currentBufferOffset = 0
 
-      this.device.queue.writeBuffer(vertexBuffer, 0, data, 0, mesh.data.length)
-      offset += mesh.data.length
+      this.device.queue.writeBuffer(
+        vertexBuffer,
+        currentBufferOffset,
+        data,
+        dataOffset,
+        mesh.vertexData.length
+      )
+      dataOffset += mesh.vertexData.length
+
+      // VSInput
+      currentBufferOffset = 0
 
       // Mesh clip transform
       const meshClipTransformData = mesh
@@ -224,16 +234,18 @@ export class Renderer {
         .transpose()
         .toArray()
 
-      data.set(meshClipTransformData, offset)
+      data.set(meshClipTransformData, dataOffset)
       this.device.queue.writeBuffer(
         vsBuffer,
-        0,
+        currentBufferOffset,
         data,
-        offset,
+        dataOffset,
         meshClipTransformData.length
       )
-      offset += meshClipTransformData.length
+      dataOffset += meshClipTransformData.length
 
+      // FSInput
+      currentBufferOffset = 0
       const worldModelTransform = mesh.getNodeRootTransform()
 
       // Camera Position
@@ -242,15 +254,17 @@ export class Renderer {
         .applyMatrix(worldModelTransform)
         .toArray()
 
-      data.set(cameraPosModelData, offset)
+      data.set(cameraPosModelData, dataOffset)
       this.device.queue.writeBuffer(
         fsBuffer,
-        0,
+        currentBufferOffset,
         data,
-        offset,
+        dataOffset,
         cameraPosModelData.length
       )
-      offset += cameraPosModelData.length
+      dataOffset += cameraPosModelData.length
+      currentBufferOffset +=
+        cameraPosModelData.length * Float32Array.BYTES_PER_ELEMENT
 
       // Light Position
       const lightPosModelData = this.light.position
@@ -258,15 +272,27 @@ export class Renderer {
         .applyMatrix(worldModelTransform)
         .toArray()
 
-      data.set(lightPosModelData, offset)
+      data.set(lightPosModelData, dataOffset)
       this.device.queue.writeBuffer(
         fsBuffer,
-        cameraPosModelData.length * Float32Array.BYTES_PER_ELEMENT,
+        currentBufferOffset,
         data,
-        offset,
+        dataOffset,
         lightPosModelData.length
       )
-      offset += lightPosModelData.length
+      dataOffset += lightPosModelData.length
+      currentBufferOffset +=
+        lightPosModelData.length * Float32Array.BYTES_PER_ELEMENT
+
+      // Material
+      data.set(mesh.materialData, dataOffset)
+      this.device.queue.writeBuffer(
+        fsBuffer,
+        currentBufferOffset,
+        data,
+        dataOffset,
+        mesh.materialData.length
+      )
 
       pass.setVertexBuffer(0, vertexBuffer)
       pass.setBindGroup(0, bindGroup)

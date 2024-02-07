@@ -1,3 +1,10 @@
+struct Material {
+  m_diff: vec4f,
+  m_spec: vec4f,
+  m_amb: vec4f,
+  m_gls: f32
+}
+
 struct VertexInput {
   @builtin(vertex_index) index : u32,
   @location(0) model_pos: vec4f,
@@ -9,7 +16,11 @@ struct Output {
   @location(0) model_pos: vec4f,
   @location(1) normal: vec4f,
   @location(2) camera_pos: vec4f,
-  @location(3) light_pos: vec4f
+  @location(3) light_pos: vec4f,
+  @location(4) m_diff: vec4f,
+  @location(5) m_spec: vec4f,
+  @location(6) m_amb: vec4f,
+  @location(7) m_gls: f32
 }
 
 struct VSInput {
@@ -18,7 +29,8 @@ struct VSInput {
 
 struct FSInput {
   camera_pos: vec4f,
-  light_pos: vec4f
+  light_pos: vec4f,
+  material: Material
 }
 
 @group(0) @binding(0) var<uniform> vs_uni: VSInput;
@@ -34,5 +46,9 @@ fn main(input: VertexInput) -> Output
   output.normal = input.normal;
   output.light_pos = fs_uni.light_pos;
   output.camera_pos = fs_uni.camera_pos;
+  output.m_diff = fs_uni.material.m_diff;
+  output.m_spec = fs_uni.material.m_spec;
+  output.m_amb = fs_uni.material.m_amb;
+  output.m_gls = fs_uni.material.m_gls;
   return output;
 }
