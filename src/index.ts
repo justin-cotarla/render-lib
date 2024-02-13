@@ -5,6 +5,7 @@ import { PerspectiveCamera } from './nodes/PerpectiveCamera'
 import { RigidNode } from './nodes/RigidNode'
 import flatCubeModel from '../models/flat_cube.obj?raw'
 import sphereModel from '../models/sphere.obj?raw'
+import planeModel from '../models/plane.obj?raw'
 import { setupResizeObserver } from './util/window'
 import { Key, KeyboardObserver } from './input/KeyboardObserver'
 import { MouseObserver } from './input/MouseObserver'
@@ -41,6 +42,15 @@ const start = async () => {
 
   const sphereMesh = parseObj(sphereModel)
 
+  const planeMesh = parseObj(planeModel)
+  planeMesh.material = {
+    diffuse: new Vec4(0.6, 0.6, 0, 1),
+    specular: new Vec4(0, 0, 0, 0),
+    ambient: new Vec4(0.6, 0.6, 0, 1),
+    gloss: 1,
+  }
+  planeMesh.position.y = -10
+
   sphereMesh.position.x = 5
   cubeMesh.position.x = -5
   cubeMesh.orientation.heading = Math.PI / 4
@@ -52,10 +62,12 @@ const start = async () => {
   rootNode.addChild(sphereMesh)
   rootNode.addChild(camera)
   rootNode.addChild(light)
+  rootNode.addChild(planeMesh)
 
   renderer.loadMesh(cubeMesh)
   renderer.loadMesh(c2)
   renderer.loadMesh(sphereMesh)
+  // renderer.loadMesh(planeMesh)
   renderer.setLight(light)
 
   new KeyboardObserver({
@@ -106,16 +118,11 @@ const start = async () => {
 
   let previousTime: number
 
-  const cycle: FrameRequestCallback = (time) => {
+  const cycle: FrameRequestCallback = async (time) => {
     const deltaMs = previousTime ? time - previousTime : 0
     previousTime = time
 
-    cubeMesh.orientation.heading += (deltaMs / 10) * (Math.PI / 180)
-    c2.orientation.pitch += (deltaMs / 10) * (Math.PI / 180)
-
     camera.tick(deltaMs)
-    cubeMesh.tick(deltaMs)
-    sphereMesh.tick(deltaMs)
 
     renderer.renderAll(camera)
     requestAnimationFrame(cycle)

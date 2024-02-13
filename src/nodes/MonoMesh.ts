@@ -1,5 +1,6 @@
 import { Vec3 } from '../math/Vec3'
 import { Vec4 } from '../math/Vec4'
+import { MonoPhongMesh } from '../pipelines/monoPhong'
 import { Mesh, Triangle } from './Mesh'
 
 interface Material {
@@ -9,13 +10,17 @@ interface Material {
   gloss: number
 }
 
-export class MonoMesh extends Mesh {
+export class MonoMesh extends Mesh implements Partial<MonoPhongMesh> {
   public static DEFAULT_MATERIAL: Material = {
     diffuse: new Vec4(1, 0, 0, 1),
     specular: new Vec4(1, 1, 1, 1),
     ambient: new Vec4(1, 0, 0, 1),
     gloss: 16,
   }
+
+  public readonly pipelineId = 'MONO_PHONG'
+
+  buffers?: MonoPhongMesh['buffers']
 
   private _material: Material
   private _materialData: Float32Array

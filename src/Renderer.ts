@@ -1,32 +1,34 @@
-import { MonoMesh } from './nodes/MonoMesh'
+import { Mesh } from './nodes/Mesh'
 import { PerspectiveCamera } from './nodes/PerpectiveCamera'
 import { RigidNode } from './nodes/RigidNode'
-import { phongFragDescriptor } from './shaders/phong.frag'
-import { perspectiveVertDescriptor } from './shaders/perspective.vert'
+import { Pipeline } from './pipelines/Pipeline'
+import { MonoPhongPipeline } from './pipelines/monoPhong'
+
+interface PipelineGroup<P extends Pipeline> {
+  pipeline: P
+  objects: Parameters<P['loadBuffers']>[0][]
+}
 
 export class Renderer {
   private context: GPUCanvasContext | null = null
-
-  private meshMap = new Map<
-    string,
-    {
-      mesh: MonoMesh
-      renderPipeline: GPURenderPipeline
-      bindGroup: GPUBindGroup
-      vertexBuffer: GPUBuffer
-      vsBuffer: GPUBuffer
-      fsBuffer: GPUBuffer
-      data: Float32Array
-    }
-  >()
-
   private light: RigidNode | null = null
+
+  private pipelines: {
+    [MonoPhongPipeline.ID]: PipelineGroup<MonoPhongPipeline>
+  }
 
   private constructor(
     readonly device: GPUDevice,
     readonly canvas: HTMLCanvasElement
   ) {
     this.context = this.getRenderContext()
+
+    this.pipelines = {
+      MONO_PHONG: {
+        pipeline: new MonoPhongPipeline(this.device),
+        objects: [],
+      },
+    }
   }
 
   public static create = async (
@@ -74,26 +76,6 @@ export class Renderer {
     return context
   }
 
-  private getRenderPipeline = (): GPURenderPipeline => {
-    if (!this.device) {
-      throw new Error('Device not loaded')
-    }
-
-    return this.device.createRenderPipeline({
-      vertex: perspectiveVertDescriptor(this.device),
-      fragment: phongFragDescriptor(this.device),
-      layout: 'auto',
-      primitive: {
-        topology: 'triangle-list',
-      },
-      depthStencil: {
-        depthWriteEnabled: true,
-        depthCompare: 'less',
-        format: 'depth24plus',
-      },
-    })
-  }
-
   private getRenderPass = (
     commandEncoder: GPUCommandEncoder
   ): GPURenderPassEncoder => {
@@ -134,51 +116,41 @@ export class Renderer {
     return pass
   }
 
-  public loadMesh = (mesh: MonoMesh) => {
+  public loadMesh = (mesh: Mesh) => {
     if (!this.device) {
       throw new Error('Device not loaded')
     }
 
+    if (!(mesh.pipelineId in this.pipelines)) {
+      throw new Error(`Pipeline ${String(mesh.pipelineId)} does not exists`)
+    }
+
+    const pipelineId = mesh.pipelineId as keyof typeof this.pipelines
+    const pipeline = this.pipelines[pipelineId].pipeline
+
+    if (this.pipelines[pipelineId].objects.find(({ ID }) => ID === mesh.ID)) {
+      throw new Error(`Mesh ${mesh.ID} already loaded`)
+    }
+
     const vertexBuffer = this.device.createBuffer({
-      label: 'vs_input',
+      label: `vertex_buffer_${mesh.ID}`,
       size: mesh.vertexData.byteLength,
-      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+      usage: GPUBufferUsage.VERTEX,
+      mappedAtCreation: true,
     })
 
-    const vsBuffer = this.device.createBuffer({
-      label: 'vs_uni',
-      size: Float32Array.BYTES_PER_ELEMENT * 16,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    })
+    const bufferData = new Float32Array(vertexBuffer.getMappedRange())
+    bufferData.set(mesh.vertexData)
+    vertexBuffer.unmap()
 
-    const fsBuffer = this.device.createBuffer({
-      label: 'fs_uni',
-      size: Float32Array.BYTES_PER_ELEMENT * 24,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    })
+    mesh.buffers = pipeline.createGpuBuffers()
+    mesh.bindGroup = pipeline.createBindGroup(mesh.buffers)
+    mesh.vertexBuffer = vertexBuffer
+    mesh.uniformData = pipeline.createUniformData()
 
-    const renderPipeline = this.getRenderPipeline()
-
-    const bindGroup = this.device.createBindGroup({
-      layout: renderPipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: vsBuffer } },
-        { binding: 1, resource: { buffer: fsBuffer } },
-      ],
-    })
-
-    const data = new Float32Array(mesh.vertexData.length + 16 + 24)
-    data.set(mesh.vertexData)
-
-    this.meshMap.set(mesh.ID, {
-      mesh,
-      vertexBuffer,
-      bindGroup,
-      renderPipeline,
-      vsBuffer,
-      fsBuffer,
-      data,
-    })
+    this.pipelines[pipelineId].objects.push(
+      mesh as (typeof this.pipelines)[typeof pipelineId]['objects'][number]
+    )
   }
 
   public setLight = (lightNode: RigidNode): void => {
@@ -194,112 +166,34 @@ export class Renderer {
       throw new Error('Device not loaded')
     }
 
-    if (!this.light) {
-      throw new Error('Light not set')
-    }
-
     const commandEncoder = this.device.createCommandEncoder()
-    const pass = this.getRenderPass(commandEncoder)
 
-    for (const {
-      mesh,
-      vertexBuffer,
-      renderPipeline,
-      bindGroup,
-      vsBuffer,
-      fsBuffer,
-      data,
-    } of this.meshMap.values()) {
-      pass.setPipeline(renderPipeline)
+    Object.entries(this.pipelines).forEach(
+      ([pipelineId, { objects, pipeline }]) => {
+        const pass = this.getRenderPass(commandEncoder)
+        pass.setPipeline(pipeline.renderPipeline)
 
-      let dataOffset = 0
-      let currentBufferOffset = 0
+        for (const mesh of objects) {
+          pass.setBindGroup(0, mesh.bindGroup)
+          pass.setVertexBuffer(0, mesh.vertexBuffer)
 
-      this.device.queue.writeBuffer(
-        vertexBuffer,
-        currentBufferOffset,
-        data,
-        dataOffset,
-        mesh.vertexData.length
-      )
-      dataOffset += mesh.vertexData.length
+          switch (pipelineId) {
+            case 'MONO_PHONG': {
+              if (!this.light) {
+                throw new Error('Light not set')
+              }
+              pipeline.loadBuffers(mesh, camera, this.light)
+              break
+            }
+          }
 
-      // VSInput
-      currentBufferOffset = 0
+          pass.draw(mesh.vertexCount())
+        }
 
-      // Mesh clip transform
-      const meshClipTransformData = mesh
-        .getRootNodeTransform()
-        .multiply(camera.getNodeRootTransform().multiply(camera.clipTransform))
-        .transpose()
-        .toArray()
+        pass.end()
+      }
+    )
 
-      data.set(meshClipTransformData, dataOffset)
-      this.device.queue.writeBuffer(
-        vsBuffer,
-        currentBufferOffset,
-        data,
-        dataOffset,
-        meshClipTransformData.length
-      )
-      dataOffset += meshClipTransformData.length
-
-      // FSInput
-      currentBufferOffset = 0
-      const worldModelTransform = mesh.getNodeRootTransform()
-
-      // Camera Position
-      const cameraPosModelData = camera.position
-        .upgrade(1)
-        .applyMatrix(worldModelTransform)
-        .toArray()
-
-      data.set(cameraPosModelData, dataOffset)
-      this.device.queue.writeBuffer(
-        fsBuffer,
-        currentBufferOffset,
-        data,
-        dataOffset,
-        cameraPosModelData.length
-      )
-      dataOffset += cameraPosModelData.length
-      currentBufferOffset +=
-        cameraPosModelData.length * Float32Array.BYTES_PER_ELEMENT
-
-      // Light Position
-      const lightPosModelData = this.light.position
-        .upgrade(1)
-        .applyMatrix(worldModelTransform)
-        .toArray()
-
-      data.set(lightPosModelData, dataOffset)
-      this.device.queue.writeBuffer(
-        fsBuffer,
-        currentBufferOffset,
-        data,
-        dataOffset,
-        lightPosModelData.length
-      )
-      dataOffset += lightPosModelData.length
-      currentBufferOffset +=
-        lightPosModelData.length * Float32Array.BYTES_PER_ELEMENT
-
-      // Material
-      data.set(mesh.materialData, dataOffset)
-      this.device.queue.writeBuffer(
-        fsBuffer,
-        currentBufferOffset,
-        data,
-        dataOffset,
-        mesh.materialData.length
-      )
-
-      pass.setVertexBuffer(0, vertexBuffer)
-      pass.setBindGroup(0, bindGroup)
-      pass.draw(mesh.vertexCount())
-    }
-
-    pass.end()
     this.device.queue.submit([commandEncoder.finish()])
   }
 }

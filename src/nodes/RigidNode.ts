@@ -56,18 +56,18 @@ export class RigidNode {
     this._position = value
   }
 
-  public move = (displacement: Vec3): this => {
+  public move(displacement: Vec3): RigidNode {
     this._position.add(displacement)
     return this
   }
 
-  public addChild = (node: RigidNode): this => {
+  public addChild(node: RigidNode): RigidNode {
     this._children = [...this._children, node]
     node.parent = this
     return this
   }
 
-  public removeChild = (node: RigidNode): this => {
+  public removeChild(node: RigidNode): RigidNode {
     this._children = this._children.filter((child) => child === node)
     node.parent = null
     return this

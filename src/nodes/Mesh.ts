@@ -1,4 +1,5 @@
 import { Vec3 } from '../math/Vec3'
+import { PipelineMesh } from '../pipelines/Pipeline'
 import { RigidNode } from './RigidNode'
 
 export interface Triangle {
@@ -6,9 +7,16 @@ export interface Triangle {
   normalIndices: [number, number, number]
 }
 
-export abstract class Mesh extends RigidNode {
+export abstract class Mesh extends RigidNode implements Partial<PipelineMesh> {
+  abstract readonly pipelineId: string
+
+  buffers?: GPUBuffer[]
+  bindGroup?: GPUBindGroup
+  uniformData?: Float32Array
+
+  public vertexBuffer?: GPUBuffer
+  public vertexData: Float32Array
   private normals: Vec3[]
-  protected _vertexData: Float32Array
 
   constructor(
     readonly triangles: Triangle[],
@@ -17,11 +25,7 @@ export abstract class Mesh extends RigidNode {
   ) {
     super()
     this.normals = normals
-    this._vertexData = this.computeVertexData()
-  }
-
-  public get vertexData(): Float32Array {
-    return this._vertexData
+    this.vertexData = this.computeVertexData()
   }
 
   protected computeVertexData = (): Float32Array => {
@@ -37,7 +41,7 @@ export abstract class Mesh extends RigidNode {
     )
   }
 
-  public renormalize = (): this => {
+  public renormalize = (): Mesh => {
     this.triangles.forEach(({ normalIndices }) =>
       normalIndices.forEach((index) => this.normals[index].set([0, 0, 0]))
     )
@@ -62,7 +66,8 @@ export abstract class Mesh extends RigidNode {
       normalIndices.forEach((index) => this.normals[index].normalize())
     )
 
-    this.computeVertexData()
+    this.vertexData = this.computeVertexData()
+
     return this
   }
 
