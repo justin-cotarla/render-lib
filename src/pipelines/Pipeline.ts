@@ -1,10 +1,8 @@
 import { Mesh } from '../nodes/Mesh'
 
-export interface PipelineMesh extends Mesh {
-  readonly pipelineId: string
+export interface PipelineData {
+  buffers: GPUBuffer[]
   bindGroup: GPUBindGroup
-  vertexBuffer: GPUBuffer
-  uniformBuffers: GPUBuffer[]
   uniformData: Float32Array
 }
 
@@ -15,15 +13,15 @@ export abstract class Pipeline {
     readonly uniformDataSize: number
   ) {}
 
-  public abstract loadBuffers(mesh: PipelineMesh, ...scene: never[]): void
+  public abstract loadBuffers(mesh: Mesh, ...scene: never[]): void
 
-  public abstract createGpuBuffers(): GPUBuffer[]
+  protected abstract createGpuBuffers(): GPUBuffer[]
 
-  public createUniformData = (): Float32Array => {
+  private createUniformData = (): Float32Array => {
     return new Float32Array(this.uniformDataSize)
   }
 
-  public createBindGroup = (buffers: GPUBuffer[]): GPUBindGroup => {
+  private createBindGroup = (buffers: GPUBuffer[]): GPUBindGroup => {
     return this.device.createBindGroup({
       layout: this.renderPipeline.getBindGroupLayout(0),
       entries: buffers.map((buffer, index) => ({
@@ -31,5 +29,15 @@ export abstract class Pipeline {
         resource: { buffer },
       })),
     })
+  }
+
+  public createPipelineData(): PipelineData {
+    const buffers = this.createGpuBuffers()
+
+    return {
+      buffers,
+      bindGroup: this.createBindGroup(buffers),
+      uniformData: this.createUniformData(),
+    }
   }
 }

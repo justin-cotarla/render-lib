@@ -1,6 +1,5 @@
 import { Vec3, Vec3ElementTuple } from '../math/Vec3'
-import { Triangle } from '../nodes/Mesh'
-import { MonoMesh } from '../nodes/MonoMesh'
+import { Mesh, Triangle } from '../nodes/Mesh'
 
 const KEYWORDS = ['v', 'vn', 'f', '#'] as const
 
@@ -16,7 +15,9 @@ const parseVec3Data = (data: string): Vec3 => {
   )
 }
 
-export const parseObj = (rawMesh: string): MonoMesh => {
+export const parseObj = (
+  rawMesh: string
+): ConstructorParameters<typeof Mesh> => {
   const vertices: Vec3[] = []
   const normals: Vec3[] = []
   const triangles: Triangle[] = []
@@ -89,5 +90,5 @@ export const parseObj = (rawMesh: string): MonoMesh => {
     }
   }
 
-  return new MonoMesh(triangles, vertices, normals)
+  return [triangles, vertices, normals]
 }

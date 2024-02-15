@@ -1,5 +1,5 @@
 import { Vec3 } from '../math/Vec3'
-import { PipelineMesh } from '../pipelines/Pipeline'
+import { PipelineData } from '../pipelines/Pipeline'
 import { RigidNode } from './RigidNode'
 
 export interface Triangle {
@@ -7,16 +7,12 @@ export interface Triangle {
   normalIndices: [number, number, number]
 }
 
-export abstract class Mesh extends RigidNode implements Partial<PipelineMesh> {
-  abstract readonly pipelineId: string
-
-  buffers?: GPUBuffer[]
-  bindGroup?: GPUBindGroup
-  uniformData?: Float32Array
+export class Mesh extends RigidNode {
+  public pipelineData?: PipelineData
 
   public vertexBuffer?: GPUBuffer
   public vertexData: Float32Array
-  private normals: Vec3[]
+  public normals: Vec3[]
 
   constructor(
     readonly triangles: Triangle[],

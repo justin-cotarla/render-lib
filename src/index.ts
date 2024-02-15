@@ -10,6 +10,7 @@ import { setupResizeObserver } from './util/window'
 import { Key, KeyboardObserver } from './input/KeyboardObserver'
 import { MouseObserver } from './input/MouseObserver'
 import { Vec4 } from './math/Vec4'
+import { MonoMesh } from './nodes/MonoMesh'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
@@ -24,49 +25,45 @@ const start = async () => {
   const light = new RigidNode()
   light.position = new Vec3(20, 20, -10)
 
-  const cubeMesh = parseObj(flatCubeModel)
-  cubeMesh.material = {
+  const c1 = new MonoMesh(...parseObj(flatCubeModel), {
     diffuse: new Vec4(0, 1, 0, 1),
     specular: new Vec4(0, 0, 0, 0),
     ambient: new Vec4(0, 1, 0, 1),
     gloss: 16,
-  }
+  })
 
-  const c2 = parseObj(flatCubeModel)
-  c2.material = {
+  const s1 = new MonoMesh(...parseObj(sphereModel))
+
+  const s2 = new MonoMesh(...parseObj(sphereModel), {
     diffuse: new Vec4(0, 0, 1, 1),
-    specular: new Vec4(0, 0, 0, 0),
+    specular: new Vec4(1, 1, 1, 1),
     ambient: new Vec4(0, 0, 1, 1),
-    gloss: 16,
-  }
+    gloss: 15,
+  })
 
-  const sphereMesh = parseObj(sphereModel)
-
-  const planeMesh = parseObj(planeModel)
-  planeMesh.material = {
+  const planeMesh = new MonoMesh(...parseObj(planeModel), {
     diffuse: new Vec4(0.6, 0.6, 0, 1),
     specular: new Vec4(0, 0, 0, 0),
     ambient: new Vec4(0.6, 0.6, 0, 1),
     gloss: 1,
-  }
+  })
   planeMesh.position.y = -10
 
-  sphereMesh.position.x = 5
-  cubeMesh.position.x = -5
-  cubeMesh.orientation.heading = Math.PI / 4
+  s1.position.x = 5
+  c1.position.x = -5
+  c1.orientation.heading = Math.PI / 4
 
-  cubeMesh.addChild(c2)
-  c2.position.z = 5
+  s2.position.z = 5
 
-  rootNode.addChild(cubeMesh)
-  rootNode.addChild(sphereMesh)
+  rootNode.addChild(c1)
+  rootNode.addChild(s1)
   rootNode.addChild(camera)
   rootNode.addChild(light)
   rootNode.addChild(planeMesh)
 
-  renderer.loadMesh(cubeMesh)
-  renderer.loadMesh(c2)
-  renderer.loadMesh(sphereMesh)
+  renderer.loadMesh(c1, 'MONO_PHONG')
+  renderer.loadMesh(s2, 'MONO_PHONG')
+  renderer.loadMesh(s1, 'MONO_TOON')
   // renderer.loadMesh(planeMesh)
   renderer.setLight(light)
 
@@ -123,7 +120,6 @@ const start = async () => {
     previousTime = time
 
     camera.tick(deltaMs)
-
     renderer.renderAll(camera)
     requestAnimationFrame(cycle)
   }

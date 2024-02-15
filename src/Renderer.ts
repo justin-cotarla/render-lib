@@ -3,6 +3,7 @@ import { PerspectiveCamera } from './nodes/PerpectiveCamera'
 import { RigidNode } from './nodes/RigidNode'
 import { Pipeline } from './pipelines/Pipeline'
 import { MonoPhongPipeline } from './pipelines/monoPhong'
+import { MonoToonPipeline } from './pipelines/monoToon'
 
 interface PipelineGroup<P extends Pipeline> {
   pipeline: P
@@ -15,6 +16,7 @@ export class Renderer {
 
   private pipelines: {
     [MonoPhongPipeline.ID]: PipelineGroup<MonoPhongPipeline>
+    [MonoToonPipeline.ID]: PipelineGroup<MonoToonPipeline>
   }
 
   private constructor(
@@ -26,6 +28,10 @@ export class Renderer {
     this.pipelines = {
       MONO_PHONG: {
         pipeline: new MonoPhongPipeline(this.device),
+        objects: [],
+      },
+      MONO_TOON: {
+        pipeline: new MonoToonPipeline(this.device),
         objects: [],
       },
     }
@@ -116,19 +122,14 @@ export class Renderer {
     return pass
   }
 
-  public loadMesh = (mesh: Mesh) => {
+  public loadMesh = (mesh: Mesh, pipelineId: keyof typeof this.pipelines) => {
     if (!this.device) {
       throw new Error('Device not loaded')
     }
 
-    if (!(mesh.pipelineId in this.pipelines)) {
-      throw new Error(`Pipeline ${String(mesh.pipelineId)} does not exists`)
-    }
+    const { pipeline, objects } = this.pipelines[pipelineId]
 
-    const pipelineId = mesh.pipelineId as keyof typeof this.pipelines
-    const pipeline = this.pipelines[pipelineId].pipeline
-
-    if (this.pipelines[pipelineId].objects.find(({ ID }) => ID === mesh.ID)) {
+    if (objects.find(({ ID }) => ID === mesh.ID)) {
       throw new Error(`Mesh ${mesh.ID} already loaded`)
     }
 
@@ -143,14 +144,10 @@ export class Renderer {
     bufferData.set(mesh.vertexData)
     vertexBuffer.unmap()
 
-    mesh.buffers = pipeline.createGpuBuffers()
-    mesh.bindGroup = pipeline.createBindGroup(mesh.buffers)
+    mesh.pipelineData = pipeline.createPipelineData()
     mesh.vertexBuffer = vertexBuffer
-    mesh.uniformData = pipeline.createUniformData()
 
-    this.pipelines[pipelineId].objects.push(
-      mesh as (typeof this.pipelines)[typeof pipelineId]['objects'][number]
-    )
+    objects.push(mesh as Parameters<(typeof pipeline)['loadBuffers']>[0])
   }
 
   public setLight = (lightNode: RigidNode): void => {
@@ -168,13 +165,21 @@ export class Renderer {
 
     const commandEncoder = this.device.createCommandEncoder()
 
+    const pass = this.getRenderPass(commandEncoder)
     Object.entries(this.pipelines).forEach(
       ([pipelineId, { objects, pipeline }]) => {
-        const pass = this.getRenderPass(commandEncoder)
         pass.setPipeline(pipeline.renderPipeline)
 
         for (const mesh of objects) {
-          pass.setBindGroup(0, mesh.bindGroup)
+          if (!mesh.pipelineData) {
+            throw new Error(`Mesh ${mesh.ID} does not have pipeline data`)
+          }
+
+          if (!mesh.vertexBuffer) {
+            throw new Error(`Mesh ${mesh.ID} vertexBuffer not set`)
+          }
+
+          pass.setBindGroup(0, mesh.pipelineData.bindGroup)
           pass.setVertexBuffer(0, mesh.vertexBuffer)
 
           switch (pipelineId) {
@@ -185,14 +190,20 @@ export class Renderer {
               pipeline.loadBuffers(mesh, camera, this.light)
               break
             }
+            case 'MONO_TOON': {
+              if (!this.light) {
+                throw new Error('Light not set')
+              }
+              pipeline.loadBuffers(mesh, camera, this.light)
+              break
+            }
           }
 
           pass.draw(mesh.vertexCount())
         }
-
-        pass.end()
       }
     )
+    pass.end()
 
     this.device.queue.submit([commandEncoder.finish()])
   }

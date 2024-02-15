@@ -4,14 +4,14 @@ import { RigidNode } from '../../nodes/RigidNode'
 import { Pipeline } from '../Pipeline'
 
 import vertexShader from './perspective.vert.wgsl?raw'
-import fragmentShader from './phong.frag.wgsl?raw'
+import fragmentShader from './toon.frag.wgsl?raw'
 
 interface MeshShape extends Mesh {
   materialData: Float32Array
 }
 
-export class MonoPhongPipeline extends Pipeline {
-  static readonly ID = 'MONO_PHONG'
+export class MonoToonPipeline extends Pipeline {
+  static readonly ID = 'MONO_TOON'
 
   constructor(device: GPUDevice) {
     const vertexDescriptor: GPUVertexState = {
