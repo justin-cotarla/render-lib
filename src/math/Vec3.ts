@@ -20,8 +20,14 @@ export class Vec3 extends AbstractVec<Vec3, Vec3ElementTuple> {
     return new Vec3(this[0], this[1], this[2])
   }
 
-  static fromArray = (elements: [x: number, y: number, x: number]): Vec3 => {
+  public static fromArray = (
+    elements: [x: number, y: number, x: number]
+  ): Vec3 => {
     return new Vec3(...elements)
+  }
+
+  public static zero = (): Vec3 => {
+    return new Vec3(0, 0, 0)
   }
 
   public toArray(): Vec3ElementTuple {

@@ -91,4 +91,9 @@ export abstract class AbstractVec<
   public isZero = (): boolean => {
     return this.toArray().every((value) => value === 0)
   }
+
+  public zero = (): this => {
+    this.set(Array.from({ length: this.ARITY }).map(() => 0) as T)
+    return this
+  }
 }

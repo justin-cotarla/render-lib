@@ -142,4 +142,22 @@ describe('Vec4', () => {
       expect(vector.applyMatrix(matrix).toArray()).toEqual([90, 100, 110, 120])
     })
   })
+
+  describe('isZero', () => {
+    it('detects a zero vector', () => {
+      const v1 = new Vec4(0, 0, 0, 0)
+      expect(v1.isZero()).toBe(true)
+    })
+
+    it('detects a non-zero vector', () => {
+      const v1 = new Vec4(1, 0, 3, 1)
+      expect(v1.isZero()).toBe(false)
+    })
+  })
+
+  describe('zero', () => {
+    it('returns a zero vector', () => {
+      expect(Vec4.zero().toArray()).toEqual([0, 0, 0, 0])
+    })
+  })
 })

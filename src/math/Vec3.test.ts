@@ -150,4 +150,22 @@ describe('Vec3', () => {
       expect(vector.upgrade(3).toArray()).toEqual([0, 1, 2, 3])
     })
   })
+
+  describe('isZero', () => {
+    it('detects a zero vector', () => {
+      const v1 = new Vec3(0, 0, 0)
+      expect(v1.isZero()).toBe(true)
+    })
+
+    it('detects a non-zero vector', () => {
+      const v1 = new Vec3(1, 0, 3)
+      expect(v1.isZero()).toBe(false)
+    })
+  })
+
+  describe('zero', () => {
+    it('returns a zero vector', () => {
+      expect(Vec3.zero().toArray()).toEqual([0, 0, 0])
+    })
+  })
 })

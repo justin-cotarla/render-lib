@@ -17,8 +17,12 @@ export class Vec2 extends AbstractVec<Vec2, Vec2ElementTuple> {
     return new Vec2(this[0], this[1])
   }
 
-  static fromArray = (elements: [x: number, y: number]): Vec2 => {
+  public static fromArray = (elements: [x: number, y: number]): Vec2 => {
     return new Vec2(...elements)
+  }
+
+  public static zero = (): Vec2 => {
+    return new Vec2(0, 0)
   }
 
   public toArray(): Vec2ElementTuple {
