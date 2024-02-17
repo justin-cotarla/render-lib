@@ -14,8 +14,8 @@ export class RigidNode {
   private _parent: RigidNode | null = null
   private children: RigidNode[] = []
 
-  public position: Vec3 = new Vec3(0, 0, 0)
-  public velocity: Vec3 = new Vec3(0, 0, 0)
+  public position = Vec3.zero()
+  public velocity = Vec3.zero()
   public orientation: Orientation = {
     bank: 0,
     pitch: 0,
