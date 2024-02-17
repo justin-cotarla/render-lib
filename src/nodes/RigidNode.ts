@@ -1,5 +1,6 @@
 import { Mat4 } from '../math/Mat4'
 import { Vec3 } from '../math/Vec3'
+import { AABB } from '../physics/AABB'
 
 interface Orientation {
   bank: number
@@ -11,30 +12,20 @@ export class RigidNode {
   private _ID = crypto.randomUUID()
 
   private _parent: RigidNode | null = null
-  private _children: RigidNode[] = []
-  private _position: Vec3 = new Vec3(0, 0, 0)
+  private children: RigidNode[] = []
 
-  private _velocity: Vec3 = new Vec3(0, 0, 0)
-  private _orientation: Orientation = {
+  public position: Vec3 = new Vec3(0, 0, 0)
+  public velocity: Vec3 = new Vec3(0, 0, 0)
+  public orientation: Orientation = {
     bank: 0,
     pitch: 0,
     heading: 0,
   }
 
+  public aabb?: AABB
+
   get ID() {
     return this._ID
-  }
-
-  public get velocity(): Vec3 {
-    return this._velocity
-  }
-
-  public get orientation(): Orientation {
-    return this._orientation
-  }
-
-  public set orientation(value: Orientation) {
-    this._orientation = value
   }
 
   public set parent(node: RigidNode | null) {
@@ -48,27 +39,19 @@ export class RigidNode {
     return this._parent
   }
 
-  public get position(): Vec3 {
-    return this._position
-  }
-
-  public set position(value: Vec3) {
-    this._position = value
-  }
-
   public move(displacement: Vec3): RigidNode {
-    this._position.add(displacement)
+    this.position.add(displacement)
     return this
   }
 
   public addChild(node: RigidNode): RigidNode {
-    this._children = [...this._children, node]
+    this.children = [...this.children, node]
     node.parent = this
     return this
   }
 
   public removeChild(node: RigidNode): RigidNode {
-    this._children = this._children.filter((child) => child === node)
+    this.children = this.children.filter((child) => child === node)
     node.parent = null
     return this
   }
@@ -78,7 +61,7 @@ export class RigidNode {
       [1, 0, 0, 0],
       [0, 1, 0, 0],
       [0, 0, 1, 0],
-      [...this._position.clone().scale(-1).toArray(), 1],
+      [...this.position.clone().scale(-1).toArray(), 1],
     ])
   }
 
@@ -87,25 +70,25 @@ export class RigidNode {
       [1, 0, 0, 0],
       [0, 1, 0, 0],
       [0, 0, 1, 0],
-      [...this._position.toArray(), 1],
+      [...this.position.toArray(), 1],
     ])
   }
 
   private getParentNodeRotation = (): Mat4 => {
     if (
-      this._orientation.heading === 0 &&
-      this._orientation.pitch === 0 &&
-      this._orientation.bank === 0
+      this.orientation.heading === 0 &&
+      this.orientation.pitch === 0 &&
+      this.orientation.bank === 0
     ) {
       return Mat4.identity()
     }
 
-    const ch = Math.cos(this._orientation.heading)
-    const cp = Math.cos(this._orientation.pitch)
-    const cb = Math.cos(this._orientation.bank)
-    const sh = Math.sin(this._orientation.heading)
-    const sp = Math.sin(this._orientation.pitch)
-    const sb = Math.sin(this._orientation.bank)
+    const ch = Math.cos(this.orientation.heading)
+    const cp = Math.cos(this.orientation.pitch)
+    const cb = Math.cos(this.orientation.bank)
+    const sh = Math.sin(this.orientation.heading)
+    const sp = Math.sin(this.orientation.pitch)
+    const sb = Math.sin(this.orientation.bank)
 
     return new Mat4([
       [ch * cb + sh * sp * sb, sb * cp, -sh * cb + ch * sp * sb, 0],

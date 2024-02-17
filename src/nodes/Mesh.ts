@@ -1,4 +1,5 @@
 import { Vec3 } from '../math/Vec3'
+import { AABB } from '../physics/AABB'
 import { PipelineData } from '../pipelines/Pipeline'
 import { RigidNode } from './RigidNode'
 
@@ -8,6 +9,8 @@ export interface Triangle {
 }
 
 export class Mesh extends RigidNode {
+  public aabb: AABB
+
   public pipelineData?: PipelineData
 
   public vertexBuffer?: GPUBuffer
@@ -22,6 +25,8 @@ export class Mesh extends RigidNode {
     super()
     this.normals = normals
     this.vertexData = this.computeVertexData()
+
+    this.aabb = this.computeAABB()
   }
 
   protected computeVertexData = (): Float32Array => {
@@ -68,4 +73,11 @@ export class Mesh extends RigidNode {
   }
 
   public vertexCount = (): number => this.triangles.length * 3
+
+  private computeAABB = (): AABB => {
+    const aabb = new AABB()
+    this.vertices.forEach(aabb.addPoint)
+
+    return aabb
+  }
 }
