@@ -1,13 +1,6 @@
-import { Vec3 } from '../math/Vec3'
 import { AABB } from './AABB'
 import { Body } from './Body'
-
-interface Collision {
-  referenceBody: Body
-  collidingBody: Body
-  collisionNormal: Vec3
-  collisionPos: Vec3
-}
+import { Collision } from './Collision'
 
 export class PhysicsEngine {
   protected bodies: Body[] = []
@@ -17,10 +10,22 @@ export class PhysicsEngine {
   }
 
   public update(dt: number) {
+    const collisions = this.computeCollisions()
+
+    collisions.forEach(
+      ({ referenceBody, collidingBody, collisionNormal, penetrationDepth }) => {
+        referenceBody.node.position.add(
+          collisionNormal.clone().scale(-penetrationDepth)
+        )
+        collidingBody.node.position.add(
+          collisionNormal.clone().scale(penetrationDepth)
+        )
+      }
+    )
+
     this.bodies.forEach((body) => {
       body.eulerIntegrate(dt)
     })
-    // const collisions = this.computeCollisions()
   }
 
   private computeCollisions = () => {
@@ -45,11 +50,17 @@ export class PhysicsEngine {
           continue
         }
 
+        const collisionData = referenceAabb.computeCollision(collidingAabb)
+
+        if (!collisionData) {
+          continue
+        }
+
         collisions.push({
           referenceBody: this.bodies[i],
           collidingBody: this.bodies[j],
-          collisionNormal: referenceAabb.computeCollisionNormal(collidingAabb),
           collisionPos: this.bodies[i].node.position,
+          ...collisionData,
         })
       }
     }

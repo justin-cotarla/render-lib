@@ -1,4 +1,5 @@
 import { Vec3 } from '../math/Vec3'
+import { Collision } from './Collision'
 
 export class AABB {
   public minPoint: Vec3
@@ -32,41 +33,48 @@ export class AABB {
     return true
   }
 
-  public computeCollisionNormal = (incoming: AABB): Vec3 => {
+  public computeCollision = (
+    incoming: AABB
+  ): Pick<Collision, 'penetrationDepth' | 'collisionNormal'> | void => {
     if (!this.intersects(incoming)) {
-      return Vec3.zero()
+      return
     }
 
     let minPenetration = Infinity
     let penetrationAxis = 0
+    let penetrationDirection = 1
 
     let currentPenetration = 0
-
-    const collisonNormal = Vec3.zero()
 
     for (let i = 0; i < 3; i++) {
       currentPenetration = this.maxPoint[i] - incoming.minPoint[i]
 
-      if (currentPenetration > 0 && currentPenetration < minPenetration) {
+      if (currentPenetration < minPenetration) {
         minPenetration = currentPenetration
         penetrationAxis = i
+        penetrationDirection = 1
       }
 
       currentPenetration = incoming.maxPoint[i] - this.minPoint[i]
 
-      if (currentPenetration > 0 && currentPenetration < minPenetration) {
+      if (currentPenetration < minPenetration) {
         minPenetration = currentPenetration
         penetrationAxis = i
+        penetrationDirection = -1
       }
     }
 
     if (minPenetration === Infinity) {
-      return collisonNormal
+      return
     }
 
-    collisonNormal[penetrationAxis] = minPenetration
+    const collisionNormal = Vec3.zero()
+    collisionNormal[penetrationAxis] = penetrationDirection
 
-    return collisonNormal
+    return {
+      collisionNormal,
+      penetrationDepth: minPenetration,
+    }
   }
 
   public translate = (value: Vec3): AABB => {

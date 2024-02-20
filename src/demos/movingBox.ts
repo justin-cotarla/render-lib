@@ -48,9 +48,9 @@ export const start = async () => {
 
   const s1 = new Body(new MonoMesh(...parseObj(sphereModel)), 1)
 
-  s1.node.position.x = -5
-  c1.node.position.x = 5
-  c2.node.position.x = 2
+  s1.node.position.x = -3
+  c1.node.position.x = 3
+  c2.node.position.x = 0
 
   rootNode.addChild(c1.node)
   rootNode.addChild(c2.node)
