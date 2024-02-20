@@ -15,7 +15,6 @@ export class RigidNode {
   private children: RigidNode[] = []
 
   public position = Vec3.zero()
-  public velocity = Vec3.zero()
   public orientation: Orientation = {
     bank: 0,
     pitch: 0,
@@ -74,7 +73,7 @@ export class RigidNode {
     ])
   }
 
-  private getParentNodeRotation = (): Mat4 => {
+  public getParentNodeRotation = (): Mat4 => {
     if (
       this.orientation.heading === 0 &&
       this.orientation.pitch === 0 &&
@@ -128,20 +127,5 @@ export class RigidNode {
     return this._parent
       .getNodeRootTransform()
       .multiply(this.getNodeParentTransform())
-  }
-
-  public tick = (timeDelta: number) => {
-    if (this.velocity.isZero()) {
-      return
-    }
-
-    this.position.add(
-      this.velocity
-        .clone()
-        .scale(timeDelta)
-        .upgrade(1)
-        .applyMatrix(this.getParentNodeRotation())
-        .downgrade()
-    )
   }
 }

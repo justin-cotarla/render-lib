@@ -10,6 +10,8 @@ import { Key, KeyboardObserver } from '../input/KeyboardObserver'
 import { MouseObserver } from '../input/MouseObserver'
 import { Vec4 } from '../math/Vec4'
 import { MonoMesh } from '../nodes/MonoMesh'
+import { PhysicsEngine } from '../physics/PhysicsEngine'
+import { Body } from '../physics/Body'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
@@ -64,33 +66,37 @@ export const start = async () => {
   renderer.loadMesh(s1, 'MONO_TOON')
   renderer.setLight(light)
 
+  const engine = new PhysicsEngine()
+  const cameraBody = new Body(camera, 1)
+  engine.registerBody(cameraBody)
+
   new KeyboardObserver({
     press: {
       [Key.UP]: () => {
-        camera.velocity.z += 0.01
+        cameraBody.linearImpulse.z += 0.01
       },
       [Key.DOWN]: () => {
-        camera.velocity.z -= 0.01
+        cameraBody.linearImpulse.z -= 0.01
       },
       [Key.LEFT]: () => {
-        camera.velocity.x -= 0.01
+        cameraBody.linearImpulse.x -= 0.01
       },
       [Key.RIGHT]: () => {
-        camera.velocity.x += 0.01
+        cameraBody.linearImpulse.x += 0.01
       },
     },
     release: {
       [Key.UP]: () => {
-        camera.velocity.z -= 0.01
+        cameraBody.linearImpulse.z -= 0.01
       },
       [Key.DOWN]: () => {
-        camera.velocity.z += 0.01
+        cameraBody.linearImpulse.z += 0.01
       },
       [Key.LEFT]: () => {
-        camera.velocity.x += 0.01
+        cameraBody.linearImpulse.x += 0.01
       },
       [Key.RIGHT]: () => {
-        camera.velocity.x -= 0.01
+        cameraBody.linearImpulse.x -= 0.01
       },
     },
   })
@@ -116,7 +122,7 @@ export const start = async () => {
     const deltaMs = previousTime ? time - previousTime : 0
     previousTime = time
 
-    camera.tick(deltaMs)
+    engine.update(deltaMs)
     renderer.renderAll(camera)
     requestAnimationFrame(cycle)
   }

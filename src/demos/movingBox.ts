@@ -26,69 +26,75 @@ export const start = async () => {
   const light = new RigidNode()
   light.position = new Vec3(20, 20, -10)
 
-  const c1 = new MonoMesh(...parseObj(flatCubeModel), {
-    diffuse: new Vec4(0, 1, 0, 1),
-    specular: new Vec4(0, 0, 0, 0),
-    ambient: new Vec4(0, 1, 0, 1),
-    gloss: 16,
-  })
+  const c1 = new Body(
+    new MonoMesh(...parseObj(flatCubeModel), {
+      diffuse: new Vec4(0, 1, 0, 1),
+      specular: new Vec4(0, 0, 0, 0),
+      ambient: new Vec4(0, 1, 0, 1),
+      gloss: 16,
+    }),
+    1
+  )
 
-  const c2 = new MonoMesh(...parseObj(flatCubeModel), {
-    diffuse: new Vec4(1, 0, 1, 1),
-    specular: new Vec4(0, 0, 0, 0),
-    ambient: new Vec4(1, 0, 1, 1),
-    gloss: 16,
-  })
+  const c2 = new Body(
+    new MonoMesh(...parseObj(flatCubeModel), {
+      diffuse: new Vec4(1, 0, 1, 1),
+      specular: new Vec4(0, 0, 0, 0),
+      ambient: new Vec4(1, 0, 1, 1),
+      gloss: 16,
+    }),
+    1
+  )
 
-  const s1 = new MonoMesh(...parseObj(sphereModel))
+  const s1 = new Body(new MonoMesh(...parseObj(sphereModel)), 1)
 
-  s1.position.x = -5
-  c1.position.x = 5
-  c2.position.x = 2
+  s1.node.position.x = -5
+  c1.node.position.x = 5
+  c2.node.position.x = 2
 
-  rootNode.addChild(c1)
-  rootNode.addChild(c2)
-  rootNode.addChild(s1)
+  rootNode.addChild(c1.node)
+  rootNode.addChild(c2.node)
+  rootNode.addChild(s1.node)
   rootNode.addChild(camera)
   rootNode.addChild(light)
 
-  renderer.loadMesh(c1, 'MONO_PHONG')
-  renderer.loadMesh(c2, 'MONO_PHONG')
-  renderer.loadMesh(s1, 'MONO_TOON')
+  renderer.loadMesh(c1.node, 'MONO_PHONG')
+  renderer.loadMesh(c2.node, 'MONO_PHONG')
+  renderer.loadMesh(s1.node, 'MONO_TOON')
   renderer.setLight(light)
 
   const engine = new PhysicsEngine()
-  engine.registerBody(new Body(c1, 1))
-  engine.registerBody(new Body(c2, 1))
-  engine.registerBody(new Body(s1, 1))
+  engine.registerBody(c1)
+  engine.registerBody(c2)
+  engine.registerBody(s1)
 
   new KeyboardObserver({
     press: {
       [Key.UP]: () => {
-        c1.velocity.z += 0.01
+        c1.linearImpulse.z += 0.01
       },
       [Key.DOWN]: () => {
-        c1.velocity.z -= 0.01
+        c1.linearImpulse.z -= 0.01
       },
       [Key.LEFT]: () => {
-        c1.velocity.x -= 0.01
+        c1.linearImpulse.x -= 0.01
       },
       [Key.RIGHT]: () => {
-        c1.velocity.x += 0.01
+        c1.linearImpulse.x += 0.01
       },
     },
     release: {
       [Key.UP]: () => {
-        c1.velocity.z -= 0.01
+        c1.linearImpulse.z -= 0.01
       },
       [Key.DOWN]: () => {
-        c1.velocity.z += 0.01
+        c1.linearImpulse.z += 0.01
       },
       [Key.LEFT]: () => {
-        c1.velocity.x += 0.01
+        c1.linearImpulse.x += 0.01
       },
       [Key.RIGHT]: () => {
-        c1.velocity.x -= 0.01
+        c1.linearImpulse.x -= 0.01
       },
     },
   })
@@ -109,10 +115,9 @@ export const start = async () => {
     const deltaMs = previousTime ? time - previousTime : 0
     previousTime = time
 
-    // engine.update(deltaMs)
-
-    c1.tick(deltaMs)
+    engine.update(deltaMs)
     renderer.renderAll(camera)
+
     requestAnimationFrame(cycle)
   }
 

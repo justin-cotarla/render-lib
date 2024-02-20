@@ -16,9 +16,12 @@ export class PhysicsEngine {
     this.bodies.push(body)
   }
 
-  // public update(dt: number) {
-  //   const collisions = this.computeCollisions()
-  // }
+  public update(dt: number) {
+    this.bodies.forEach((body) => {
+      body.eulerIntegrate(dt)
+    })
+    // const collisions = this.computeCollisions()
+  }
 
   private computeCollisions = () => {
     const collisions: Collision[] = []
