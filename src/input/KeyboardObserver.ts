@@ -1,6 +1,6 @@
 type keyMode = 'arrows' | 'wasd'
 
-export const enum Key {
+export const enum DirectionKey {
   UP,
   DOWN,
   LEFT,
@@ -9,14 +9,19 @@ export const enum Key {
 
 type KeyAction = 'press' | 'release'
 
-const KEY_MAP: Record<keyMode, Record<string, Key>> = {
+const DIRECTION_KEY_MAP: Record<keyMode, Record<string, DirectionKey>> = {
   arrows: {
-    ArrowUp: Key.UP,
-    ArrowDown: Key.DOWN,
-    ArrowLeft: Key.LEFT,
-    ArrowRight: Key.RIGHT,
+    ArrowUp: DirectionKey.UP,
+    ArrowDown: DirectionKey.DOWN,
+    ArrowLeft: DirectionKey.LEFT,
+    ArrowRight: DirectionKey.RIGHT,
   },
-  wasd: { w: Key.UP, s: Key.DOWN, a: Key.LEFT, d: Key.RIGHT },
+  wasd: {
+    w: DirectionKey.UP,
+    s: DirectionKey.DOWN,
+    a: DirectionKey.LEFT,
+    d: DirectionKey.RIGHT,
+  },
 }
 
 export class KeyboardObserver {
@@ -27,7 +32,10 @@ export class KeyboardObserver {
   }
 
   constructor(
-    readonly keyActions: Record<KeyAction, Record<Key, () => void>>,
+    readonly keyActions: Record<
+      KeyAction,
+      Record<DirectionKey, () => void> & Record<string, () => void>
+    >,
     readonly keyMode: 'arrows' | 'wasd' = 'wasd'
   ) {
     const onPress = this.onKey('press')
@@ -48,6 +56,6 @@ export class KeyboardObserver {
       if (repeat) {
         return
       }
-      this.keyActions[keyAction][KEY_MAP[this.keyMode][key]]()
+      this.keyActions[keyAction][DIRECTION_KEY_MAP[this.keyMode][key] ?? key]()
     }
 }
