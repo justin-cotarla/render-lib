@@ -1,4 +1,4 @@
-import { Vec3 } from '../math/Vec3'
+import { Vec3 } from '../../math/Vec3'
 import { RigidNode } from '../nodes/RigidNode'
 
 export class Body<N extends RigidNode = RigidNode> {
@@ -13,7 +13,7 @@ export class Body<N extends RigidNode = RigidNode> {
 
   constructor(
     readonly node: N,
-    readonly mass: number
+    readonly mass = 1
   ) {
     this.inverseMass = 1 / mass
   }

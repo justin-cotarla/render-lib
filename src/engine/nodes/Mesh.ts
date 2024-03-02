@@ -1,4 +1,4 @@
-import { Vec3 } from '../math/Vec3'
+import { Vec3 } from '../../math/Vec3'
 import { AABB } from '../physics/AABB'
 import { PipelineData } from '../pipelines/Pipeline'
 import { RigidNode } from './RigidNode'

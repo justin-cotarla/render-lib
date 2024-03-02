@@ -1,5 +1,5 @@
-import { Mat4 } from '../math/Mat4'
-import { Vec3 } from '../math/Vec3'
+import { Mat4 } from '../../math/Mat4'
+import { Vec3 } from '../../math/Vec3'
 import { AABB } from '../physics/AABB'
 
 interface Orientation {

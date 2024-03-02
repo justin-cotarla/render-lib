@@ -1,5 +1,5 @@
-import { Vec3 } from '../math/Vec3'
-import { Vec4 } from '../math/Vec4'
+import { Vec3 } from '../../math/Vec3'
+import { Vec4 } from '../../math/Vec4'
 import { Mesh, Triangle } from './Mesh'
 
 interface Material {

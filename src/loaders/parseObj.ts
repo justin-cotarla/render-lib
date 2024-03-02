@@ -1,5 +1,5 @@
 import { Vec3, Vec3ElementTuple } from '../math/Vec3'
-import { Mesh, Triangle } from '../nodes/Mesh'
+import { Mesh, Triangle } from '../engine/nodes/Mesh'
 
 const KEYWORDS = ['v', 'vn', 'f', '#'] as const
 
