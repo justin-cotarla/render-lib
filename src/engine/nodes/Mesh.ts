@@ -1,4 +1,5 @@
 import { Vec3 } from '../../math/Vec3'
+import { RenderPipelines } from '../Renderer'
 import { AABB } from '../physics/AABB'
 import { PipelineData } from '../pipelines/Pipeline'
 import { RigidNode } from './RigidNode'
@@ -8,9 +9,10 @@ export interface Triangle {
   normalIndices: [number, number, number]
 }
 
-export class Mesh extends RigidNode {
+export abstract class Mesh extends RigidNode {
   public aabb: AABB
 
+  public abstract pipelineId: keyof RenderPipelines
   public pipelineData?: PipelineData
 
   public vertexBuffer?: GPUBuffer

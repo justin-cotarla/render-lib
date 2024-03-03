@@ -12,7 +12,7 @@ export class RigidNode {
   private _ID = crypto.randomUUID()
 
   private _parent: RigidNode | null = null
-  private children: RigidNode[] = []
+  private _children: RigidNode[] = []
 
   public position = Vec3.zero()
   public orientation: Orientation = {
@@ -25,6 +25,10 @@ export class RigidNode {
 
   get ID() {
     return this._ID
+  }
+
+  get children(): RigidNode[] {
+    return this._children
   }
 
   public set parent(node: RigidNode | null) {
@@ -44,13 +48,13 @@ export class RigidNode {
   }
 
   public addChild(node: RigidNode): RigidNode {
-    this.children = [...this.children, node]
+    this._children = [...this.children, node]
     node.parent = this
     return this
   }
 
   public removeChild(node: RigidNode): RigidNode {
-    this.children = this.children.filter((child) => child === node)
+    this._children = this.children.filter((child) => child === node)
     node.parent = null
     return this
   }

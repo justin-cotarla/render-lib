@@ -1,5 +1,6 @@
 import { Vec3 } from '../../math/Vec3'
 import { Vec4 } from '../../math/Vec4'
+import { RenderPipelines } from '../Renderer'
 import { Mesh, Triangle } from './Mesh'
 
 interface Material {
@@ -21,6 +22,7 @@ export class MonoMesh extends Mesh {
   private _materialData: Float32Array
 
   constructor(
+    readonly pipelineId: keyof RenderPipelines,
     triangles: Triangle[],
     vertices: Vec3[],
     normals: Vec3[],

@@ -1,3 +1,5 @@
+import { Scene } from './Scene'
+import { Light } from './nodes/LightNode'
 import { Mesh } from './nodes/Mesh'
 import { PerspectiveCamera } from './nodes/PerpectiveCamera'
 import { RigidNode } from './nodes/RigidNode'
@@ -7,17 +9,20 @@ import { MonoToonPipeline } from './pipelines/monoToon'
 
 interface PipelineGroup<P extends Pipeline> {
   pipeline: P
-  objects: Parameters<P['loadBuffers']>[0][]
+  meshes: Parameters<P['loadBuffers']>[0][]
+}
+
+export type RenderPipelines = {
+  [MonoPhongPipeline.ID]: PipelineGroup<MonoPhongPipeline>
+  [MonoToonPipeline.ID]: PipelineGroup<MonoToonPipeline>
 }
 
 export class Renderer {
   private context: GPUCanvasContext | null = null
   private light: RigidNode | null = null
 
-  private pipelines: {
-    [MonoPhongPipeline.ID]: PipelineGroup<MonoPhongPipeline>
-    [MonoToonPipeline.ID]: PipelineGroup<MonoToonPipeline>
-  }
+  private pipelines: RenderPipelines
+  private scene?: Scene
 
   private constructor(
     readonly device: GPUDevice,
@@ -28,11 +33,11 @@ export class Renderer {
     this.pipelines = {
       MONO_PHONG: {
         pipeline: new MonoPhongPipeline(this.device),
-        objects: [],
+        meshes: [],
       },
       MONO_TOON: {
         pipeline: new MonoToonPipeline(this.device),
-        objects: [],
+        meshes: [],
       },
     }
   }
@@ -122,40 +127,47 @@ export class Renderer {
     return pass
   }
 
-  public loadMesh = (mesh: Mesh, pipelineId: keyof typeof this.pipelines) => {
-    if (!this.device) {
-      throw new Error('Device not loaded')
-    }
-
-    const { pipeline, objects } = this.pipelines[pipelineId]
-
-    if (objects.find(({ ID }) => ID === mesh.ID)) {
-      throw new Error(`Mesh ${mesh.ID} already loaded`)
-    }
-
-    const vertexBuffer = this.device.createBuffer({
-      label: `vertex_buffer_${mesh.ID}`,
-      size: mesh.vertexData.byteLength,
-      usage: GPUBufferUsage.VERTEX,
-      mappedAtCreation: true,
+  public unloadScene() {
+    Object.values(this.pipelines).forEach((pipeline) => {
+      pipeline.meshes = []
     })
 
-    const bufferData = new Float32Array(vertexBuffer.getMappedRange())
-    bufferData.set(mesh.vertexData)
-    vertexBuffer.unmap()
-
-    mesh.pipelineData = pipeline.createPipelineData()
-    mesh.vertexBuffer = vertexBuffer
-
-    objects.push(mesh as Parameters<(typeof pipeline)['loadBuffers']>[0])
+    this.scene = undefined
   }
 
-  public setLight = (lightNode: RigidNode): void => {
+  public loadScene = (scene: Scene) => {
     if (!this.device) {
       throw new Error('Device not loaded')
     }
 
-    this.light = lightNode
+    if (this.scene) {
+      throw new Error('Scene already loaded')
+    }
+
+    this.scene = scene
+
+    for (const mesh of scene.filterNodes(Mesh)) {
+      const { pipeline, meshes: objects } = this.pipelines[mesh.pipelineId]
+
+      const vertexBuffer = this.device.createBuffer({
+        label: `vertex_buffer_${mesh.ID}`,
+        size: mesh.vertexData.byteLength,
+        usage: GPUBufferUsage.VERTEX,
+        mappedAtCreation: true,
+      })
+
+      const bufferData = new Float32Array(vertexBuffer.getMappedRange())
+      bufferData.set(mesh.vertexData)
+      vertexBuffer.unmap()
+
+      mesh.pipelineData = pipeline.createPipelineData()
+      mesh.vertexBuffer = vertexBuffer
+
+      objects.push(mesh as Parameters<(typeof pipeline)['loadBuffers']>[0])
+    }
+
+    const lights = scene.filterNodes(Light)
+    this.light = lights[0]
   }
 
   public renderAll = async (camera: PerspectiveCamera) => {
@@ -167,7 +179,7 @@ export class Renderer {
 
     const pass = this.getRenderPass(commandEncoder)
     Object.entries(this.pipelines).forEach(
-      ([pipelineId, { objects, pipeline }]) => {
+      ([pipelineId, { meshes: objects, pipeline }]) => {
         pass.setPipeline(pipeline.renderPipeline)
 
         for (const mesh of objects) {
