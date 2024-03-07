@@ -1,5 +1,3 @@
-// import * as fpsCamera from './demos/fpsCamera'
-import * as movingBox from './demos/movingBox'
+import * as fpsCamera from './demos/fpsCamera'
 
-// fpsCamera.start()
-movingBox.start()
+fpsCamera.start()
