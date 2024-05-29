@@ -17,7 +17,11 @@ const parseVec3Data = (data: string): Vec3 => {
 
 export const parseObj = (
   rawMesh: string
-): ConstructorParameters<typeof Mesh> => {
+): {
+  vertices: Vec3[]
+  normals: Vec3[]
+  triangles: Triangle[]
+} => {
   const vertices: Vec3[] = []
   const normals: Vec3[] = []
   const triangles: Triangle[] = []
@@ -90,5 +94,5 @@ export const parseObj = (
     }
   }
 
-  return [triangles, vertices, normals]
+  return { triangles, vertices, normals }
 }

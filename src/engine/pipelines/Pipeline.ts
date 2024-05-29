@@ -1,4 +1,5 @@
 import { Mesh } from '../nodes/Mesh'
+import { System } from '../../ecs/System'
 
 export interface PipelineData {
   buffers: GPUBuffer[]
@@ -6,12 +7,14 @@ export interface PipelineData {
   uniformData: Float32Array
 }
 
-export abstract class Pipeline {
+export abstract class Pipeline extends System {
   constructor(
     readonly device: GPUDevice,
     readonly renderPipeline: GPURenderPipeline,
     readonly uniformDataSize: number
-  ) {}
+  ) {
+    super()
+  }
 
   public abstract loadBuffers(mesh: Mesh, ...scene: never[]): void
 
