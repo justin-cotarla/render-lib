@@ -1,3 +1,3 @@
-import { Tag } from '../../ecs/Tag'
+import { Component } from '../../ecs/Component'
 
-export const MonoPhongFrag = new Tag('MONO_PHONG')
+export const MonoPhongFrag = new Component('MONO_PHONG')

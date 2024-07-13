@@ -1,46 +1,52 @@
-import {
-  ComponentAddEvent,
-  ComponentRemoveEvent,
-  Component,
-} from './Component'
+import { Component, ComponentAddEvent, ComponentRemoveEvent } from './Component'
 
 export class System {
-  collectedEntities = new Map<number, number>()
-  componentListeners = new Map<
+  collectedEntitySignalCounts = new Map<number, number>()
+  registeredComponents = new Map<
     Component<unknown>,
     {
-      onComponentAdd: (event: ComponentAddEvent) => void,
+      onComponentAdd: (event: ComponentAddEvent) => void
       onComponentRemove: (event: ComponentAddEvent) => void
     }
   >()
 
-  addComponentListener(component: Component<unknown>) {
-    if (this.componentListeners.has(component)) {
-      throw new Error(`${component} store already registered`)
+  registerComponent(component: Component<unknown>) {
+    if (this.registeredComponents.has(component)) {
+      throw new Error(`${component} component already registered`)
     }
 
     const onComponentAdd = (event: ComponentAddEvent) => {
-      const entityComponentCount = this.collectedEntities.get(event.entityId)
+      const entitySignalCount = this.collectedEntitySignalCounts.get(
+        event.entityId
+      )
 
-      if (entityComponentCount === undefined) {
-        this.collectedEntities.set(event.entityId, 1)
+      if (entitySignalCount === undefined) {
+        this.collectedEntitySignalCounts.set(event.entityId, 1)
         return
       }
 
-      this.collectedEntities.set(event.entityId, entityComponentCount + 1)
+      this.collectedEntitySignalCounts.set(
+        event.entityId,
+        entitySignalCount + 1
+      )
     }
 
     const onComponentRemove = (event: ComponentRemoveEvent) => {
-      const entityComponentCount = this.collectedEntities.get(event.entityId)
+      const entitySignalCount = this.collectedEntitySignalCounts.get(
+        event.entityId
+      )
 
-      if (entityComponentCount === undefined) {
+      if (entitySignalCount === undefined) {
         return
       }
 
-      this.collectedEntities.set(event.entityId, entityComponentCount - 1)
+      this.collectedEntitySignalCounts.set(
+        event.entityId,
+        entitySignalCount - 1
+      )
     }
 
-    this.componentListeners.set(component, {
+    this.registeredComponents.set(component, {
       onComponentAdd,
       onComponentRemove,
     })
@@ -49,24 +55,30 @@ export class System {
     component.addEventListener('componentremove', onComponentRemove)
   }
 
-  removeComponentListener(store: Component<unknown>) {
-    const callbacks = this.componentListeners.get(store)
+  removeComponentListener(component: Component<unknown>) {
+    const callbacks = this.registeredComponents.get(component)
 
     if (!callbacks) {
-      throw new Error(`${store} store not registered`)
+      throw new Error(`${component} store not registered`)
     }
 
-    store.removeEventListener('componentadd', callbacks.onComponentAdd)
-    store.removeEventListener('componentremove', callbacks.onComponentRemove)
+    component.removeEventListener('componentadd', callbacks.onComponentAdd)
+    component.removeEventListener(
+      'componentremove',
+      callbacks.onComponentRemove
+    )
 
-    this.componentListeners.delete(store)
+    this.registeredComponents.delete(component)
   }
 
+  /**
+   * Returns a list of entities that have all the components registered in the system
+   */
   *getMatchedEntities() {
-    const targetComponentCount = this.componentListeners.values.length
+    const registeredComponentCount = this.registeredComponents.values.length
 
-    for (const [entity, count] of this.collectedEntities) {
-      if (count === targetComponentCount) {
+    for (const [entity, collectedSignals] of this.collectedEntitySignalCounts) {
+      if (collectedSignals === registeredComponentCount) {
         yield entity
       }
     }

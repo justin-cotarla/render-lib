@@ -1,3 +1,3 @@
-import { Tag } from '../../ecs/Tag'
+import { Component } from '../../ecs/Component'
 
-export const MonoPhongTag = new Tag('PERPECTIVE_VERT')
+export const MonoPhongTag = new Component('PERPECTIVE_VERT')

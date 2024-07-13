@@ -1,8 +1,37 @@
-import { Tag } from './Tag'
+import { TypedEventTarget } from '../types/TypedEventTarget'
 
-export class Component<T> extends Tag {
+export class ComponentAddEvent extends Event {
+  static readonly type = 'componentadd'
+
+  constructor(
+    readonly componentName: string,
+    readonly entityId: number
+  ) {
+    super(ComponentAddEvent.type)
+  }
+}
+
+export class ComponentRemoveEvent extends Event {
+  static readonly type = 'componentremove'
+
+  constructor(
+    readonly componentName: string,
+    readonly entityId: number
+  ) {
+    super(ComponentRemoveEvent.type)
+  }
+}
+
+export class Component<T = never> extends (EventTarget as TypedEventTarget<{
+  [ComponentAddEvent.type]: ComponentAddEvent
+  [ComponentRemoveEvent.type]: ComponentRemoveEvent
+}>) {
   private data: T[] = []
   private entityDataIndexMap: Map<number, number> = new Map()
+
+  constructor(readonly name: string) {
+    super()
+  }
 
   addToEntity(entityId: number, value: T): void {
     if (this.entityDataIndexMap.has(entityId)) {
@@ -11,8 +40,6 @@ export class Component<T> extends Tag {
 
     const index = this.data.push(value) - 1
     this.entityDataIndexMap.set(entityId, index)
-
-    super.addToEntity(entityId)
   }
 
   updateEntityData(entityId: number, value: T): void {
