@@ -26,54 +26,47 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
   [ComponentAddEvent.type]: ComponentAddEvent
   [ComponentRemoveEvent.type]: ComponentRemoveEvent
 }>) {
-  private data: T[] = []
-  private entityDataIndexMap: Map<number, number> = new Map()
+  private entityData: T[] = []
 
   constructor(readonly name: string) {
     super()
   }
 
   addToEntity(entityId: number, value: T): void {
-    if (this.entityDataIndexMap.has(entityId)) {
+    if (this.entityData[entityId]) {
       throw new Error(`Entity ${entityId} already has a ${this.name} component`)
     }
 
-    const index = this.data.push(value) - 1
-    this.entityDataIndexMap.set(entityId, index)
+    this.entityData[entityId] = value
   }
 
   updateEntityData(entityId: number, value: T): void {
-    const componentIndex = this.entityDataIndexMap.get(entityId)
-    if (!componentIndex) {
+    if (!this.entityData[entityId]) {
       throw new Error(
         `Entity ${entityId} does not have a ${this.name} component`
       )
     }
 
-    this.data[componentIndex] = value
+    this.entityData[entityId] = value
   }
 
   removeFromEntity(entityId: number): void {
-    const instanceIndex = this.entityDataIndexMap.get(entityId)
-
-    if (!instanceIndex) {
+    if (!this.entityData[entityId]) {
       throw new Error(
         `Entity ${entityId} does not have a ${this.name} component`
       )
     }
 
-    delete this.data[instanceIndex]
-    this.entityDataIndexMap.delete(entityId)
+    delete this.entityData[entityId]
   }
 
   getEntityData(entityId: number): T {
-    const componentIndex = this.entityDataIndexMap.get(entityId)
-    if (!componentIndex) {
+    if (!this.entityData[entityId]) {
       throw new Error(
         `Entity ${entityId} does not have a ${this.name} component`
       )
     }
 
-    return this.data[componentIndex]
+    return this.entityData[entityId]
   }
 }
