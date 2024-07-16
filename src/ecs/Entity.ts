@@ -6,7 +6,7 @@ export class Entity {
 
   constructor(readonly id: number) {}
 
-  addComponent<T>(component: Component<T>): void
+  addComponent<T extends never>(component: Component<T>): void
   addComponent<T, V extends T>(component: Component<T>, value: V): void
   addComponent<T, V extends T>(component: DefaultComponent<T>, value?: V): void
   addComponent<T, V extends T, C extends DefaultComponent<T> | Component<T>>(
