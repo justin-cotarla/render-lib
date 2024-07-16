@@ -1,8 +1,9 @@
 import { Component, ComponentAddEvent, ComponentRemoveEvent } from './Component'
+import { Entity } from './Entity'
 
 export class System {
-  collectedEntitySignalCounts = new Map<number, number>()
-  registeredComponents = new Map<
+  private collectedEntitySignalCounts = new Map<number, number>()
+  private registeredComponents = new Map<
     Component<unknown>,
     {
       onComponentAdd: (event: ComponentAddEvent) => void
@@ -74,12 +75,13 @@ export class System {
   /**
    * Returns a list of entities that have all the components registered in the system
    */
-  *getMatchedEntities() {
+  *getMatchedEntities(): Generator<Entity, void, unknown> {
     const registeredComponentCount = this.registeredComponents.values.length
 
-    for (const [entity, collectedSignals] of this.collectedEntitySignalCounts) {
+    for (const [entityId, collectedSignals] of this
+      .collectedEntitySignalCounts) {
       if (collectedSignals === registeredComponentCount) {
-        yield entity
+        yield new Entity(entityId)
       }
     }
   }
