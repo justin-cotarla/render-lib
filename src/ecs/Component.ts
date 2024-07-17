@@ -4,7 +4,7 @@ export class ComponentAddEvent extends Event {
   static readonly type = 'componentadd'
 
   constructor(
-    readonly componentName: string,
+    readonly name: string,
     readonly entityId: number
   ) {
     super(ComponentAddEvent.type)
@@ -15,7 +15,7 @@ export class ComponentRemoveEvent extends Event {
   static readonly type = 'componentremove'
 
   constructor(
-    readonly componentName: string,
+    readonly name: string,
     readonly entityId: number
   ) {
     super(ComponentRemoveEvent.type)
@@ -38,6 +38,8 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
     }
 
     this.entityData[entityId] = value
+    this.dispatchEvent(new ComponentAddEvent(this.name, entityId))
+    console.log(`Added ${this.name} component to entity#${entityId}`)
   }
 
   updateEntityData(entityId: number, value: T): void {
@@ -48,6 +50,7 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
     }
 
     this.entityData[entityId] = value
+    console.log(`Updated ${this.name} component data in entity#${entityId}`)
   }
 
   removeFromEntity(entityId: number): void {
@@ -58,6 +61,8 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
     }
 
     delete this.entityData[entityId]
+    this.dispatchEvent(new ComponentRemoveEvent(this.name, entityId))
+    console.log(`Removed ${this.name} component from entity#${entityId}`)
   }
 
   getEntityData(entityId: number): T {
