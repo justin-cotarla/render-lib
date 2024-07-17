@@ -56,7 +56,7 @@ export class System {
     component.addEventListener('componentremove', onComponentRemove)
   }
 
-  removeComponentListener(component: Component<unknown>) {
+  unregisterComponentListener(component: Component<unknown>) {
     const callbacks = this.registeredComponents.get(component)
 
     if (!callbacks) {
@@ -76,7 +76,7 @@ export class System {
    * Returns a list of entities that have all the components registered in the system
    */
   *getMatchedEntities(): Generator<Entity, void, unknown> {
-    const registeredComponentCount = this.registeredComponents.values.length
+    const registeredComponentCount = this.registeredComponents.size
 
     for (const [entityId, collectedSignals] of this
       .collectedEntitySignalCounts) {
