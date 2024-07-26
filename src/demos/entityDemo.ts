@@ -16,6 +16,8 @@ import { TransformTarget } from '../engine/components/TransformTarget'
 import { PipelineIdentifier } from '../engine/components/PipelineIdentifier'
 import { Light } from '../engine/components/Light'
 import { CanvasResizer } from '../engine/systems/CanvasResizer'
+import { CameraMover } from '../engine/systems/CameraMover'
+import { PlayerCamera } from '../engine/components/PlayerCamera'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
@@ -23,8 +25,8 @@ export const start = async () => {
   const renderer = await Renderer.create(canvas)
   const { maxTextureDimension2D } = renderer.getDeviceLimits()
 
-  const canvasResizer = new CanvasResizer(canvas, maxTextureDimension2D)
-  canvasResizer.start()
+  const _canvasResizer = new CanvasResizer(canvas, maxTextureDimension2D)
+  const _cameraMover = new CameraMover(0.001)
 
   const parentNormalizer = new ParentNormalizer()
 
@@ -37,6 +39,7 @@ export const start = async () => {
   cameraEntity.addComponent(Orientation)
   // cameraEntity.addComponent(Orientation, { bank: 0, heading: (Math.PI / 180) * 270, pitch: 0 })
   cameraEntity.addComponent(TransformTarget)
+  cameraEntity.addComponent(PlayerCamera)
 
   const lightEntity = world.createEntity()
   lightEntity.addComponent(Position, new Vec3(20, 20, -10))
@@ -103,11 +106,6 @@ export const start = async () => {
   //       cameraBody.linearImpulse.x -= 0.01
   //     },
   //   },
-  // })
-
-  // new MouseObserver((movementX, movementY) => {
-  //   camera.orientation.heading += movementX / 1000
-  //   camera.orientation.pitch += movementY / 1000
   // })
 
   renderer.render()

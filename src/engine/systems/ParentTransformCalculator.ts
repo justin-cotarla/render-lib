@@ -62,8 +62,8 @@ export class ParentTranformCalculator extends System {
 
       entity.addComponent(
         ParentTransform,
-        this.getParentTranslation(position).multiply(
-          this.getParentRotation(orientation)
+        this.getParentRotation(orientation).multiply(
+          this.getParentTranslation(position)
         )
       )
     }

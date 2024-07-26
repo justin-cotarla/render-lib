@@ -1,5 +1,6 @@
 import { System } from '../../ecs/System'
 import { PerspectiveCamera } from '../components/PerspectiveCamera'
+import { PlayerCamera } from '../components/PlayerCamera'
 
 export class CanvasResizer extends System {
   private resizeObserver: ResizeObserver
@@ -42,12 +43,10 @@ export class CanvasResizer extends System {
   ) {
     super()
 
+    this.registerComponent(PlayerCamera)
     this.registerComponent(PerspectiveCamera)
 
     this.resizeObserver = this.setupResizeObserver()
-  }
-
-  public start() {
     this.resizeObserver.observe(this.canvas)
   }
 }
