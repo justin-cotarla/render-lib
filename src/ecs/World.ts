@@ -10,8 +10,8 @@ export class World {
     return entity
   }
 
-  deleteEntity(entity: Entity): void {
-    entity.components.forEach(entity.removeComponent)
-    delete this.entityList[entity.id]
-  }
+  // deleteEntity(entity: Entity): void {
+  //   entity.components.forEach(entity.removeComponent)
+  //   delete this.entityList[entity.id]
+  // }
 }

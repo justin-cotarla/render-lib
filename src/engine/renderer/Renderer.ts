@@ -1,26 +1,70 @@
-export class Renderer {
-  private context: GPUCanvasContext | null = null
+import { System } from '../../ecs/System'
+import { BindGroupData } from '../components/BindGroupData'
+import { Mesh } from '../components/Mesh'
+import { MeshBuffer } from '../components/MeshBuffer'
+import { PipelineIdentifier } from '../components/PipelineIdentifier'
+import { createPipelines } from '../pipelines/createPipelines'
+import { Pipeline } from '../pipelines/Pipeline'
+import { PerspectiveCameraCollector } from '../systems/CameraCollector'
+import { LightCollector } from '../systems/LightCollector'
+import { LocalTranformCalculator } from '../systems/LocalTransformCalculator'
+import { MeshBufferLoader } from '../systems/MeshBufferLoader'
+import { ParentTranformCalculator } from '../systems/ParentTransformCalculator'
+import { PipelineBufferAllocator } from '../systems/PipelineBufferAllocator'
+import { PipelineBufferLoader } from '../systems/PipelineBufferLoader'
+import { RootTranformCalculator } from '../systems/RootTransformCalculator'
+
+export class Renderer extends System {
+  private parentTransformCalculator = new ParentTranformCalculator()
+  private rootTransformCalculator = new RootTranformCalculator()
+  private localTransformCalculator = new LocalTranformCalculator()
+
+  private lightCollector = new LightCollector()
+  private perspectiveCameraCollector = new PerspectiveCameraCollector()
+  private pipelineBufferLoader: PipelineBufferLoader
+  private pipelineBufferAllocator: PipelineBufferAllocator
+  private meshBufferLoader: MeshBufferLoader
+  pipelineMap: Record<string, Pipeline>
 
   private constructor(
-    readonly device: GPUDevice,
-    readonly canvas: HTMLCanvasElement
+    private readonly device: GPUDevice,
+    private readonly context: GPUCanvasContext
   ) {
+    super()
+    this.pipelineMap = createPipelines(this.device)
 
-    this.context = this.getRenderContext()
+    this.pipelineBufferAllocator = new PipelineBufferAllocator(
+      this.device,
+      this.pipelineMap
+    )
+
+    this.meshBufferLoader = new MeshBufferLoader(this.device)
+
+    this.pipelineBufferLoader = new PipelineBufferLoader(
+      this.device,
+      this.pipelineMap
+    )
+
+    this.registerComponent(BindGroupData)
+    this.registerComponent(MeshBuffer)
+    this.registerComponent(Mesh)
+    this.registerComponent(PipelineIdentifier)
   }
 
   public static create = async (
     canvas: HTMLCanvasElement
   ): Promise<Renderer> => {
     const device = await this.getDevice()
-    return new Renderer(device, canvas)
+    const context = this.getRenderContext(device, canvas)
+
+    return new Renderer(device, context)
   }
 
   public getDeviceLimits = (): GPUSupportedLimits => this.device.limits
 
   private static getDevice = async (): Promise<GPUDevice> => {
     if (!navigator.gpu) {
-      throw new Error('WebGPU not supports')
+      throw new Error('WebGPU not supported')
     }
 
     const adapter = await navigator.gpu.requestAdapter()
@@ -32,13 +76,18 @@ export class Renderer {
     return adapter.requestDevice()
   }
 
-  private getRenderContext = (): GPUCanvasContext => {
-    if (!this.device) {
-      throw new Error('Device not loaded')
-    }
+  public allocateBuffers() {
+    this.pipelineBufferAllocator.allocateBuffers()
+  }
 
-    const canvas = document.querySelector('#canvas') as HTMLCanvasElement
+  public loadStaticMeshBuffers() {
+    this.meshBufferLoader.loadBuffers()
+  }
 
+  private static getRenderContext = (
+    device: GPUDevice,
+    canvas: HTMLCanvasElement
+  ): GPUCanvasContext => {
     const context = canvas.getContext('webgpu')
 
     if (!context) {
@@ -46,7 +95,7 @@ export class Renderer {
     }
 
     context.configure({
-      device: this.device,
+      device,
       format: navigator.gpu.getPreferredCanvasFormat(),
       alphaMode: 'premultiplied',
     })
@@ -54,16 +103,7 @@ export class Renderer {
     return context
   }
 
-  private getRenderPass = (
-    commandEncoder: GPUCommandEncoder
-  ): GPURenderPassEncoder => {
-    if (!this.device) {
-      throw new Error('Device not loaded')
-    }
-    if (!this.context) {
-      throw new Error('No context')
-    }
-
+  private getRenderPassDescriptor = (): GPURenderPassDescriptor => {
     const canvasTexture = this.context.getCurrentTexture()
 
     const depthTexture = this.device.createTexture({
@@ -72,7 +112,7 @@ export class Renderer {
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     })
 
-    const renderPassDescriptor: GPURenderPassDescriptor = {
+    return {
       colorAttachments: [
         {
           clearValue: { r: 0.2, b: 0.2, g: 0.2, a: 1.0 },
@@ -88,88 +128,46 @@ export class Renderer {
         depthStoreOp: 'store',
       },
     }
-
-    const pass = commandEncoder.beginRenderPass(renderPassDescriptor)
-
-    return pass
   }
 
-  public loadScene = () => {
+  public render = async () => {
     if (!this.device) {
       throw new Error('Device not loaded')
     }
 
-    for (const entity of this.getMatchedEntities()) {
-      const mesh = this.getComponent(com)
-      const { pipeline, meshes: objects } = this.
+    this.parentTransformCalculator.calculateParentTransforms()
+    this.rootTransformCalculator.calculateRootTransforms()
+    this.localTransformCalculator.calculateLocalTransforms()
 
-      const vertexBuffer = this.device.createBuffer({
-        label: `vertex_buffer_${mesh.ID}`,
-        size: mesh.vertexData.byteLength,
-        usage: GPUBufferUsage.VERTEX,
-        mappedAtCreation: true,
-      })
+    const camera = this.perspectiveCameraCollector.collect()[0]
+    const lights = this.lightCollector.collect()
 
-      const bufferData = new Float32Array(vertexBuffer.getMappedRange())
-      bufferData.set(mesh.vertexData)
-      vertexBuffer.unmap()
-
-      mesh.pipelineData = pipeline.createPipelineData()
-      mesh.vertexBuffer = vertexBuffer
-
-      objects.push(mesh as Parameters<(typeof pipeline)['loadBuffers']>[0])
-    }
-
-    const lights = scene.filterNodes(Light)
-    this.light = lights[0]
-  }
-
-  public renderAll = async (camera: PerspectiveCamera) => {
-    if (!this.device) {
-      throw new Error('Device not loaded')
-    }
+    this.pipelineBufferLoader.loadBuffers({
+      camera,
+      lights,
+    })
 
     const commandEncoder = this.device.createCommandEncoder()
-
-    const pass = this.getRenderPass(commandEncoder)
-    Object.entries(this.pipelines).forEach(
-      ([pipelineId, { meshes: objects, pipeline }]) => {
-        pass.setPipeline(pipeline.renderPipeline)
-
-        for (const mesh of objects) {
-          if (!mesh.pipelineData) {
-            throw new Error(`Mesh ${mesh.ID} does not have pipeline data`)
-          }
-
-          if (!mesh.vertexBuffer) {
-            throw new Error(`Mesh ${mesh.ID} vertexBuffer not set`)
-          }
-
-          pass.setBindGroup(0, mesh.pipelineData.bindGroup)
-          pass.setVertexBuffer(0, mesh.vertexBuffer)
-
-          switch (pipelineId) {
-            case 'MONO_PHONG': {
-              if (!this.light) {
-                throw new Error('Light not set')
-              }
-              pipeline.loadBuffers(mesh, camera, this.light)
-              break
-            }
-            case 'MONO_TOON': {
-              if (!this.light) {
-                throw new Error('Light not set')
-              }
-              pipeline.loadBuffers(mesh, camera, this.light)
-              break
-            }
-          }
-
-          pass.draw(mesh.vertexCount())
-        }
-      }
+    const renderPass = commandEncoder.beginRenderPass(
+      this.getRenderPassDescriptor()
     )
-    pass.end()
+
+    for (const entity of this.getMatchedEntities()) {
+      const pipeline =
+        this.pipelineMap[PipelineIdentifier.getEntityData(entity.id)]
+
+      const vertexCount = Mesh.getEntityData(entity.id).triangles.length * 3
+      const { bindGroup } = BindGroupData.getEntityData(entity.id)
+      const meshBuffer = MeshBuffer.getEntityData(entity.id)
+
+      renderPass.setPipeline(pipeline.renderPipeline)
+
+      renderPass.setBindGroup(0, bindGroup)
+      renderPass.setVertexBuffer(0, meshBuffer)
+
+      renderPass.draw(vertexCount)
+    }
+    renderPass.end()
 
     this.device.queue.submit([commandEncoder.finish()])
   }

@@ -1,5 +1,5 @@
+import { Triangle } from '../engine/components/Mesh'
 import { Vec3, Vec3ElementTuple } from '../math/Vec3'
-import { Mesh, Triangle } from '../engine/nodes/Mesh'
 
 const KEYWORDS = ['v', 'vn', 'f', '#'] as const
 
@@ -15,7 +15,7 @@ const parseVec3Data = (data: string): Vec3 => {
   )
 }
 
-export const parseObj = (
+export const loadObj = (
   rawMesh: string
 ): {
   vertices: Vec3[]

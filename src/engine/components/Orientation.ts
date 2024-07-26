@@ -1,10 +1,12 @@
 import { DefaultComponent } from '../../ecs/DefaultComponent'
 
-export const Orientation = new DefaultComponent<{
+export interface Orientation {
   bank: number
   pitch: number
   heading: number
-}>('ORIENTATION', {
+}
+
+export const Orientation = new DefaultComponent<Orientation>('ORIENTATION', {
   bank: 0,
   heading: 0,
   pitch: 0,

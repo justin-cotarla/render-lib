@@ -1,116 +1,132 @@
-import { Renderer } from '../engine/Renderer'
-import { KeyboardObserver, DirectionKey } from '../input/KeyboardObserver'
-import { MouseObserver } from '../input/MouseObserver'
-import { parseObj } from '../loaders/parseObj'
+import { loadObj } from '../loaders/objLoader'
 import { Vec3 } from '../math/Vec3'
 import { Vec4 } from '../math/Vec4'
-import { Body } from '../engine/physics/Body'
-import { PhysicsEngine } from '../engine/physics/PhysicsEngine'
-import { setupResizeObserver } from '../util/window'
 
 import flatCubeModel from '../../models/flat_cube.obj?raw'
-import { Scene } from '../engine/Scene'
 import { World } from '../ecs/World'
 import { PerspectiveCamera } from '../engine/components/PerspectiveCamera'
 import { Position } from '../engine/components/Position'
 import { Material } from '../engine/components/Material'
 import { Mesh } from '../engine/components/Mesh'
-import { MonoPhongTag } from '../engine/tags/MonoPhongFrag'
+import { ChildrenEntities } from '../engine/components/ChildrenEntities'
+import { Renderer } from '../engine/renderer/Renderer'
+import { ParentNormalizer } from '../engine/systems/ParentNormalizer'
+import { Orientation } from '../engine/components/Orientation'
+import { TransformTarget } from '../engine/components/TransformTarget'
+import { PipelineIdentifier } from '../engine/components/PipelineIdentifier'
+import { Light } from '../engine/components/Light'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
 export const start = async () => {
   const renderer = await Renderer.create(canvas)
 
-  const scene = new Scene()
+  const parentNormalizer = new ParentNormalizer()
 
+  // Scene
   const world = new World()
 
   const cameraEntity = world.createEntity()
   cameraEntity.addComponent(PerspectiveCamera)
+  cameraEntity.addComponent(Position, new Vec3(0, 0, -20))
+  cameraEntity.addComponent(Orientation)
+  // cameraEntity.addComponent(Orientation, { bank: 0, heading: (Math.PI / 180) * 270, pitch: 0 })
+  cameraEntity.addComponent(TransformTarget)
 
   const lightEntity = world.createEntity()
   lightEntity.addComponent(Position, new Vec3(20, 20, -10))
+  lightEntity.addComponent(Orientation)
+  lightEntity.addComponent(Light)
 
   const cubeEntity = world.createEntity()
   cubeEntity.addComponent(Position, new Vec3(-5, 1, 0))
+  cubeEntity.addComponent(Orientation)
   cubeEntity.addComponent(Material, {
-    diffuse: new Vec4(0, 1, 0, 1),
+    diffuse: new Vec4(1, 1, 0, 1),
     specular: new Vec4(0, 0, 0, 0),
     ambient: new Vec4(0, 1, 0, 1),
     gloss: 16,
   })
-  cubeEntity.addComponent(Mesh, parseObj(flatCubeModel))
-  cubeEntity.addComponent(MonoPhongTag)
+  cubeEntity.addComponent(Mesh, loadObj(flatCubeModel))
+  cubeEntity.addComponent(TransformTarget)
+  cubeEntity.addComponent(PipelineIdentifier, 'MONO_PHONG')
 
-  scene.rootNode.addChild(plane)
-  scene.rootNode.addChild(c1)
-  scene.rootNode.addChild(c2)
-  scene.rootNode.addChild(camera)
-  scene.rootNode.addChild(light)
+  // Build scene
+  const sceneEntity = world.createEntity()
 
-  renderer.loadScene(scene)
+  sceneEntity.addComponent(ChildrenEntities, [
+    cameraEntity,
+    lightEntity,
+    cubeEntity,
+  ])
 
-  const engine = new PhysicsEngine()
-  const cameraBody = new Body(camera, 1)
-  engine.registerBody(cameraBody)
+  parentNormalizer.normalizeParents()
 
-  new KeyboardObserver({
-    press: {
-      [DirectionKey.UP]: () => {
-        cameraBody.linearImpulse.z += 0.01
-      },
-      [DirectionKey.DOWN]: () => {
-        cameraBody.linearImpulse.z -= 0.01
-      },
-      [DirectionKey.LEFT]: () => {
-        cameraBody.linearImpulse.x -= 0.01
-      },
-      [DirectionKey.RIGHT]: () => {
-        cameraBody.linearImpulse.x += 0.01
-      },
-    },
-    release: {
-      [DirectionKey.UP]: () => {
-        cameraBody.linearImpulse.z -= 0.01
-      },
-      [DirectionKey.DOWN]: () => {
-        cameraBody.linearImpulse.z += 0.01
-      },
-      [DirectionKey.LEFT]: () => {
-        cameraBody.linearImpulse.x += 0.01
-      },
-      [DirectionKey.RIGHT]: () => {
-        cameraBody.linearImpulse.x -= 0.01
-      },
-    },
-  })
+  renderer.allocateBuffers()
+  renderer.loadStaticMeshBuffers()
 
-  new MouseObserver((movementX, movementY) => {
-    camera.orientation.heading += movementX / 1000
-    camera.orientation.pitch += movementY / 1000
-  })
+  renderer.render()
 
-  const { maxTextureDimension2D } = renderer.getDeviceLimits()
+  // const engine = new PhysicsEngine()
+  // const cameraBody = new Body(camera, 1)
+  // engine.registerBody(cameraBody)
 
-  const resizeObserver = setupResizeObserver((width, height) => {
-    canvas.width = Math.max(1, Math.min(width, maxTextureDimension2D))
-    canvas.height = Math.max(1, Math.min(height, maxTextureDimension2D))
-    camera.aspectRatio = width / height
-  })
+  // new KeyboardObserver({
+  //   press: {
+  //     [DirectionKey.UP]: () => {
+  //       cameraBody.linearImpulse.z += 0.01
+  //     },
+  //     [DirectionKey.DOWN]: () => {
+  //       cameraBody.linearImpulse.z -= 0.01
+  //     },
+  //     [DirectionKey.LEFT]: () => {
+  //       cameraBody.linearImpulse.x -= 0.01
+  //     },
+  //     [DirectionKey.RIGHT]: () => {
+  //       cameraBody.linearImpulse.x += 0.01
+  //     },
+  //   },
+  //   release: {
+  //     [DirectionKey.UP]: () => {
+  //       cameraBody.linearImpulse.z -= 0.01
+  //     },
+  //     [DirectionKey.DOWN]: () => {
+  //       cameraBody.linearImpulse.z += 0.01
+  //     },
+  //     [DirectionKey.LEFT]: () => {
+  //       cameraBody.linearImpulse.x += 0.01
+  //     },
+  //     [DirectionKey.RIGHT]: () => {
+  //       cameraBody.linearImpulse.x -= 0.01
+  //     },
+  //   },
+  // })
 
-  resizeObserver.observe(canvas)
+  // new MouseObserver((movementX, movementY) => {
+  //   camera.orientation.heading += movementX / 1000
+  //   camera.orientation.pitch += movementY / 1000
+  // })
 
-  let previousTime: number
+  // const { maxTextureDimension2D } = renderer.getDeviceLimits()
 
-  const cycle: FrameRequestCallback = async (time) => {
-    const deltaMs = previousTime ? time - previousTime : 0
-    previousTime = time
+  // const resizeObserver = setupResizeObserver((width, height) => {
+  //   canvas.width = Math.max(1, Math.min(width, maxTextureDimension2D))
+  //   canvas.height = Math.max(1, Math.min(height, maxTextureDimension2D))
+  //   camera.aspectRatio = width / height
+  // })
 
-    engine.update(deltaMs)
-    renderer.renderAll(camera)
-    requestAnimationFrame(cycle)
-  }
+  // resizeObserver.observe(canvas)
 
-  requestAnimationFrame(cycle)
+  // let previousTime: number
+
+  // const cycle: FrameRequestCallback = async (time) => {
+  //   const deltaMs = previousTime ? time - previousTime : 0
+  //   previousTime = time
+
+  //   engine.update(deltaMs)
+  //   renderer.renderAll(camera)
+  //   requestAnimationFrame(cycle)
+  // }
+
+  // requestAnimationFrame(cycle)
 }

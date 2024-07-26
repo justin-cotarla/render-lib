@@ -33,12 +33,11 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
   }
 
   addToEntity(entityId: number, value: T): void {
-    if (this.entityData[entityId]) {
-      throw new Error(`Entity ${entityId} already has a ${this.name} component`)
+    if (!this.entityData[entityId]) {
+      this.dispatchEvent(new ComponentAddEvent(this.name, entityId))
     }
 
     this.entityData[entityId] = value
-    this.dispatchEvent(new ComponentAddEvent(this.name, entityId))
     console.log(`Added ${this.name} component to entity#${entityId}`)
   }
 
@@ -73,5 +72,11 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
     }
 
     return this.entityData[entityId]
+  }
+
+  printAll(): void {
+    this.entityData.forEach((data, index) => {
+      console.log({ entity: index, data: `${data}` })
+    })
   }
 }

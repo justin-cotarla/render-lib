@@ -1,30 +1,47 @@
-import { Mesh } from '../nodes/Mesh'
-import { System } from '../../ecs/System'
+import { BindGroupData } from '../components/BindGroupData'
+import { Light } from '../components/Light'
+import { Vec3 } from '../../math/Vec3'
+import { Mat4 } from '../../math/Mat4'
+import { Material } from '../components/Material'
+import { PerspectiveCamera } from '../components/PerspectiveCamera'
 
-export interface PipelineData {
-  buffers: GPUBuffer[]
-  bindGroup: GPUBindGroup
-  uniformData: Float32Array
-}
-
-export abstract class Pipeline extends System {
+export abstract class Pipeline {
   constructor(
     readonly device: GPUDevice,
     readonly renderPipeline: GPURenderPipeline,
     readonly uniformDataSize: number
-  ) {
-    super()
-  }
+  ) {}
 
-  public abstract loadBuffers(mesh: Mesh, ...scene: never[]): void
+  public abstract loadMeshBuffers(params: {
+    bindGroupData: BindGroupData
+    mesh: {
+      rootTransform: Mat4
+      localTransform: Mat4
+      material: Material
+    }
+    scene: {
+      camera: {
+        position: Vec3
+        rootTransform: Mat4
+        localTransform: Mat4
+        perspectiveCamera: PerspectiveCamera
+      }
+      lights: {
+        position: Vec3
+        rootTransform: Mat4
+        light: Light
+      }[]
+    }
+  }): void
+  public abstract createGpuBuffers(): BindGroupData['gpuBuffers']
 
-  protected abstract createGpuBuffers(): GPUBuffer[]
-
-  private createUniformData = (): Float32Array => {
+  public createUniformBuffer = (): BindGroupData['uniformBuffer'] => {
     return new Float32Array(this.uniformDataSize)
   }
 
-  private createBindGroup = (buffers: GPUBuffer[]): GPUBindGroup => {
+  public createBindGroup = (
+    buffers: BindGroupData['gpuBuffers']
+  ): BindGroupData['bindGroup'] => {
     return this.device.createBindGroup({
       layout: this.renderPipeline.getBindGroupLayout(0),
       entries: buffers.map((buffer, index) => ({
@@ -34,13 +51,13 @@ export abstract class Pipeline extends System {
     })
   }
 
-  public createPipelineData(): PipelineData {
-    const buffers = this.createGpuBuffers()
+  public createPipelineData(): BindGroupData {
+    const gpuBuffers = this.createGpuBuffers()
 
     return {
-      buffers,
-      bindGroup: this.createBindGroup(buffers),
-      uniformData: this.createUniformData(),
+      gpuBuffers,
+      bindGroup: this.createBindGroup(gpuBuffers),
+      uniformBuffer: this.createUniformBuffer(),
     }
   }
 }

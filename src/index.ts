@@ -1,3 +1,3 @@
-import * as fpsCamera from './demos/fpsCamera'
+import * as entityDemo from './demos/entityDemo'
 
-fpsCamera.start()
+entityDemo.start()
