@@ -15,11 +15,16 @@ import { Orientation } from '../engine/components/Orientation'
 import { TransformTarget } from '../engine/components/TransformTarget'
 import { PipelineIdentifier } from '../engine/components/PipelineIdentifier'
 import { Light } from '../engine/components/Light'
+import { CanvasResizer } from '../engine/systems/CanvasResizer'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
 export const start = async () => {
   const renderer = await Renderer.create(canvas)
+  const { maxTextureDimension2D } = renderer.getDeviceLimits()
+
+  const canvasResizer = new CanvasResizer(canvas, maxTextureDimension2D)
+  canvasResizer.start()
 
   const parentNormalizer = new ParentNormalizer()
 
@@ -28,7 +33,7 @@ export const start = async () => {
 
   const cameraEntity = world.createEntity()
   cameraEntity.addComponent(PerspectiveCamera)
-  cameraEntity.addComponent(Position, new Vec3(0, 0, -20))
+  cameraEntity.addComponent(Position, new Vec3(0, 3, -20))
   cameraEntity.addComponent(Orientation)
   // cameraEntity.addComponent(Orientation, { bank: 0, heading: (Math.PI / 180) * 270, pitch: 0 })
   cameraEntity.addComponent(TransformTarget)
@@ -64,8 +69,6 @@ export const start = async () => {
 
   renderer.allocateBuffers()
   renderer.loadStaticMeshBuffers()
-
-  renderer.render()
 
   // const engine = new PhysicsEngine()
   // const cameraBody = new Body(camera, 1)
@@ -107,26 +110,18 @@ export const start = async () => {
   //   camera.orientation.pitch += movementY / 1000
   // })
 
-  // const { maxTextureDimension2D } = renderer.getDeviceLimits()
+  renderer.render()
 
-  // const resizeObserver = setupResizeObserver((width, height) => {
-  //   canvas.width = Math.max(1, Math.min(width, maxTextureDimension2D))
-  //   canvas.height = Math.max(1, Math.min(height, maxTextureDimension2D))
-  //   camera.aspectRatio = width / height
-  // })
+  let previousTime: number
 
-  // resizeObserver.observe(canvas)
+  const cycle: FrameRequestCallback = async (time) => {
+    const _deltaMs = previousTime ? time - previousTime : 0
+    previousTime = time
 
-  // let previousTime: number
+    // engine.update(deltaMs)
+    renderer.render()
+    requestAnimationFrame(cycle)
+  }
 
-  // const cycle: FrameRequestCallback = async (time) => {
-  //   const deltaMs = previousTime ? time - previousTime : 0
-  //   previousTime = time
-
-  //   engine.update(deltaMs)
-  //   renderer.renderAll(camera)
-  //   requestAnimationFrame(cycle)
-  // }
-
-  // requestAnimationFrame(cycle)
+  requestAnimationFrame(cycle)
 }

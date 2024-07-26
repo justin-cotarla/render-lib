@@ -38,7 +38,6 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
     }
 
     this.entityData[entityId] = value
-    console.log(`Added ${this.name} component to entity#${entityId}`)
   }
 
   updateEntityData(entityId: number, value: T): void {
