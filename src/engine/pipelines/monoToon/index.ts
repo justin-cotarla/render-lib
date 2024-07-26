@@ -1,14 +1,10 @@
-import { Mesh } from '../../nodes/Mesh'
-import { PerspectiveCamera } from '../../nodes/PerpectiveCamera'
-import { RigidNode } from '../../nodes/RigidNode'
+import { Vec4 } from '../../../math/Vec4'
+import { computeMaterialBuffer } from '../../components/Material'
+import { computeClipTransform } from '../../components/PerspectiveCamera'
 import { Pipeline } from '../Pipeline'
 
 import vertexShader from './perspective.vert.wgsl?raw'
 import fragmentShader from './toon.frag.wgsl?raw'
-
-interface MeshShape extends Mesh {
-  materialData: Float32Array
-}
 
 export class MonoToonPipeline extends Pipeline {
   static readonly ID = 'MONO_TOON'
@@ -68,7 +64,7 @@ export class MonoToonPipeline extends Pipeline {
     super(device, renderPipeline, 16 + 24)
   }
 
-  protected createGpuBuffers(): GPUBuffer[] {
+  public createGpuBuffers(): GPUBuffer[] {
     const vsBuffer = this.device.createBuffer({
       label: 'vs_uni',
       size: Float32Array.BYTES_PER_ELEMENT * 16,
@@ -84,56 +80,50 @@ export class MonoToonPipeline extends Pipeline {
     return [vsBuffer, fsBuffer]
   }
 
-  public loadBuffers(
-    mesh: MeshShape,
-    camera: PerspectiveCamera,
-    light: RigidNode
+  public loadMeshBuffers(
+    ...[{ bindGroupData, mesh, scene }]: Parameters<Pipeline['loadMeshBuffers']>
   ) {
-    if (!mesh.pipelineData) {
-      throw new Error(`Mesh ${mesh.ID} does not have pipeline data`)
-    }
-
     const {
-      buffers: [vsBuffer, fsBuffer],
-      uniformData,
-    } = mesh.pipelineData
+      gpuBuffers: [vsBuffer, fsBuffer],
+      uniformBuffer,
+    } = bindGroupData
 
     let dataOffset = 0
     let currentBufferOffset = 0
 
     // VSInput
     // Mesh clip transform
-    const meshClipTransformData = mesh
-      .getRootNodeTransform()
-      .multiply(camera.getNodeRootTransform().multiply(camera.clipTransform))
+    const meshClipTransformBuffer = mesh.rootTransform
+      .clone()
+      .multiply(scene.camera.localTransform)
+      .multiply(computeClipTransform(scene.camera.perspectiveCamera))
       .transpose()
       .toArray()
 
-    uniformData.set(meshClipTransformData, dataOffset)
+    uniformBuffer.set(meshClipTransformBuffer, dataOffset)
     this.device.queue.writeBuffer(
       vsBuffer,
       currentBufferOffset,
-      uniformData,
+      uniformBuffer,
       dataOffset,
-      meshClipTransformData.length
+      meshClipTransformBuffer.length
     )
-    dataOffset += meshClipTransformData.length
+    dataOffset += meshClipTransformBuffer.length
 
     // FSInput
     currentBufferOffset = 0
-    const worldModelTransform = mesh.getNodeRootTransform()
 
     // Camera Position
-    const cameraPosModelData = camera.position
-      .upgrade(1)
-      .applyMatrix(worldModelTransform)
+    const cameraPosModelData = new Vec4(0, 0, 0, 1)
+      .applyMatrix(scene.camera.rootTransform)
+      .applyMatrix(mesh.localTransform)
       .toArray()
 
-    uniformData.set(cameraPosModelData, dataOffset)
+    uniformBuffer.set(cameraPosModelData, dataOffset)
     this.device.queue.writeBuffer(
       fsBuffer,
       currentBufferOffset,
-      uniformData,
+      uniformBuffer,
       dataOffset,
       cameraPosModelData.length
     )
@@ -142,16 +132,16 @@ export class MonoToonPipeline extends Pipeline {
       cameraPosModelData.length * Float32Array.BYTES_PER_ELEMENT
 
     // Light Position
-    const lightPosModelData = light.position
-      .upgrade(1)
-      .applyMatrix(worldModelTransform)
+    const lightPosModelData = new Vec4(0, 0, 0, 1)
+      .applyMatrix(scene.lights[0].rootTransform)
+      .applyMatrix(mesh.localTransform)
       .toArray()
 
-    uniformData.set(lightPosModelData, dataOffset)
+    uniformBuffer.set(lightPosModelData, dataOffset)
     this.device.queue.writeBuffer(
       fsBuffer,
       currentBufferOffset,
-      uniformData,
+      uniformBuffer,
       dataOffset,
       lightPosModelData.length
     )
@@ -160,13 +150,14 @@ export class MonoToonPipeline extends Pipeline {
       lightPosModelData.length * Float32Array.BYTES_PER_ELEMENT
 
     // Material
-    uniformData.set(mesh.materialData, dataOffset)
+    const materialBuffer = computeMaterialBuffer(mesh.material)
+    uniformBuffer.set(materialBuffer, dataOffset)
     this.device.queue.writeBuffer(
       fsBuffer,
       currentBufferOffset,
-      uniformData,
+      uniformBuffer,
       dataOffset,
-      mesh.materialData.length
+      materialBuffer.length
     )
   }
 }

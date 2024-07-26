@@ -3,6 +3,7 @@ import { Vec3 } from '../math/Vec3'
 import { Vec4 } from '../math/Vec4'
 
 import flatCubeModel from '../../models/flat_cube.obj?raw'
+import sphereModel from '../../models/sphere.obj?raw'
 import { World } from '../ecs/World'
 import { PerspectiveCamera } from '../engine/components/PerspectiveCamera'
 import { Position } from '../engine/components/Position'
@@ -42,22 +43,48 @@ export const start = async () => {
   cameraEntity.addComponent(PlayerCamera)
 
   const lightEntity = world.createEntity()
-  lightEntity.addComponent(Position, new Vec3(20, 20, -10))
+  lightEntity.addComponent(Position, new Vec3(0, 10, 0))
   lightEntity.addComponent(Orientation)
   lightEntity.addComponent(Light)
 
-  const cubeEntity = world.createEntity()
-  cubeEntity.addComponent(Position, new Vec3(-5, 1, 0))
-  cubeEntity.addComponent(Orientation)
-  cubeEntity.addComponent(Material, {
+  const phongSphere = world.createEntity()
+  phongSphere.addComponent(Position, new Vec3(5, 1, 0))
+  phongSphere.addComponent(Orientation)
+  phongSphere.addComponent(Material, {
     diffuse: new Vec4(1, 1, 0, 1),
-    specular: new Vec4(0, 0, 0, 0),
-    ambient: new Vec4(0, 1, 0, 1),
+    specular: new Vec4(1, 1, 1, 1),
+    ambient: new Vec4(1, 1, 0, 1),
     gloss: 16,
   })
-  cubeEntity.addComponent(Mesh, loadObj(flatCubeModel))
-  cubeEntity.addComponent(TransformTarget)
-  cubeEntity.addComponent(PipelineIdentifier, 'MONO_PHONG')
+  phongSphere.addComponent(Mesh, loadObj(sphereModel))
+  phongSphere.addComponent(TransformTarget)
+  phongSphere.addComponent(PipelineIdentifier, 'MONO_PHONG')
+
+  const toonSphere = world.createEntity()
+  toonSphere.addComponent(Position, new Vec3(-5, 1, 0))
+  toonSphere.addComponent(Orientation)
+  toonSphere.addComponent(Material, {
+    diffuse: new Vec4(1, 1, 0, 1),
+    specular: new Vec4(1, 1, 1, 1),
+    ambient: new Vec4(1, 1, 0, 1),
+    gloss: 10,
+  })
+  toonSphere.addComponent(Mesh, loadObj(sphereModel))
+  toonSphere.addComponent(TransformTarget)
+  toonSphere.addComponent(PipelineIdentifier, 'MONO_TOON')
+
+  const phongCube = world.createEntity()
+  phongCube.addComponent(Position, new Vec3(-3, 0, 5))
+  phongCube.addComponent(Orientation)
+  phongCube.addComponent(Material, {
+    diffuse: new Vec4(1, 0, 0, 1),
+    specular: new Vec4(1, 1, 1, 1),
+    ambient: new Vec4(1, 0, 0, 1),
+    gloss: 10,
+  })
+  phongCube.addComponent(Mesh, loadObj(flatCubeModel))
+  phongCube.addComponent(TransformTarget)
+  phongCube.addComponent(PipelineIdentifier, 'MONO_PHONG')
 
   // Build scene
   const sceneEntity = world.createEntity()
@@ -65,8 +92,11 @@ export const start = async () => {
   sceneEntity.addComponent(ChildrenEntities, [
     cameraEntity,
     lightEntity,
-    cubeEntity,
+    toonSphere,
+    phongSphere,
   ])
+
+  toonSphere.addComponent(ChildrenEntities, [phongCube])
 
   parentNormalizer.normalizeParents()
 
