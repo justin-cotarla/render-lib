@@ -29,19 +29,19 @@ export class Mat2 extends AbstractMat<Mat2, Vec2, Vec2ElementTuple> {
     ])
   }
 
-  get 0(): number[] {
+  get 0(): Mat2ElementTuple[number] {
     return this.elements[0]
   }
 
-  get 1(): number[] {
+  get 1(): Mat2ElementTuple[number] {
     return this.elements[1]
   }
 
-  set 0(value: Mat2ElementTuple[0]) {
+  set 0(value: Mat2ElementTuple[number]) {
     this.elements[0] = value
   }
 
-  set 1(value: Mat2ElementTuple[0]) {
+  set 1(value: Mat2ElementTuple[number]) {
     this.elements[1] = value
   }
 

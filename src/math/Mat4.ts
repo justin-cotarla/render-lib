@@ -42,35 +42,35 @@ export class Mat4 extends AbstractMat<Mat4, Vec4, Vec4ElementTuple> {
     ])
   }
 
-  get 0(): number[] {
+  get 0(): Mat4ElementTuple[number] {
     return this.elements[0]
   }
 
-  get 1(): number[] {
+  get 1(): Mat4ElementTuple[number] {
     return this.elements[1]
   }
 
-  get 2(): number[] {
+  get 2(): Mat4ElementTuple[number] {
     return this.elements[2]
   }
 
-  get 3(): number[] {
+  get 3(): Mat4ElementTuple[number] {
     return this.elements[3]
   }
 
-  set 0(value: Mat4ElementTuple[0]) {
+  set 0(value: Mat4ElementTuple[number]) {
     this.elements[0] = value
   }
 
-  set 1(value: Mat4ElementTuple[0]) {
+  set 1(value: Mat4ElementTuple[number]) {
     this.elements[1] = value
   }
 
-  set 2(value: Mat4ElementTuple[0]) {
+  set 2(value: Mat4ElementTuple[number]) {
     this.elements[2] = value
   }
 
-  set 3(value: Mat4ElementTuple[0]) {
+  set 3(value: Mat4ElementTuple[number]) {
     this.elements[3] = value
   }
 
