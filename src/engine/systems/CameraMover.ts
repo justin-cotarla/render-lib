@@ -2,7 +2,7 @@ import { System } from '../../ecs/System'
 import { MouseObserver } from '../../input/MouseObserver'
 import { Orientation } from '../components/Orientation'
 import { PerspectiveCamera } from '../components/PerspectiveCamera'
-import { PlayerCamera } from '../components/PlayerCamera'
+import { MouseControl } from '../components/MouseControl'
 
 export class CameraMover extends System {
   private setupMouseObserver() {
@@ -24,7 +24,7 @@ export class CameraMover extends System {
 
     this.registerComponent(PerspectiveCamera)
     this.registerComponent(Orientation)
-    this.registerComponent(PlayerCamera)
+    this.registerComponent(MouseControl)
 
     this.setupMouseObserver()
   }

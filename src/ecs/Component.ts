@@ -1,4 +1,5 @@
 import { TypedEventTarget } from '../types/TypedEventTarget'
+import { Entity } from './Entity'
 
 export class ComponentAddEvent extends Event {
   static readonly type = 'componentadd'
@@ -63,7 +64,11 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
     console.log(`Removed ${this.name} component from entity#${entityId}`)
   }
 
-  getEntityData(entityId: number): T {
+  getEntityData(entity: Entity): T
+  getEntityData(entity: number): T
+  getEntityData(entity: number | Entity): T {
+    const entityId = entity instanceof Entity ? entity.id : entity
+
     if (!this.entityData[entityId]) {
       throw new Error(
         `Entity ${entityId} does not have a ${this.name} component`
