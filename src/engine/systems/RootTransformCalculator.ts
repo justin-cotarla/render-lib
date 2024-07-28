@@ -17,9 +17,13 @@ export class RootTranformCalculator extends System {
     try {
       const parentEntity = ParentEntity.getEntityData(entity.id)
 
-      const entityParentTransform = ParentTransform.getEntityData(entity.id)
+      const { localToParentTransform } = ParentTransform.getEntityData(
+        entity.id
+      )
 
-      return entityParentTransform.multiply(this.getRootTransform(parentEntity))
+      return localToParentTransform
+        .clone()
+        .multiply(this.getRootTransform(parentEntity))
     } catch {
       return Mat4.identity()
     }

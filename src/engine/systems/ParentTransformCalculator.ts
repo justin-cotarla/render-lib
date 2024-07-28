@@ -16,7 +16,7 @@ export class ParentTranformCalculator extends System {
     this.registerComponent(Orientation)
   }
 
-  private getParentTranslation = (position: Vec3): Mat4 => {
+  private getLocalToParentTranslation = (position: Vec3): Mat4 => {
     return new Mat4([
       [1, 0, 0, 0],
       [0, 1, 0, 0],
@@ -25,7 +25,7 @@ export class ParentTranformCalculator extends System {
     ])
   }
 
-  private getParentRotation = (orientation: Orientation): Mat4 => {
+  private getLocalToParentRotation = (orientation: Orientation): Mat4 => {
     const rotationMatrix = eulerOrientationToMatrix(orientation)
 
     return new Mat4([
@@ -36,17 +36,36 @@ export class ParentTranformCalculator extends System {
     ])
   }
 
+  private getParentToLocalTranslation = (position: Vec3): Mat4 => {
+    return new Mat4([
+      [1, 0, 0, 0],
+      [0, 1, 0, 0],
+      [0, 0, 1, 0],
+      [...position.clone().scale(-1).toArray(), 1],
+    ])
+  }
+
+  private getParentToLocalRotation = (orientation: Orientation): Mat4 => {
+    return this.getLocalToParentRotation(orientation).transpose()
+  }
+
   public calculateParentTransforms() {
     for (const entity of this.getMatchedEntities()) {
       const position = Position.getEntityData(entity.id)
       const orientation = Orientation.getEntityData(entity.id)
 
-      entity.addComponent(
-        ParentTransform,
-        this.getParentRotation(orientation).multiply(
-          this.getParentTranslation(position)
-        )
-      )
+      const localToParentTransform = this.getLocalToParentRotation(
+        orientation
+      ).multiply(this.getLocalToParentTranslation(position))
+
+      const parentToLocalTransform = this.getParentToLocalTranslation(
+        position
+      ).multiply(this.getParentToLocalRotation(orientation))
+
+      entity.addComponent(ParentTransform, {
+        localToParentTransform,
+        parentToLocalTransform,
+      })
     }
   }
 }
