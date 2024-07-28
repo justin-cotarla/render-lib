@@ -1,3 +1,3 @@
-import * as fpsCamera from './demos/fpsCamera'
+import * as fpsCamera from './demos/multiple'
 
 fpsCamera.start()

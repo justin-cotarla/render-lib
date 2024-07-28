@@ -10,18 +10,18 @@ export class PhysicsEngine {
   }
 
   public update(dt: number) {
-    const collisions = this.computeCollisions()
+    // const collisions = this.computeCollisions()
 
-    collisions.forEach(
-      ({ referenceBody, collidingBody, collisionNormal, penetrationDepth }) => {
-        referenceBody.node.position.add(
-          collisionNormal.clone().scale(-penetrationDepth)
-        )
-        collidingBody.node.position.add(
-          collisionNormal.clone().scale(penetrationDepth)
-        )
-      }
-    )
+    // collisions.forEach(
+    //   ({ referenceBody, collidingBody, collisionNormal, penetrationDepth }) => {
+    //     referenceBody.node.position.add(
+    //       collisionNormal.clone().scale(-penetrationDepth)
+    //     )
+    //     collidingBody.node.position.add(
+    //       collisionNormal.clone().scale(penetrationDepth)
+    //     )
+    //   }
+    // )
 
     this.bodies.forEach((body) => {
       body.eulerIntegrate(dt)
