@@ -1,3 +1,3 @@
-import * as entityDemo from './demos/entityDemo'
+import * as multipleEntityDemo from './demos/multipleEntityDemo'
 
-entityDemo.start()
+multipleEntityDemo.start()
