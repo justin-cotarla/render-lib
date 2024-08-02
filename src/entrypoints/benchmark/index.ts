@@ -25,8 +25,10 @@ import { Velocity } from '../../engine/components/Velocity'
 import { ForceIntegrator } from '../../engine/systems/ForceIntegrator'
 import { KeyboardControl } from '../../engine/components/KeyboardControl'
 import { KeyboardMover } from '../../engine/systems/KeyboardMover'
+import { averageFps } from '../../util/fps'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
+const statsDiv = document.querySelector('#stats') as HTMLDivElement
 
 const start = async () => {
   const renderer = await Renderer.create(canvas)
@@ -46,12 +48,8 @@ const start = async () => {
 
   const player = world.createEntity()
   player.addComponent(PerspectiveCamera)
-  player.addComponent(Position, new Vec3(20, 70, 20))
-  player.addComponent(Orientation, {
-    bank: 0,
-    heading: 0,
-    pitch: (Math.PI / 180) * 90,
-  })
+  player.addComponent(Position, new Vec3(0, 0, -30))
+  player.addComponent(Orientation)
   player.addComponent(TransformTarget)
   player.addComponent(MouseControl)
   player.addComponent(Mass, 1)
@@ -65,16 +63,20 @@ const start = async () => {
   lightEntity.addComponent(Orientation)
   lightEntity.addComponent(Light)
 
-  const meshEntities = Array.from({ length: 100 }).map(() =>
+  const meshEntities = Array.from({ length: 10 }).map(() =>
     world.createEntity()
   )
 
-  meshEntities.forEach((entity, index) => {
+  meshEntities.forEach((entity) => {
     const rgb = new Vec4(Math.random(), Math.random(), Math.random(), 1)
 
     entity.addComponent(
       Position,
-      new Vec3(Math.floor(index / 10) * 3, 0, (index % 10) * 3)
+      new Vec3(
+        Math.random() * 20 - 10,
+        Math.random() * 20 - 10,
+        Math.random() * 20
+      )
     )
     entity.addComponent(Orientation)
     entity.addComponent(Material, {
@@ -109,6 +111,10 @@ const start = async () => {
   const cycle: FrameRequestCallback = async (time) => {
     const deltaMs = previousTime ? time - previousTime : 0
     previousTime = time
+
+    const fps = Math.floor(averageFps((1 / deltaMs) * 1000))
+
+    statsDiv.innerHTML = `${fps.toString()} FPS`
 
     forceIntegrator.integrate(deltaMs)
     renderer.render()

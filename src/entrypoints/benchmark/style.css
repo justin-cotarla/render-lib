@@ -14,8 +14,7 @@ canvas#canvas {
   height: 100%;
 }
 
-div.stats {
-  visibility: hidden;
+div#stats {
   position: absolute;
   top: 10px;
   left: 10px;

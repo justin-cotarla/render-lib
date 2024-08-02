@@ -13,16 +13,3 @@ canvas#canvas {
   width: 100%;
   height: 100%;
 }
-
-div.stats {
-  visibility: hidden;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 5px;
-  width: 60px;
-  text-align: center;
-  color: white;
-  font-size: medium;
-  background-color: rgba(0, 0, 0, 0.4);
-}
