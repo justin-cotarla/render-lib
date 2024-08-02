@@ -1,34 +1,34 @@
-import { loadObj } from '../loaders/objLoader'
-import { Vec3 } from '../math/Vec3'
-import { Vec4 } from '../math/Vec4'
+import { loadObj } from '../../loaders/objLoader'
+import { Vec3 } from '../../math/Vec3'
+import { Vec4 } from '../../math/Vec4'
 
-import sphereModel from '../../models/sphere.obj?raw'
-import { World } from '../ecs/World'
-import { PerspectiveCamera } from '../engine/components/PerspectiveCamera'
-import { Position } from '../engine/components/Position'
-import { Material } from '../engine/components/Material'
-import { Mesh } from '../engine/components/Mesh'
-import { ChildrenEntities } from '../engine/components/ChildrenEntities'
-import { Renderer } from '../engine/systems/Renderer'
-import { ParentNormalizer } from '../engine/systems/ParentNormalizer'
-import { Orientation } from '../engine/components/Orientation'
-import { TransformTarget } from '../engine/components/TransformTarget'
-import { PipelineIdentifier } from '../engine/components/PipelineIdentifier'
-import { Light } from '../engine/components/Light'
-import { CanvasResizer } from '../engine/systems/CanvasResizer'
-import { CameraMover } from '../engine/systems/CameraMover'
-import { MouseControl } from '../engine/components/MouseControl'
-import { Mass } from '../engine/components/Mass'
-import { Force } from '../engine/components/Force'
-import { LinearImpulse } from '../engine/components/LinearImpulse'
-import { Velocity } from '../engine/components/Velocity'
-import { ForceIntegrator } from '../engine/systems/ForceIntegrator'
-import { KeyboardControl } from '../engine/components/KeyboardControl'
-import { KeyboardMover } from '../engine/systems/KeyboardMover'
+import sphereModel from '../../../models/sphere.obj?raw'
+import { World } from '../../ecs/World'
+import { PerspectiveCamera } from '../../engine/components/PerspectiveCamera'
+import { Position } from '../../engine/components/Position'
+import { Material } from '../../engine/components/Material'
+import { Mesh } from '../../engine/components/Mesh'
+import { ChildrenEntities } from '../../engine/components/ChildrenEntities'
+import { Renderer } from '../../engine/systems/Renderer'
+import { ParentNormalizer } from '../../engine/systems/ParentNormalizer'
+import { Orientation } from '../../engine/components/Orientation'
+import { TransformTarget } from '../../engine/components/TransformTarget'
+import { PipelineIdentifier } from '../../engine/components/PipelineIdentifier'
+import { Light } from '../../engine/components/Light'
+import { CanvasResizer } from '../../engine/systems/CanvasResizer'
+import { CameraMover } from '../../engine/systems/CameraMover'
+import { MouseControl } from '../../engine/components/MouseControl'
+import { Mass } from '../../engine/components/Mass'
+import { Force } from '../../engine/components/Force'
+import { LinearImpulse } from '../../engine/components/LinearImpulse'
+import { Velocity } from '../../engine/components/Velocity'
+import { ForceIntegrator } from '../../engine/systems/ForceIntegrator'
+import { KeyboardControl } from '../../engine/components/KeyboardControl'
+import { KeyboardMover } from '../../engine/systems/KeyboardMover'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
-export const start = async () => {
+const start = async () => {
   const renderer = await Renderer.create(canvas)
   const forceIntegrator = new ForceIntegrator()
 
@@ -117,3 +117,5 @@ export const start = async () => {
 
   requestAnimationFrame(cycle)
 }
+
+start()
