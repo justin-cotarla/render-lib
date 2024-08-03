@@ -58,65 +58,54 @@ export class MonoPhongPipeline extends Pipeline {
       },
     })
 
-    super(device, renderPipeline, 16 + 24)
+    super(device, renderPipeline, 56)
   }
 
   public createGpuBuffers() {
-    const vsBuffer = this.device.createBuffer({
-      label: 'vs_uni',
-      size: Float32Array.BYTES_PER_ELEMENT * 16,
+    const entityBuffer = this.device.createBuffer({
+      label: 'entity_uni',
+      size: Float32Array.BYTES_PER_ELEMENT * 56,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     })
 
-    const fsBuffer = this.device.createBuffer({
-      label: 'fs_uni',
-      size: Float32Array.BYTES_PER_ELEMENT * 24,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    })
-
-    return [vsBuffer, fsBuffer]
+    return [entityBuffer]
   }
 
   public loadMeshBuffers(
     ...[{ bindGroupData, mesh, scene }]: Parameters<Pipeline['loadMeshBuffers']>
   ) {
     const {
-      gpuBuffers: [vsBuffer, fsBuffer],
+      gpuBuffers: [entityBuffer],
       uniformBuffer,
     } = bindGroupData
 
-    const meshClipTransformBuffer = uniformBuffer.subarray(0, 16)
-    const cameraPosModelBuffer = uniformBuffer.subarray(16, 20)
-    const lightPosModelBuffer = uniformBuffer.subarray(20, 24)
-    const materialBuffer = uniformBuffer.subarray(24, 40)
+    const rootClipTransformBuffer = uniformBuffer.subarray(0, 16)
+    const meshRootTransformBuffer = uniformBuffer.subarray(16, 32)
+    const cameraPosRootBuffer = uniformBuffer.subarray(32, 36)
+    const lightPosRootBuffer = uniformBuffer.subarray(36, 40)
+    const materialBuffer = uniformBuffer.subarray(40, 56)
 
     // VSUni
-    meshClipTransformBuffer.set(
-      mesh.rootTransform
+    rootClipTransformBuffer.set(
+      scene.camera.localTransform
         .clone()
-        .multiply(scene.camera.localTransform)
         .multiply(computeClipTransform(scene.camera.perspectiveCamera))
         .transpose()
         .toArray()
     )
 
-    cameraPosModelBuffer.set(
-      new Vec4(0, 0, 0, 1)
-        .applyMatrix(scene.camera.rootTransform)
-        .applyMatrix(mesh.localTransform)
-        .toArray()
+    meshRootTransformBuffer.set(mesh.rootTransform.transpose().toArray())
+
+    cameraPosRootBuffer.set(
+      new Vec4(0, 0, 0, 1).applyMatrix(scene.camera.rootTransform).toArray()
     )
 
-    lightPosModelBuffer.set(
-      new Vec4(0, 0, 0, 1)
-        .applyMatrix(scene.lights[0].rootTransform)
-        .applyMatrix(mesh.localTransform)
-        .toArray()
+    lightPosRootBuffer.set(
+      new Vec4(0, 0, 0, 1).applyMatrix(scene.lights[0].rootTransform).toArray()
     )
 
     materialBuffer.set(computeMaterialBuffer(mesh.material))
 
-    this.device.queue.writeBuffer(vsBuffer, 0, uniformBuffer, 0, 16)
-    this.device.queue.writeBuffer(fsBuffer, 0, uniformBuffer, 16, 24)
+    this.device.queue.writeBuffer(entityBuffer, 0, uniformBuffer, 0, 56)
   }
 }
