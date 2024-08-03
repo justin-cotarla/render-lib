@@ -85,76 +85,38 @@ export class MonoPhongPipeline extends Pipeline {
       uniformBuffer,
     } = bindGroupData
 
-    let dataOffset = 0
-    let currentBufferOffset = 0
+    const meshClipTransformBuffer = uniformBuffer.subarray(0, 16)
+    const cameraPosModelBuffer = uniformBuffer.subarray(16, 20)
+    const lightPosModelBuffer = uniformBuffer.subarray(20, 24)
+    const materialBuffer = uniformBuffer.subarray(24, 40)
 
-    // VSInput
-    // Mesh clip transform
-    const meshClipTransformBuffer = mesh.rootTransform
-      .clone()
-      .multiply(scene.camera.localTransform)
-      .multiply(computeClipTransform(scene.camera.perspectiveCamera))
-      .transpose()
-      .toArray()
-
-    uniformBuffer.set(meshClipTransformBuffer, dataOffset)
-    this.device.queue.writeBuffer(
-      vsBuffer,
-      currentBufferOffset,
-      uniformBuffer,
-      dataOffset,
-      meshClipTransformBuffer.length
+    // VSUni
+    meshClipTransformBuffer.set(
+      mesh.rootTransform
+        .clone()
+        .multiply(scene.camera.localTransform)
+        .multiply(computeClipTransform(scene.camera.perspectiveCamera))
+        .transpose()
+        .toArray()
     )
-    dataOffset += meshClipTransformBuffer.length
 
-    // FSInput
-    currentBufferOffset = 0
-
-    // Camera Position
-    const cameraPosModelData = new Vec4(0, 0, 0, 1)
-      .applyMatrix(scene.camera.rootTransform)
-      .applyMatrix(mesh.localTransform)
-      .toArray()
-
-    uniformBuffer.set(cameraPosModelData, dataOffset)
-    this.device.queue.writeBuffer(
-      fsBuffer,
-      currentBufferOffset,
-      uniformBuffer,
-      dataOffset,
-      cameraPosModelData.length
+    cameraPosModelBuffer.set(
+      new Vec4(0, 0, 0, 1)
+        .applyMatrix(scene.camera.rootTransform)
+        .applyMatrix(mesh.localTransform)
+        .toArray()
     )
-    dataOffset += cameraPosModelData.length
-    currentBufferOffset +=
-      cameraPosModelData.length * Float32Array.BYTES_PER_ELEMENT
 
-    // Light Position
-    const lightPosModelData = new Vec4(0, 0, 0, 1)
-      .applyMatrix(scene.lights[0].rootTransform)
-      .applyMatrix(mesh.localTransform)
-      .toArray()
-
-    uniformBuffer.set(lightPosModelData, dataOffset)
-    this.device.queue.writeBuffer(
-      fsBuffer,
-      currentBufferOffset,
-      uniformBuffer,
-      dataOffset,
-      lightPosModelData.length
+    lightPosModelBuffer.set(
+      new Vec4(0, 0, 0, 1)
+        .applyMatrix(scene.lights[0].rootTransform)
+        .applyMatrix(mesh.localTransform)
+        .toArray()
     )
-    dataOffset += lightPosModelData.length
-    currentBufferOffset +=
-      lightPosModelData.length * Float32Array.BYTES_PER_ELEMENT
 
-    // Material
-    const materialBuffer = computeMaterialBuffer(mesh.material)
-    uniformBuffer.set(materialBuffer, dataOffset)
-    this.device.queue.writeBuffer(
-      fsBuffer,
-      currentBufferOffset,
-      uniformBuffer,
-      dataOffset,
-      materialBuffer.length
-    )
+    materialBuffer.set(computeMaterialBuffer(mesh.material))
+
+    this.device.queue.writeBuffer(vsBuffer, 0, uniformBuffer, 0, 16)
+    this.device.queue.writeBuffer(fsBuffer, 0, uniformBuffer, 16, 24)
   }
 }
