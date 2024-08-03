@@ -21,7 +21,7 @@ export class ParentTranformCalculator extends System {
       [1, 0, 0, 0],
       [0, 1, 0, 0],
       [0, 0, 1, 0],
-      [...position.clone().toArray(), 1],
+      [position[0], position[1], position[2], 1],
     ])
   }
 
@@ -41,7 +41,7 @@ export class ParentTranformCalculator extends System {
       [1, 0, 0, 0],
       [0, 1, 0, 0],
       [0, 0, 1, 0],
-      [...position.clone().scale(-1).toArray(), 1],
+      [-position[0], -position[1], -position[2], 1],
     ])
   }
 

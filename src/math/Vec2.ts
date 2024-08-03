@@ -3,14 +3,11 @@ import { AbstractVec } from './AbstractVec'
 export type Vec2ElementTuple = [number, number]
 
 export class Vec2 extends AbstractVec<Vec2, Vec2ElementTuple> {
-  private _x: number
-  private _y: number
-
   constructor(x: number, y: number) {
     super(2)
 
-    this._x = x
-    this._y = y
+    this.data[0] = x
+    this.data[1] = y
   }
 
   public clone = (): Vec2 => {
@@ -30,34 +27,34 @@ export class Vec2 extends AbstractVec<Vec2, Vec2ElementTuple> {
   }
 
   get x(): number {
-    return this._x
+    return this.data[0]
   }
 
   get y(): number {
-    return this._y
+    return this.data[1]
   }
 
   set x(value: number) {
-    this._x = value
+    this.data[0] = value
   }
 
   set y(value: number) {
-    this._y = value
+    this.data[1] = value
   }
 
   get 0(): number {
-    return this._x
+    return this.data[0]
   }
 
   get 1(): number {
-    return this._y
+    return this.data[1]
   }
 
   set 0(value: number) {
-    this._x = value
+    this.data[0] = value
   }
 
   set 1(value: number) {
-    this._y = value
+    this.data[1] = value
   }
 }

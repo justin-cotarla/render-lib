@@ -28,13 +28,29 @@ export abstract class AbstractMat<
   }
 
   public toRowVectors = (): V[] => {
-    return Array.from({ length: this.ARITY }).map((_, index) =>
-      this.vectorFromArray(this[index])
-    )
+    const vectors: number[][] = new Array(this.ARITY)
+
+    for (let i = 0; i < this.ARITY; i++) {
+      vectors[i] = this[i]
+    }
+
+    return vectors.map(this.vectorFromArray)
   }
 
   public toColVectors = (): V[] => {
-    return this.clone().transpose().toRowVectors()
+    const vectors: number[][] = new Array(this.ARITY)
+
+    for (let i = 0; i < this.ARITY; i++) {
+      vectors[i] = new Array(this.ARITY)
+    }
+
+    for (let j = 0; j < this.ARITY; j++) {
+      for (let i = 0; i < this.ARITY; i++) {
+        vectors[i][j] = this[j][i]
+      }
+    }
+
+    return vectors.map(this.vectorFromArray)
   }
 
   public transpose = (): this => {

@@ -17,10 +17,11 @@ export const Material = new DefaultComponent<Material>('MATERIAL', {
 
 // TODO: Do not compute this buffer on every render, it is static
 export const computeMaterialBuffer = (material: Material): Float32Array => {
-  return new Float32Array([
-    ...material.diffuse.toArray(),
-    ...material.specular.toArray(),
-    ...material.ambient.toArray(),
-    material.gloss,
-  ])
+  const buffer = new Float32Array(13)
+  buffer.set(material.diffuse.data, 0)
+  buffer.set(material.specular.data, 4)
+  buffer.set(material.ambient.data, 8)
+  buffer.set([material.gloss], 12)
+
+  return buffer
 }

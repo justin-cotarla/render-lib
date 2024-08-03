@@ -4,14 +4,16 @@ export abstract class AbstractVec<
   V extends AbstractVec<V, T>,
   T extends number[],
 > {
-  constructor(protected readonly ARITY: number) {}
+  public data: Float32Array
+
+  constructor(protected readonly ARITY: number) {
+    this.data = new Float32Array(ARITY)
+  }
 
   [index: number]: number
 
   public set = (elements: T): this => {
-    elements.forEach((element, index) => {
-      this[index] = element
-    })
+    this.data.set(elements)
 
     return this
   }
@@ -65,10 +67,7 @@ export abstract class AbstractVec<
   }
 
   public dot = (v: V): number => {
-    return this.toArray().reduce(
-      (prev, curr, index) => prev + curr * v[index],
-      0
-    )
+    return this.data.reduce((prev, curr, index) => prev + curr * v[index], 0)
   }
 
   public mul = (v: V): this => {

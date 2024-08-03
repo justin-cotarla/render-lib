@@ -4,18 +4,13 @@ import { Vec3 } from './Vec3'
 export type Vec4ElementTuple = [number, number, number, number]
 
 export class Vec4 extends AbstractVec<Vec4, Vec4ElementTuple> {
-  private _x: number
-  private _y: number
-  private _z: number
-  private _w: number
-
   constructor(x: number, y: number, z: number, w: number) {
     super(4)
 
-    this._x = x
-    this._y = y
-    this._z = z
-    this._w = w
+    this.data[0] = x
+    this.data[1] = y
+    this.data[2] = z
+    this.data[3] = w
   }
 
   public clone = (): Vec4 => {
@@ -35,67 +30,67 @@ export class Vec4 extends AbstractVec<Vec4, Vec4ElementTuple> {
   }
 
   get x(): number {
-    return this._x
+    return this.data[0]
   }
 
   get y(): number {
-    return this._y
+    return this.data[1]
   }
 
   get z(): number {
-    return this._z
+    return this.data[2]
   }
 
   get w(): number {
-    return this._w
+    return this.data[3]
   }
 
   set x(value: number) {
-    this._x = value
+    this.data[0] = value
   }
 
   set y(value: number) {
-    this._y = value
+    this.data[1] = value
   }
 
   set z(value: number) {
-    this._z = value
+    this.data[2] = value
   }
 
   set w(value: number) {
-    this._w = value
+    this.data[3] = value
   }
 
   get 0(): number {
-    return this._x
+    return this.data[0]
   }
 
   get 1(): number {
-    return this._y
+    return this.data[1]
   }
 
   get 2(): number {
-    return this._z
+    return this.data[2]
   }
 
   get 3(): number {
-    return this._w
+    return this.data[3]
   }
 
   set 0(value: number) {
-    this._x = value
+    this.data[0] = value
   }
 
   set 1(value: number) {
-    this._y = value
+    this.data[1] = value
   }
 
   set 2(value: number) {
-    this._z = value
+    this.data[2] = value
   }
 
   set 3(value: number) {
-    this._w = value
+    this.data[3] = value
   }
 
   public downgrade = (): Vec3 => {

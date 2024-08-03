@@ -4,16 +4,12 @@ import { Vec4 } from './Vec4'
 export type Vec3ElementTuple = [number, number, number]
 
 export class Vec3 extends AbstractVec<Vec3, Vec3ElementTuple> {
-  private _x: number
-  private _y: number
-  private _z: number
-
   constructor(x: number, y: number, z: number) {
     super(3)
 
-    this._x = x
-    this._y = y
-    this._z = z
+    this.data[0] = x
+    this.data[1] = y
+    this.data[2] = z
   }
 
   public clone = (): Vec3 => {
@@ -35,49 +31,49 @@ export class Vec3 extends AbstractVec<Vec3, Vec3ElementTuple> {
   }
 
   get x(): number {
-    return this._x
+    return this.data[0]
   }
 
   get y(): number {
-    return this._y
+    return this.data[1]
   }
   get z(): number {
-    return this._z
+    return this.data[2]
   }
 
   set x(value: number) {
-    this._x = value
+    this.data[0] = value
   }
 
   set y(value: number) {
-    this._y = value
+    this.data[1] = value
   }
 
   set z(value: number) {
-    this._z = value
+    this.data[2] = value
   }
 
   get 0(): number {
-    return this._x
+    return this.data[0]
   }
 
   get 1(): number {
-    return this._y
+    return this.data[1]
   }
   get 2(): number {
-    return this._z
+    return this.data[2]
   }
 
   set 0(value: number) {
-    this._x = value
+    this.data[0] = value
   }
 
   set 1(value: number) {
-    this._y = value
+    this.data[1] = value
   }
 
   set 2(value: number) {
-    this._z = value
+    this.data[2] = value
   }
 
   public cross = (v: Vec3): Vec3 => {

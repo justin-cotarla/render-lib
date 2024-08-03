@@ -50,6 +50,7 @@ export class MonoPhongPipeline extends Pipeline {
       layout: 'auto',
       primitive: {
         topology: 'triangle-list',
+        cullMode: 'front',
       },
       depthStencil: {
         depthWriteEnabled: true,
@@ -97,11 +98,11 @@ export class MonoPhongPipeline extends Pipeline {
     meshRootTransformBuffer.set(mesh.rootTransform.transpose().toArray())
 
     cameraPosRootBuffer.set(
-      new Vec4(0, 0, 0, 1).applyMatrix(scene.camera.rootTransform).toArray()
+      new Vec4(0, 0, 0, 1).applyMatrix(scene.camera.rootTransform).data
     )
 
     lightPosRootBuffer.set(
-      new Vec4(0, 0, 0, 1).applyMatrix(scene.lights[0].rootTransform).toArray()
+      new Vec4(0, 0, 0, 1).applyMatrix(scene.lights[0].rootTransform).data
     )
 
     materialBuffer.set(computeMaterialBuffer(mesh.material))
