@@ -5,22 +5,51 @@ struct Material {
   m_gls: f32
 }
 
-struct Input {
+struct VSInput {
+  @builtin(vertex_index) index : u32,
+  @location(0) model_pos: vec4f,
+  @location(1) normal: vec4f
+}
+
+struct FSInput {
   @builtin(position) pos : vec4f,
   @location(0) model_pos: vec4f,
   @location(1) normal: vec4f,
 }
 
-struct FSInput {
+struct VSOutput {
+  @builtin(position) clip_pos : vec4f,
+  @location(0) model_pos: vec4f,
+  @location(1) normal: vec4f,
+}
+
+struct VSUni {
+  model_clip_transform: mat4x4f
+}
+
+struct FSUni {
   camera_pos: vec4f,
   light_pos: vec4f,
   material: Material
 }
 
-@group(0) @binding(1) var<uniform> fs_uni: FSInput;
+@group(0) @binding(0) var<uniform> vs_uni: VSUni;
+@group(0) @binding(1) var<uniform> fs_uni: FSUni;
+
+@vertex
+fn vert(input: VSInput) -> VSOutput
+{
+  var output : VSOutput;
+
+  output.clip_pos = input.model_pos * vs_uni.model_clip_transform;
+  output.model_pos = input.model_pos;
+  output.normal = input.normal;
+
+  return output;
+}
 
 @fragment
-fn main(input: Input) -> @location(0) vec4f
+fn frag(input: FSInput) -> @location(0) vec4f
 {
   let n = normalize(input.normal);
   let l = normalize(fs_uni.light_pos - input.model_pos);

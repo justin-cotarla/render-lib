@@ -3,8 +3,7 @@ import { computeMaterialBuffer } from '../../components/Material'
 import { computeClipTransform } from '../../components/PerspectiveCamera'
 import { Pipeline } from '../Pipeline'
 
-import vertexShader from './perspective.vert.wgsl?raw'
-import fragmentShader from './phong.frag.wgsl?raw'
+import shader from './shader.wgsl?raw'
 
 export class MonoPhongPipeline extends Pipeline {
   static readonly ID = 'MONO_PHONG'
@@ -12,9 +11,8 @@ export class MonoPhongPipeline extends Pipeline {
   constructor(device: GPUDevice) {
     const vertexDescriptor: GPUVertexState = {
       module: device.createShaderModule({
-        code: vertexShader,
+        code: shader,
       }),
-      entryPoint: 'main',
       buffers: [
         {
           attributes: [
@@ -37,9 +35,8 @@ export class MonoPhongPipeline extends Pipeline {
 
     const fragmentDescriptor: GPUFragmentState = {
       module: device.createShaderModule({
-        code: fragmentShader,
+        code: shader,
       }),
-      entryPoint: 'main',
       targets: [
         {
           format: navigator.gpu.getPreferredCanvasFormat(),
