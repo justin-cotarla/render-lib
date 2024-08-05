@@ -63,7 +63,7 @@ const start = async () => {
   lightEntity.addComponent(Orientation)
   lightEntity.addComponent(Light)
 
-  const meshEntities = Array.from({ length: 10 }).map(() =>
+  const meshEntities = Array.from({ length: 500 }).map(() =>
     world.createEntity()
   )
 

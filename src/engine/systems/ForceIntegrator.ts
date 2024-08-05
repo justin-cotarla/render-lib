@@ -1,4 +1,5 @@
 import { System } from '../../ecs/System'
+import { Mat3 } from '../../math/Mat3'
 import { Vec3 } from '../../math/Vec3'
 import { eulerOrientationToMatrix } from '../../util/matrixTransformations'
 import { Force } from '../components/Force'
@@ -39,7 +40,7 @@ export class ForceIntegrator extends System {
         velocity
           .clone()
           .scale(dt)
-          .applyMatrix(eulerOrientationToMatrix(orientation))
+          .applyMatrix(new Mat3(eulerOrientationToMatrix(orientation)))
       )
 
       entity.addComponent(Force, Vec3.zero())
