@@ -13,26 +13,45 @@ export class RootTranformCalculator extends System {
     this.registerComponent(ParentTransform)
   }
 
-  private getRootTransform(entity: Entity): Mat4 {
+  private computeRootTransform(entity: Entity, matrix: Mat4): void {
     try {
-      const parentEntity = ParentEntity.getEntityData(entity.id)
+      const parentEntity = ParentEntity.getEntityData(entity)
 
-      const { localToParentTransform } = ParentTransform.getEntityData(
-        entity.id
+      const { localToParentTransform } =
+        ParentTransform.getEntityData(parentEntity)
+
+      this.computeRootTransform(
+        parentEntity,
+        matrix.multiply(localToParentTransform)
       )
-
-      return localToParentTransform
-        .clone()
-        .multiply(this.getRootTransform(parentEntity))
     } catch {
-      return Mat4.identity()
+      return
+    }
+  }
+
+  private getRootTransformMatrix(entity: Entity): Mat4 {
+    try {
+      return RootTransform.getEntityData(entity)
+    } catch {
+      const rootTransform = Mat4.identity()
+
+      entity.addComponent(RootTransform, rootTransform)
+
+      return rootTransform
     }
   }
 
   public calculateRootTransforms() {
     for (const entity of this.getMatchedEntities()) {
-      const rootTransform = this.getRootTransform(entity)
-      entity.addComponent(RootTransform, rootTransform)
+      const rootTransformMatrix = this.getRootTransformMatrix(entity)
+
+      const { localToParentTransform } = ParentTransform.getEntityData(
+        entity.id
+      )
+
+      rootTransformMatrix.set(localToParentTransform.rows)
+
+      this.computeRootTransform(entity, rootTransformMatrix)
     }
   }
 }
