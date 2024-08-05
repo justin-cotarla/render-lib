@@ -12,8 +12,8 @@ export type Mat4ElementTuple = [
 export class Mat4 extends AbstractMat<Mat4, Vec4, Vec4ElementTuple> {
   static ARITY = 4
 
-  constructor(private readonly elements: Mat4ElementTuple) {
-    super(Mat4.ARITY, Vec4.fromArray as (elements: number[]) => Vec4)
+  constructor(elements: Mat4ElementTuple) {
+    super(Mat4.ARITY, elements, Vec4.fromArray as (elements: number[]) => Vec4)
   }
 
   public static fromRows = (rows: [Vec4, Vec4, Vec4, Vec4]): Mat4 => {
@@ -43,35 +43,35 @@ export class Mat4 extends AbstractMat<Mat4, Vec4, Vec4ElementTuple> {
   }
 
   get 0(): Mat4ElementTuple[number] {
-    return this.elements[0]
+    return this.rows[0]
   }
 
   get 1(): Mat4ElementTuple[number] {
-    return this.elements[1]
+    return this.rows[1]
   }
 
   get 2(): Mat4ElementTuple[number] {
-    return this.elements[2]
+    return this.rows[2]
   }
 
   get 3(): Mat4ElementTuple[number] {
-    return this.elements[3]
+    return this.rows[3]
   }
 
   set 0(value: Mat4ElementTuple[number]) {
-    this.elements[0] = value
+    this.rows[0] = value
   }
 
   set 1(value: Mat4ElementTuple[number]) {
-    this.elements[1] = value
+    this.rows[1] = value
   }
 
   set 2(value: Mat4ElementTuple[number]) {
-    this.elements[2] = value
+    this.rows[2] = value
   }
 
   set 3(value: Mat4ElementTuple[number]) {
-    this.elements[3] = value
+    this.rows[3] = value
   }
 
   protected minor = (x: number, y: number): number => {

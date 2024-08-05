@@ -6,8 +6,8 @@ export type Mat2ElementTuple = [Vec2ElementTuple, Vec2ElementTuple]
 export class Mat2 extends AbstractMat<Mat2, Vec2, Vec2ElementTuple> {
   static ARITY = 2
 
-  constructor(private readonly elements: Mat2ElementTuple) {
-    super(Mat2.ARITY, Vec2.fromArray as (elements: number[]) => Vec2)
+  constructor(elements: Mat2ElementTuple) {
+    super(Mat2.ARITY, elements, Vec2.fromArray as (elements: number[]) => Vec2)
   }
 
   public static fromRows = (rows: [Vec2, Vec2]): Mat2 => {
@@ -30,19 +30,19 @@ export class Mat2 extends AbstractMat<Mat2, Vec2, Vec2ElementTuple> {
   }
 
   get 0(): Mat2ElementTuple[number] {
-    return this.elements[0]
+    return this.rows[0]
   }
 
   get 1(): Mat2ElementTuple[number] {
-    return this.elements[1]
+    return this.rows[1]
   }
 
   set 0(value: Mat2ElementTuple[number]) {
-    this.elements[0] = value
+    this.rows[0] = value
   }
 
   set 1(value: Mat2ElementTuple[number]) {
-    this.elements[1] = value
+    this.rows[1] = value
   }
 
   public determinant = (): number => {

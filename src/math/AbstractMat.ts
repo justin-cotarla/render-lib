@@ -7,12 +7,21 @@ export abstract class AbstractMat<
 > {
   constructor(
     protected readonly ARITY: number,
+    readonly rows: T[],
     private readonly vectorFromArray: (elements: number[]) => V
   ) {}
 
-  [index: number]: number[]
+  [index: number]: T
 
   public abstract clone: () => M
+
+  public set(rows: T[]): this {
+    for (let i = 0; i < this.ARITY; i++) {
+      this.rows[i] = rows[i]
+    }
+
+    return this
+  }
 
   public toArray = (): number[] => {
     return this.toRowVectors().flatMap((row) => row.toArray())
@@ -94,9 +103,27 @@ export abstract class AbstractMat<
     return this
   }
 
-  public multiply = (m: M): this => {
+  public multiply = (m: M | T[]): this => {
     const rows = this.toRowVectors()
-    const cols = m.toColVectors()
+    let cols = []
+
+    if (m instanceof AbstractMat) {
+      cols = m.toColVectors()
+    } else {
+      const vectors: number[][] = new Array(this.ARITY)
+
+      for (let i = 0; i < this.ARITY; i++) {
+        vectors[i] = new Array(this.ARITY)
+      }
+
+      for (let j = 0; j < this.ARITY; j++) {
+        for (let i = 0; i < this.ARITY; i++) {
+          vectors[i][j] = m[j][i]
+        }
+      }
+
+      cols = vectors.map(this.vectorFromArray)
+    }
 
     for (let i = 0; i < this.ARITY; i++) {
       for (let j = 0; j < this.ARITY; j++) {

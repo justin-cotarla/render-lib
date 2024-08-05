@@ -1,13 +1,19 @@
 import { Orientation } from '../engine/components/Orientation'
-import { Mat3 } from '../math/Mat3'
+import { Mat3ElementTuple } from '../math/Mat3'
 
-export const eulerOrientationToMatrix = (orientation: Orientation): Mat3 => {
+export const eulerOrientationToMatrix = (
+  orientation: Orientation
+): Mat3ElementTuple => {
   if (
     orientation.heading === 0 &&
     orientation.pitch === 0 &&
     orientation.bank === 0
   ) {
-    return Mat3.identity()
+    return [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+    ]
   }
 
   const ch = Math.cos(orientation.heading)
@@ -17,9 +23,9 @@ export const eulerOrientationToMatrix = (orientation: Orientation): Mat3 => {
   const sp = Math.sin(orientation.pitch)
   const sb = Math.sin(orientation.bank)
 
-  return new Mat3([
+  return [
     [ch * cb + sh * sp * sb, sb * cp, -sh * cb + ch * sp * sb],
     [-ch * sb + sh * sp * cb, cb * cp, sb * sh + ch * sp * cb],
     [sh * cp, -sp, ch * cp],
-  ])
+  ]
 }
