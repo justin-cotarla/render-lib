@@ -98,11 +98,11 @@ export class MonoPhongPipeline extends Pipeline {
     meshRootTransformBuffer.set(mesh.rootTransform.transpose().toArray())
 
     cameraPosRootBuffer.set(
-      new Vec4(0, 0, 0, 1).applyMatrix(scene.camera.rootTransform).data
+      new Vec4(0, 0, 0, 1).applyMatrix(scene.camera.rootTransform).toArray()
     )
 
     lightPosRootBuffer.set(
-      new Vec4(0, 0, 0, 1).applyMatrix(scene.lights[0].rootTransform).data
+      new Vec4(0, 0, 0, 1).applyMatrix(scene.lights[0].rootTransform).toArray()
     )
 
     materialBuffer.set(computeMaterialBuffer(mesh.material))

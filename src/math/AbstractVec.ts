@@ -4,7 +4,7 @@ export abstract class AbstractVec<
   V extends AbstractVec<V, T>,
   T extends number[],
 > {
-  public data: T
+  protected data: T
 
   constructor(protected readonly ARITY: number) {
     this.data = new Array(ARITY) as T
@@ -21,9 +21,7 @@ export abstract class AbstractVec<
   public abstract clone: () => V
 
   public toArray(): T {
-    return Array.from({ length: this.ARITY }).map(
-      (_, index) => this[index]
-    ) as T
+    return this.data
   }
 
   public toString = (): string => {
