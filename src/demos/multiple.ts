@@ -13,8 +13,10 @@ import { setupResizeObserver } from '../util/window'
 import sphereModel from '../../models/sphere.obj?raw'
 import { Light } from '../engine/nodes/LightNode'
 import { Scene } from '../engine/Scene'
+import { averageFps } from '../util/fps'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
+const statsDiv = document.querySelector('#stats') as HTMLDivElement
 
 export const start = async () => {
   const renderer = await Renderer.create(canvas)
@@ -22,17 +24,12 @@ export const start = async () => {
   const scene = new Scene()
 
   const camera = new PerspectiveCamera()
-  camera.position = new Vec3(20, 70, 20)
-  camera.orientation = {
-    bank: 0,
-    heading: 0,
-    pitch: (Math.PI / 180) * 90,
-  }
+  camera.position = new Vec3(0, 0, -30)
 
   const light = new Light()
   light.position = new Vec3(20, 20, -10)
 
-  Array.from({ length: 500 }).forEach((_, index) => {
+  Array.from({ length: 500 }).forEach(() => {
     const rgb = new Vec4(Math.random(), Math.random(), Math.random(), 1)
 
     const entity = new MonoMesh('MONO_PHONG', ...parseObj(sphereModel), {
@@ -42,7 +39,11 @@ export const start = async () => {
       gloss: 10,
     })
 
-    entity.position = new Vec3(Math.floor(index / 10) * 3, 0, (index % 10) * 3)
+    entity.position = new Vec3(
+      Math.random() * 20 - 10,
+      Math.random() * 20 - 10,
+      Math.random() * 20
+    )
 
     scene.rootNode.addChild(entity)
   })
@@ -107,6 +108,9 @@ export const start = async () => {
   const cycle: FrameRequestCallback = async (time) => {
     const deltaMs = previousTime ? time - previousTime : 0
     previousTime = time
+
+    const fps = Math.floor(averageFps((1 / deltaMs) * 1000))
+    statsDiv.textContent = `${fps.toString()} FPS`
 
     engine.update(deltaMs)
     renderer.renderAll(camera)
