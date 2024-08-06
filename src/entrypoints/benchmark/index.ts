@@ -113,7 +113,7 @@ const start = async () => {
 
     const fps = Math.floor(averageFps((1 / deltaMs) * 1000))
 
-    statsDiv.innerHTML = `${fps.toString()} FPS`
+    statsDiv.textContent = `${fps.toString()} FPS`
 
     forceIntegrator.integrate(deltaMs)
     renderer.render()

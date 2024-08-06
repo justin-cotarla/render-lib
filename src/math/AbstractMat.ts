@@ -43,7 +43,7 @@ export abstract class AbstractMat<
       vectors[i] = this[i]
     }
 
-    return [...vectors].map(this.vectorFromArray)
+    return vectors.map(this.vectorFromArray)
   }
 
   public toColVectors = (): V[] => {
