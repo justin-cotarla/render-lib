@@ -1,6 +1,5 @@
 import { System } from '../../ecs/System'
 import { Mat3 } from '../../math/Mat3'
-import { Vec3 } from '../../math/Vec3'
 import { eulerOrientationToMatrix } from '../../util/matrixTransformations'
 import { Force } from '../components/Force'
 import { LinearImpulse } from '../components/LinearImpulse'
@@ -43,10 +42,8 @@ export class ForceIntegrator extends System {
           .applyMatrix(new Mat3(eulerOrientationToMatrix(orientation)))
       )
 
-      entity.addComponent(Force, Vec3.zero())
-      entity.addComponent(LinearImpulse, Vec3.zero())
-      entity.addComponent(Velocity, velocity)
-      entity.addComponent(Position, position)
+      force.zero()
+      linearImpulse.zero()
     }
   }
 }

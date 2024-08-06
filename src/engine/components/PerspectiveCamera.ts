@@ -1,5 +1,4 @@
 import { DefaultComponent } from '../../ecs/DefaultComponent'
-import { Mat4 } from '../../math/Mat4'
 
 export interface PerspectiveCamera {
   nearPlane: number
@@ -17,20 +16,3 @@ export const PerspectiveCamera = new DefaultComponent<PerspectiveCamera>(
     aspectRatio: 1,
   }
 )
-
-export const computeClipTransform = ({
-  nearPlane,
-  farPlane,
-  fov,
-  aspectRatio,
-}: PerspectiveCamera) => {
-  const zoomX = 1 / Math.tan((fov * Math.PI) / 360)
-  const zoomY = zoomX / aspectRatio
-
-  return new Mat4([
-    [zoomX, 0, 0, 0],
-    [0, zoomY, 0, 0],
-    [0, 0, farPlane / (farPlane - nearPlane), 1],
-    [0, 0, (-nearPlane * farPlane) / (farPlane - nearPlane), 0],
-  ])
-}

@@ -16,11 +16,7 @@ export class KeyboardMover extends System {
 
   private setLinearImpulse(linearImpulse: Vec3): void {
     for (const entity of this.getMatchedEntities()) {
-      const prevLinearImpulse = LinearImpulse.getEntityData(entity)
-      entity.addComponent(
-        LinearImpulse,
-        prevLinearImpulse.clone().add(linearImpulse)
-      )
+      LinearImpulse.getEntityData(entity).add(linearImpulse)
     }
   }
 
