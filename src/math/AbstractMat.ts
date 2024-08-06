@@ -8,7 +8,7 @@ export abstract class AbstractMat<
   constructor(
     protected readonly ARITY: number,
     readonly rows: T[],
-    private readonly vectorFromArray: (elements: number[]) => V
+    private readonly vectorFromArray: (elements: T) => V
   ) {}
 
   [index: number]: T
@@ -37,20 +37,20 @@ export abstract class AbstractMat<
   }
 
   public toRowVectors = (): V[] => {
-    const vectors: number[][] = new Array(this.ARITY)
+    const vectors: T[] = new Array(this.ARITY)
 
     for (let i = 0; i < this.ARITY; i++) {
       vectors[i] = this[i]
     }
 
-    return vectors.map(this.vectorFromArray)
+    return [...vectors].map(this.vectorFromArray)
   }
 
   public toColVectors = (): V[] => {
-    const vectors: number[][] = new Array(this.ARITY)
+    const vectors: T[] = new Array(this.ARITY)
 
     for (let i = 0; i < this.ARITY; i++) {
-      vectors[i] = new Array(this.ARITY)
+      vectors[i] = new Array(this.ARITY) as T
     }
 
     for (let j = 0; j < this.ARITY; j++) {
@@ -105,15 +105,15 @@ export abstract class AbstractMat<
 
   public multiply = (m: M | T[]): this => {
     const rows = this.toRowVectors()
-    let cols = []
+    let cols: V[]
 
     if (m instanceof AbstractMat) {
       cols = m.toColVectors()
     } else {
-      const vectors: number[][] = new Array(this.ARITY)
+      const vectors: T[] = new Array(this.ARITY)
 
       for (let i = 0; i < this.ARITY; i++) {
-        vectors[i] = new Array(this.ARITY)
+        vectors[i] = new Array(this.ARITY) as T
       }
 
       for (let j = 0; j < this.ARITY; j++) {

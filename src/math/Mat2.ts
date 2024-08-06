@@ -7,7 +7,7 @@ export class Mat2 extends AbstractMat<Mat2, Vec2, Vec2ElementTuple> {
   static ARITY = 2
 
   constructor(elements: Mat2ElementTuple) {
-    super(Mat2.ARITY, elements, Vec2.fromArray as (elements: number[]) => Vec2)
+    super(Mat2.ARITY, elements, Vec2.fromArray)
   }
 
   public static fromRows = (rows: [Vec2, Vec2]): Mat2 => {

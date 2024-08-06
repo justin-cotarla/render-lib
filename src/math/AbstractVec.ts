@@ -4,16 +4,16 @@ export abstract class AbstractVec<
   V extends AbstractVec<V, T>,
   T extends number[],
 > {
-  public data: Float32Array
+  public data: T
 
   constructor(protected readonly ARITY: number) {
-    this.data = new Float32Array(ARITY)
+    this.data = new Array(ARITY) as T
   }
 
   [index: number]: number
 
   public set = (elements: T): this => {
-    this.data.set(elements)
+    this.data = elements
 
     return this
   }
