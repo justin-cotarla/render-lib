@@ -16,7 +16,6 @@ export abstract class Pipeline {
     bindGroupData: BindGroupData
     mesh: {
       rootTransform: Mat4
-      localTransform: Mat4
       material: Material
     }
     scene: {

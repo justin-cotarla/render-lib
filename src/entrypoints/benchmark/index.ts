@@ -86,7 +86,6 @@ const start = async () => {
       gloss: 16,
     })
     entity.addComponent(Mesh, loadObj(sphereModel))
-    entity.addComponent(TransformTarget)
     entity.addComponent(PipelineIdentifier, 'MONO_PHONG')
   })
 
