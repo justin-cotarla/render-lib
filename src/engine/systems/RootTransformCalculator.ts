@@ -13,14 +13,14 @@ export class RootTranformCalculator extends System {
     this.registerComponent(ParentTransform)
   }
 
-  private computeRootTransform(entity: Entity, matrix: Mat4): void {
+  private chainRootTransform(entity: Entity, matrix: Mat4): void {
     try {
       const parentEntity = ParentEntity.getEntityData(entity)
 
       const { localToParentTransform } =
         ParentTransform.getEntityData(parentEntity)
 
-      this.computeRootTransform(
+      this.chainRootTransform(
         parentEntity,
         matrix.multiply(localToParentTransform)
       )
@@ -51,7 +51,7 @@ export class RootTranformCalculator extends System {
 
       rootTransformMatrix.set(localToParentTransform.rows)
 
-      this.computeRootTransform(entity, rootTransformMatrix)
+      this.chainRootTransform(entity, rootTransformMatrix)
     }
   }
 }
