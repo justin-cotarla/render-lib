@@ -35,11 +35,31 @@ export class ForceIntegrator extends System {
 
       velocity.add(linearImpulse.scale(inverseMass))
 
+      const orientationMatrix = eulerOrientationToMatrix(orientation)
+
       position.add(
         velocity
           .clone()
           .scale(dt)
-          .applyMatrix(new Mat3(eulerOrientationToMatrix(orientation)))
+          .applyMatrix(
+            new Mat3([
+              [
+                orientationMatrix[0][0],
+                orientationMatrix[0][1],
+                orientationMatrix[0][2],
+              ],
+              [
+                orientationMatrix[1][0],
+                orientationMatrix[1][1],
+                orientationMatrix[1][2],
+              ],
+              [
+                orientationMatrix[2][0],
+                orientationMatrix[2][1],
+                orientationMatrix[2][2],
+              ],
+            ])
+          )
       )
 
       force.zero()
