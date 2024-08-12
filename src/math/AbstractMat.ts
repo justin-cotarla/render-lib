@@ -1,225 +1,173 @@
-import { AbstractVec } from './AbstractVec'
+import { Matrix } from './Matrix'
 
-export abstract class AbstractMat<
-  M extends AbstractMat<M, V, T>,
-  V extends AbstractVec<V, T>,
-  T extends number[],
-> {
+export abstract class AbstractMat<M extends number[], N extends number[] = []>
+  implements Matrix<M>
+{
   constructor(
-    protected readonly ARITY: number,
-    readonly rows: T[],
-    private readonly vectorFromArray: (elements: T) => V
+    readonly ARITY: number,
+    private readonly submatrix?: Matrix<N>
   ) {}
 
-  [index: number]: T
+  create() {
+    const elementCount = this.ARITY ** 2
+    const m = new Array(elementCount) as M
 
-  public abstract clone: () => M
-
-  public set(rows: T[]): this {
-    for (let i = 0; i < this.ARITY; i++) {
-      this.rows[i] = rows[i]
+    for (let i = 0; i < elementCount; i++) {
+      m[i] = 0
     }
 
-    return this
+    return m
   }
 
-  public toArray = (): number[] => {
-    return this.toRowVectors().flatMap((row) => row.toArray())
+  clone(m: M) {
+    return [...m] as M
   }
 
-  public toString = (): string => {
+  toString(m: M) {
     let output = ''
 
-    for (let i = 0; i < this.ARITY; i++) {
-      output = `${output} ${this[i].join(', ')}\n`
+    for (let j = 0; j < this.ARITY; j++) {
+      output += '  '
+      for (let i = 0; i < this.ARITY; i++) {
+        output = `${output}${m[i + j * this.ARITY]} `
+      }
+      output = `${output}\n`
     }
     return `[\n${output}]`
   }
 
-  public toRowVectors = (): V[] => {
-    const vectors: T[] = new Array(this.ARITY)
+  transpose(m: M) {
+    let swap
 
-    for (let i = 0; i < this.ARITY; i++) {
-      vectors[i] = this[i]
+    for (let j = 0; j < this.ARITY; j++) {
+      for (let i = j + 1; i < this.ARITY; i++) {
+        swap = m[i + j * this.ARITY]
+        m[i + j * this.ARITY] = m[j + i * this.ARITY]
+        m[j + i * this.ARITY] = swap
+      }
     }
 
-    return vectors.map(this.vectorFromArray)
+    return m
   }
 
-  public toColVectors = (): V[] => {
-    const vectors: T[] = new Array(this.ARITY)
-
-    for (let i = 0; i < this.ARITY; i++) {
-      vectors[i] = new Array(this.ARITY) as T
+  add(m: M, n: M) {
+    for (let j = 0; j < this.ARITY; j++) {
+      for (let i = 0; i < this.ARITY; i++) {
+        m[i + j * this.ARITY] += n[i + j * this.ARITY]
+      }
     }
+    return m
+  }
+
+  subtract(m: M, n: M) {
+    for (let j = 0; j < this.ARITY; j++) {
+      for (let i = 0; i < this.ARITY; i++) {
+        m[i + j * this.ARITY] -= n[i + j * this.ARITY]
+      }
+    }
+    return m
+  }
+
+  scale(m: M, k: number) {
+    for (let j = 0; j < this.ARITY; j++) {
+      for (let i = 0; i < this.ARITY; i++) {
+        m[i + j * this.ARITY] *= k
+      }
+    }
+    return m
+  }
+
+  toMultiply(m: M, n: M) {
+    const result = this.create()
 
     for (let j = 0; j < this.ARITY; j++) {
       for (let i = 0; i < this.ARITY; i++) {
-        vectors[i][j] = this[j][i]
-      }
-    }
-
-    return vectors.map(this.vectorFromArray)
-  }
-
-  public transpose = (): this => {
-    let swap
-
-    for (let i = 0; i < this.ARITY; i++) {
-      for (let j = i + 1; j < this.ARITY; j++) {
-        swap = this[i][j]
-        this[i][j] = this[j][i]
-        this[j][i] = swap
-      }
-    }
-
-    return this
-  }
-
-  public add = (m: M): this => {
-    for (let i = 0; i < this.ARITY; i++) {
-      for (let j = 0; j < this.ARITY; j++) {
-        this[i][j] += m[i][j]
-      }
-    }
-    return this
-  }
-
-  public subtract = (m: M): this => {
-    for (let i = 0; i < this.ARITY; i++) {
-      for (let j = 0; j < this.ARITY; j++) {
-        this[i][j] -= m[i][j]
-      }
-    }
-    return this
-  }
-
-  public scale = (k: number): this => {
-    for (let i = 0; i < this.ARITY; i++) {
-      for (let j = 0; j < this.ARITY; j++) {
-        this[i][j] *= k
-      }
-    }
-    return this
-  }
-
-  public multiply = (m: M | T[]): this => {
-    const rows = this.toRowVectors()
-    let cols: V[]
-
-    if (m instanceof AbstractMat) {
-      cols = m.toColVectors()
-    } else {
-      const vectors: T[] = new Array(this.ARITY)
-
-      for (let i = 0; i < this.ARITY; i++) {
-        vectors[i] = new Array(this.ARITY) as T
-      }
-
-      for (let j = 0; j < this.ARITY; j++) {
-        for (let i = 0; i < this.ARITY; i++) {
-          vectors[i][j] = m[j][i]
+        for (let k = 0; k < this.ARITY; k++) {
+          result[i + j * this.ARITY] +=
+            m[k + j * this.ARITY] * n[i + k * this.ARITY]
         }
       }
-
-      cols = vectors.map(this.vectorFromArray)
     }
 
-    for (let i = 0; i < this.ARITY; i++) {
-      for (let j = 0; j < this.ARITY; j++) {
-        this[i][j] = rows[i].dot(cols[j])
-      }
-    }
+    m = result
 
-    return this
+    return result
   }
 
-  public determinant = (): number => {
+  determinant(m: M): number {
     let determinant = 0
 
     for (let i = 0; i < this.ARITY; i++) {
-      const element = this[0][i]
-
-      determinant += element * this.cofactor(i, 0)
+      determinant += m[i] * this.cofactor(m, i, 0)
     }
 
     return determinant
   }
 
-  public inverse = (): M => {
-    const det = this.determinant()
+  toInverse(m: M): M {
+    const det = this.determinant(m)
 
     if (det === 0) {
       throw new Error('Matrix is not invertible')
     }
 
-    return this.classicalAdjoint().scale(1 / this.determinant())
+    return this.scale(this.toClassicalAdjoint(m), 1 / det)
   }
 
-  protected abstract minor: (x: number, y: number) => number
-  protected abstract classicalAdjoint: () => M
+  minor(m: M, x: number, y: number): number {
+    if (!this.submatrix) {
+      throw new Error(`Could not compute minor on ${m.toString()}`)
+    }
 
-  protected minorElements = (x: number, y: number): number[][] => {
-    const elements = []
+    const submatrix = this.submatrix.create()
 
-    let currentRow
+    let currentIndex = 0
 
-    for (let i = 0; i < this.ARITY; i++) {
-      if (i === y) {
+    for (let j = 0; j < this.ARITY; j++) {
+      if (j === y) {
         continue
       }
-      currentRow = []
-      for (let j = 0; j < this.ARITY; j++) {
-        if (j === x) {
+      for (let i = 0; i < this.ARITY; i++) {
+        if (i === x) {
           continue
         }
-        currentRow.push(this[i][j])
+        submatrix[currentIndex++] = m[i + j * this.ARITY]
       }
-      elements.push(currentRow as T)
     }
 
-    return elements
+    return this.submatrix.determinant(submatrix)
   }
 
-  protected cofactor = (x: number, y: number): number => {
+  cofactor(m: M, x: number, y: number): number {
     const multiplier = (x + y) % 2 === 0 ? 1 : -1
 
-    return multiplier * this.minor(x, y)
+    return multiplier * this.minor(m, x, y)
   }
 
-  protected classicalAdjointElements = (): T[] => {
-    const elements: T[] = []
+  toClassicalAdjoint(m: M) {
+    const ajoint = this.create()
 
-    let currentRow
-
-    for (let i = 0; i < this.ARITY; i++) {
-      currentRow = []
-      for (let j = 0; j < this.ARITY; j++) {
-        currentRow.push(this.cofactor(i, j))
+    for (let j = 0; j < this.ARITY; j++) {
+      for (let i = 0; i < this.ARITY; i++) {
+        ajoint[j + i * this.ARITY] = this.cofactor(m, i, j)
       }
-      elements.push(currentRow as T)
     }
 
-    return elements
+    return ajoint
   }
 
-  protected static identityElements = (arity: number): number[][] => {
-    const elements = []
+  identity() {
+    const m = this.create()
 
-    let currentRow
-
-    for (let i = 0; i < arity; i++) {
-      currentRow = []
-      for (let j = 0; j < arity; j++) {
+    for (let j = 0; j < this.ARITY; j++) {
+      for (let i = 0; i < this.ARITY; i++) {
         if (i === j) {
-          currentRow.push(1)
+          m[i + j * this.ARITY] = 1
           continue
         }
-        currentRow.push(0)
       }
-      elements.push(currentRow)
     }
 
-    return elements
+    return m
   }
 }

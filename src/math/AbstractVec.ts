@@ -1,96 +1,102 @@
-import { AbstractMat } from './AbstractMat'
+import { Vector } from './Vector'
 
-export abstract class AbstractVec<
-  V extends AbstractVec<V, T>,
-  T extends number[],
-> {
-  protected data: T
+export abstract class AbstractVec<V extends number[], M extends number[]>
+  implements Vector<V, M>
+{
+  constructor(protected readonly ARITY: number) {}
 
-  constructor(protected readonly ARITY: number) {
-    this.data = new Array(ARITY) as T
+  zero() {
+    const v = new Array(this.ARITY) as V
+
+    for (let i = 0; i < this.ARITY; i++) {
+      v[i] = 0
+    }
+
+    return v
   }
 
-  [index: number]: number
-
-  public set = (elements: T): this => {
-    this.data = elements
-
-    return this
+  clone(v: V) {
+    return [...v] as V
   }
 
-  public abstract clone: () => V
-
-  public toArray(): T {
-    return this.data
+  toString(v: V) {
+    return `[${v.join(', ')}]`
   }
 
-  public toString = (): string => {
-    return `[${this.toArray().join(', ')}]`
-  }
-
-  public magnitude = (): number => {
-    const squareSum = this.toArray().reduce((prev, curr) => prev + curr ** 2, 0)
+  magnitude(v: V) {
+    const squareSum = v.reduce((prev, curr) => prev + curr ** 2, 0)
 
     return Math.sqrt(squareSum)
   }
 
-  public normalize = (): this => {
-    const magnitude = this.magnitude()
+  normalize(v: V) {
+    const magnitude = this.magnitude(v)
 
-    this.toArray().forEach((_, index) => {
-      this[index] /= magnitude
+    v.forEach((_, index) => {
+      v[index] /= magnitude
     })
-    return this
+
+    return v
   }
 
-  public add = (v: V): this => {
-    this.toArray().forEach((_, index) => {
-      this[index] += v[index]
-    })
-    return this
+  add(v: V, w: V) {
+    for (let i = 0; i < this.ARITY; i++) {
+      v[i] += w[i]
+    }
+
+    return v
   }
 
-  public subtract = (v: V): this => {
-    this.toArray().forEach((_, index) => {
-      this[index] -= v[index]
-    })
-    return this
+  subtract(v: V, w: V) {
+    for (let i = 0; i < this.ARITY; i++) {
+      v[i] -= w[i]
+    }
+
+    return v
   }
 
-  public scale = (k: number) => {
-    this.toArray().forEach((_, index) => {
-      this[index] *= k
-    })
-    return this
+  scale(v: V, k: number) {
+    for (let i = 0; i < this.ARITY; i++) {
+      v[i] *= k
+    }
+
+    return v
   }
 
-  public dot = (v: V): number => {
-    return this.data.reduce((prev, curr, index) => prev + curr * v[index], 0)
+  dot(v: V, w: V) {
+    let value = 0
+    for (let i = 0; i < this.ARITY; i++) {
+      value += v[i] * w[i]
+    }
+
+    return value
   }
 
-  public mul = (v: V): this => {
-    this.toArray().forEach((_, index) => {
-      this[index] *= v[index]
-    })
-    return this
+  mul(v: V, w: V) {
+    for (let i = 0; i < this.ARITY; i++) {
+      v[i] *= w[i]
+    }
+
+    return v
   }
 
-  public angle = (v: V): number => {
-    return Math.acos(this.dot(v) / (this.magnitude() * v.magnitude()))
+  angle(v: V, w: V) {
+    return Math.acos(this.dot(v, w) / (this.magnitude(v) * this.magnitude(w)))
   }
 
-  public applyMatrix = <M extends AbstractMat<M, V, T>>(m: M): this => {
-    const elements = m.toColVectors().map((col) => this.dot(col))
+  toApplyMatrix(v: V, m: M) {
+    const result = this.zero()
 
-    return this.set(elements as T)
+    for (let i = 0; i < this.ARITY; i++) {
+      for (let k = 0; k < this.ARITY; k++) {
+        result[i] += v[k] * m[i + k * this.ARITY]
+      }
+    }
+
+    return result
   }
 
-  public isZero = (): boolean => {
-    return this.toArray().every((value) => value === 0)
-  }
-
-  public zero = (): this => {
-    this.set(Array.from({ length: this.ARITY }).map(() => 0) as T)
-    return this
+  isZero(v: V): boolean {
+    return v.every((value) => value === 0)
   }
 }

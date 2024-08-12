@@ -1,69 +1,17 @@
 import { AbstractMat } from './AbstractMat'
 import { Mat2, Mat2ElementTuple } from './Mat2'
-import { Vec3, Vec3ElementTuple } from './Vec3'
+import { Vec3ElementTuple } from './Vec3'
 
 export type Mat3ElementTuple = [
-  Vec3ElementTuple,
-  Vec3ElementTuple,
-  Vec3ElementTuple,
+  ...Vec3ElementTuple,
+  ...Vec3ElementTuple,
+  ...Vec3ElementTuple,
 ]
 
-export class Mat3 extends AbstractMat<Mat3, Vec3, Vec3ElementTuple> {
-  static ARITY = 3
-
-  constructor(elements: Mat3ElementTuple) {
-    super(Mat3.ARITY, elements, Vec3.fromArray)
-  }
-
-  public static fromRows = (rows: [Vec3, Vec3, Vec3]): Mat3 => {
-    return new Mat3([rows[0].toArray(), rows[1].toArray(), rows[2].toArray()])
-  }
-
-  public static fromCols = (cols: [Vec3, Vec3, Vec3]): Mat3 => {
-    return Mat3.fromRows(cols).transpose()
-  }
-
-  public static identity = (): Mat3 => {
-    return new Mat3(this.identityElements(Mat3.ARITY) as Mat3ElementTuple)
-  }
-
-  public clone = (): Mat3 => {
-    return new Mat3([
-      [this[0][0], this[0][1], this[0][2]],
-      [this[1][0], this[1][1], this[1][2]],
-      [this[2][0], this[2][1], this[2][2]],
-    ])
-  }
-
-  get 0(): Mat3ElementTuple[number] {
-    return this.rows[0]
-  }
-
-  get 1(): Mat3ElementTuple[number] {
-    return this.rows[1]
-  }
-
-  get 2(): Mat3ElementTuple[number] {
-    return this.rows[2]
-  }
-
-  set 0(value: Mat3ElementTuple[number]) {
-    this.rows[0] = value
-  }
-
-  set 1(value: Mat3ElementTuple[number]) {
-    this.rows[1] = value
-  }
-
-  set 2(value: Mat3ElementTuple[number]) {
-    this.rows[2] = value
-  }
-
-  protected minor = (x: number, y: number): number => {
-    return new Mat2(this.minorElements(x, y) as Mat2ElementTuple).determinant()
-  }
-
-  protected classicalAdjoint = (): Mat3 => {
-    return new Mat3(this.classicalAdjointElements() as Mat3ElementTuple)
+class _Mat3 extends AbstractMat<Mat3ElementTuple, Mat2ElementTuple> {
+  constructor() {
+    super(3, Mat2)
   }
 }
+
+export const Mat3 = new _Mat3()
