@@ -35,7 +35,7 @@ export class LocalTranformCalculator extends System {
     try {
       return LocalTransform.getEntityData(entity)
     } catch {
-      const localTransform = Mat4.identity()
+      const localTransform = new Mat4().identity()
 
       entity.addComponent(LocalTransform, localTransform)
 
@@ -51,7 +51,7 @@ export class LocalTranformCalculator extends System {
         entity.id
       )
 
-      localTransformMatrix.set(parentToLocalTransform.rows)
+      localTransformMatrix.set(parentToLocalTransform.data)
 
       this.chainLocalTransform(entity, localTransformMatrix)
     }

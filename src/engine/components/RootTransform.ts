@@ -6,5 +6,5 @@ import { Mat4 } from '../../math/Mat4'
  */
 export const RootTransform = new DefaultComponent<Mat4>(
   'ROOT_TRANSFORM',
-  Mat4.identity()
+  new Mat4().identity()
 )

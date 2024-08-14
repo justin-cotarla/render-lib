@@ -91,18 +91,17 @@ export class MonoPhongPipeline extends Pipeline {
       scene.camera.localTransform
         .clone()
         .multiply(perspectiveCameaToClipMatrix(scene.camera.perspectiveCamera))
-        .transpose()
-        .toArray()
+        .transpose().data
     )
 
-    meshRootTransformBuffer.set(mesh.rootTransform.transpose().toArray())
+    meshRootTransformBuffer.set(mesh.rootTransform.transpose().data)
 
     cameraPosRootBuffer.set(
-      new Vec4(0, 0, 0, 1).applyMatrix(scene.camera.rootTransform).toArray()
+      new Vec4([0, 0, 0, 1]).applyMatrix(scene.camera.rootTransform).data
     )
 
     lightPosRootBuffer.set(
-      new Vec4(0, 0, 0, 1).applyMatrix(scene.lights[0].rootTransform).toArray()
+      new Vec4([0, 0, 0, 1]).applyMatrix(scene.lights[0].rootTransform).data
     )
 
     materialBuffer.set(computeMaterialBuffer(mesh.material))

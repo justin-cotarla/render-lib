@@ -12,9 +12,9 @@ export class MeshBufferLoader extends System {
     return new Float32Array(
       mesh.triangles.flatMap(({ vertexIndices, normalIndices }) =>
         Array.from({ length: 3 }).flatMap((_, index) => [
-          ...mesh.vertices[vertexIndices[index]].toArray(),
+          ...mesh.vertices[vertexIndices[index]].data,
           1,
-          ...mesh.normals[normalIndices[index]].toArray(),
+          ...mesh.normals[normalIndices[index]].data,
           0,
         ])
       )

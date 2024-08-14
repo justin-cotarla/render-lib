@@ -1,5 +1,5 @@
 import { Triangle } from '../engine/components/Mesh'
-import { Vec3, Vec3ElementTuple } from '../math/Vec3'
+import { Vec3, Vec3Elements } from '../math/Vec3'
 
 const KEYWORDS = ['v', 'vn', 'f', '#'] as const
 
@@ -10,8 +10,8 @@ const parseVec3Data = (data: string): Vec3 => {
     throw new Error('Does not contain 3 components')
   }
 
-  return Vec3.fromArray(
-    data.split(' ').map((value) => parseFloat(value)) as Vec3ElementTuple
+  return new Vec3(
+    data.split(' ').map((value) => parseFloat(value)) as Vec3Elements
   )
 }
 

@@ -1,20 +1,25 @@
 import { AbstractVec } from './AbstractVec'
-import { Mat3ElementTuple } from './Mat3'
+import { Mat3Elements } from './Mat3'
 
-export type Vec3ElementTuple = [number, number, number]
+export type Vec3Elements = [number, number, number]
 
-class _Vec3 extends AbstractVec<Vec3ElementTuple, Mat3ElementTuple> {
-  constructor() {
-    super(3)
+export class Vec3 extends AbstractVec<Vec3Elements, Mat3Elements> {
+  constructor(data?: Vec3Elements) {
+    super(3, data ?? [0, 0, 0])
   }
 
-  toCross(v: Vec3ElementTuple): Vec3ElementTuple {
-    return [
-      v[1] * v[2] - v[2] * v[1],
-      v[2] * v[0] - v[0] * v[2],
-      v[0] * v[1] - v[1] * v[0],
-    ]
+  clone() {
+    const v = new Vec3()
+    v.set(this.data)
+
+    return v
+  }
+
+  cross(v: Vec3): Vec3 {
+    return this.set([
+      this.data[1] * v.data[2] - this.data[2] * v.data[1],
+      this.data[2] * v.data[0] - this.data[0] * v.data[2],
+      this.data[0] * v.data[1] - this.data[1] * v.data[0],
+    ])
   }
 }
-
-export const Vec3 = new _Vec3()

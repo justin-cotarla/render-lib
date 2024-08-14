@@ -1,15 +1,17 @@
+import { Matrix } from './Matrix'
+
 export interface Vector<V extends number[], M extends number[]> {
-  clone(v: V): V
-  toString(v: V): string
-  magnitude(v: V): number
-  normalize(v: V): V
-  add(v: V, w: V): V
-  subtract(v: V, w: V): V
-  scale(v: V, k: number): V
-  dot(v: V, w: V): number
-  mul(v: V, w: V): V
-  angle(v: V, w: V): number
-  toApplyMatrix(v: V, m: M): V
-  zero(): V
-  isZero(v: V): boolean
+  data: V
+  toString(): string
+  magnitude(): number
+  normalize(): this
+  add(v: Vector<V, M>): this
+  subtract(v: Vector<V, M>): this
+  scale(k: number): this
+  dot(v: Vector<V, M>): number
+  mul(v: Vector<V, M>): this
+  angle(v: Vector<V, M>): number
+  applyMatrix(m: Matrix<M>): this
+  zero(): this
+  isZero(): boolean
 }

@@ -47,7 +47,7 @@ const start = async () => {
 
   const player = world.createEntity()
   player.addComponent(PerspectiveCamera)
-  player.addComponent(Position, new Vec3(0, 3, -20))
+  player.addComponent(Position, new Vec3([0, 3, -20]))
   player.addComponent(Orientation)
   player.addComponent(TransformTarget)
   player.addComponent(MouseControl)
@@ -58,17 +58,17 @@ const start = async () => {
   player.addComponent(KeyboardControl)
 
   const lightEntity = world.createEntity()
-  lightEntity.addComponent(Position, new Vec3(0, 10, 0))
+  lightEntity.addComponent(Position, new Vec3([0, 10, 0]))
   lightEntity.addComponent(Orientation)
   lightEntity.addComponent(Light)
 
   const phongSphere = world.createEntity()
-  phongSphere.addComponent(Position, new Vec3(5, 1, 0))
+  phongSphere.addComponent(Position, new Vec3([5, 1, 0]))
   phongSphere.addComponent(Orientation)
   phongSphere.addComponent(Material, {
-    diffuse: new Vec4(1, 1, 0, 1),
-    specular: new Vec4(1, 1, 1, 1),
-    ambient: new Vec4(1, 1, 0, 1),
+    diffuse: new Vec4([1, 1, 0, 1]),
+    specular: new Vec4([1, 1, 1, 1]),
+    ambient: new Vec4([1, 1, 0, 1]),
     gloss: 16,
   })
   phongSphere.addComponent(Mesh, loadObj(sphereModel))
@@ -76,12 +76,12 @@ const start = async () => {
   phongSphere.addComponent(PipelineIdentifier, 'MONO_PHONG')
 
   const toonSphere = world.createEntity()
-  toonSphere.addComponent(Position, new Vec3(-5, 1, 0))
+  toonSphere.addComponent(Position, new Vec3([-5, 1, 0]))
   toonSphere.addComponent(Orientation)
   toonSphere.addComponent(Material, {
-    diffuse: new Vec4(1, 1, 0, 1),
-    specular: new Vec4(1, 1, 1, 1),
-    ambient: new Vec4(1, 1, 0, 1),
+    diffuse: new Vec4([1, 1, 0, 1]),
+    specular: new Vec4([1, 1, 1, 1]),
+    ambient: new Vec4([1, 1, 0, 1]),
     gloss: 10,
   })
   toonSphere.addComponent(Mesh, loadObj(sphereModel))
@@ -89,12 +89,12 @@ const start = async () => {
   toonSphere.addComponent(PipelineIdentifier, 'MONO_TOON')
 
   const phongCube = world.createEntity()
-  phongCube.addComponent(Position, new Vec3(-3, 0, 5))
+  phongCube.addComponent(Position, new Vec3([-3, 0, 5]))
   phongCube.addComponent(Orientation)
   phongCube.addComponent(Material, {
-    diffuse: new Vec4(1, 0, 0, 1),
-    specular: new Vec4(1, 1, 1, 1),
-    ambient: new Vec4(1, 0, 0, 1),
+    diffuse: new Vec4([1, 0, 0, 1]),
+    specular: new Vec4([1, 1, 1, 1]),
+    ambient: new Vec4([1, 0, 0, 1]),
     gloss: 10,
   })
   phongCube.addComponent(Mesh, loadObj(flatCubeModel))

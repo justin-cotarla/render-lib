@@ -1,6 +1,6 @@
 import { Entity } from '../../ecs/Entity'
 import { System } from '../../ecs/System'
-import { Mat4, Mat4ElementTuple } from '../../math/Mat4'
+import { Mat4 } from '../../math/Mat4'
 import { Vec3 } from '../../math/Vec3'
 import {
   eulerOrientationToMatrix,
@@ -20,22 +20,46 @@ export class ParentTranformCalculator extends System {
     this.registerComponent(Orientation)
   }
 
-  private getLocalToParentTranslation = (position: Vec3): Mat4ElementTuple => {
-    return [
-      [1, 0, 0, 0],
-      [0, 1, 0, 0],
-      [0, 0, 1, 0],
-      [position[0], position[1], position[2], 1],
-    ]
+  private getLocalToParentTranslation = (position: Vec3): Mat4 => {
+    return new Mat4([
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      position.data[0],
+      position.data[1],
+      position.data[2],
+      1,
+    ])
   }
 
-  private getParentToLocalTranslation = (position: Vec3): Mat4ElementTuple => {
-    return [
-      [1, 0, 0, 0],
-      [0, 1, 0, 0],
-      [0, 0, 1, 0],
-      [-position[0], -position[1], -position[2], 1],
-    ]
+  private getParentToLocalTranslation = (position: Vec3): Mat4 => {
+    return new Mat4([
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -position.data[0],
+      -position.data[1],
+      -position.data[2],
+      1,
+    ])
   }
 
   private getParentTransformMatrices = (
@@ -47,8 +71,8 @@ export class ParentTranformCalculator extends System {
     try {
       return ParentTransform.getEntityData(entity)
     } catch {
-      const localToParentTransform = Mat4.identity()
-      const parentToLocalTransform = Mat4.identity()
+      const localToParentTransform = new Mat4().identity()
+      const parentToLocalTransform = new Mat4().identity()
 
       entity.addComponent(ParentTransform, {
         localToParentTransform,
@@ -71,11 +95,11 @@ export class ParentTranformCalculator extends System {
         this.getParentTransformMatrices(entity)
 
       localToParentTransform
-        .set(eulerOrientationToMatrix(orientation))
+        .set(eulerOrientationToMatrix(orientation).data)
         .multiply(this.getLocalToParentTranslation(position))
 
       parentToLocalTransform
-        .set(this.getParentToLocalTranslation(position))
+        .set(this.getParentToLocalTranslation(position).data)
         .multiply(reverseEulerOrientationToMatrix(orientation))
     }
   }

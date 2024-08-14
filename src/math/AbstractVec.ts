@@ -1,102 +1,113 @@
+import { Matrix } from './Matrix'
 import { Vector } from './Vector'
 
 export abstract class AbstractVec<V extends number[], M extends number[]>
   implements Vector<V, M>
 {
-  constructor(protected readonly ARITY: number) {}
+  constructor(
+    protected readonly ARITY: number,
+    readonly data: V
+  ) {}
 
-  zero() {
-    const v = new Array(this.ARITY) as V
+  abstract clone(): AbstractVec<V, M>
 
-    for (let i = 0; i < this.ARITY; i++) {
-      v[i] = 0
+  protected set(data: V): this {
+    for (let i = 0; i < data.length; i++) {
+      this.data[i] = data[i]
     }
 
-    return v
+    return this
   }
 
-  clone(v: V) {
-    return [...v] as V
+  zero() {
+    for (let i = 0; i < this.ARITY; i++) {
+      this.data[i] = 0
+    }
+
+    return this
   }
 
-  toString(v: V) {
-    return `[${v.join(', ')}]`
+  toString() {
+    return `[${this.data.join(', ')}]`
   }
 
-  magnitude(v: V) {
-    const squareSum = v.reduce((prev, curr) => prev + curr ** 2, 0)
+  magnitude() {
+    const squareSum = this.data.reduce((prev, curr) => prev + curr ** 2, 0)
 
     return Math.sqrt(squareSum)
   }
 
-  normalize(v: V) {
-    const magnitude = this.magnitude(v)
+  normalize() {
+    const magnitude = this.magnitude()
 
-    v.forEach((_, index) => {
-      v[index] /= magnitude
+    this.data.forEach((_, index) => {
+      this.data[index] /= magnitude
     })
 
-    return v
+    return this
   }
 
-  add(v: V, w: V) {
+  add(v: Vector<V, M>) {
     for (let i = 0; i < this.ARITY; i++) {
-      v[i] += w[i]
+      this.data[i] += v.data[i]
     }
 
-    return v
+    return this
   }
 
-  subtract(v: V, w: V) {
+  subtract(v: Vector<V, M>) {
     for (let i = 0; i < this.ARITY; i++) {
-      v[i] -= w[i]
+      this.data[i] -= v.data[i]
     }
 
-    return v
+    return this
   }
 
-  scale(v: V, k: number) {
+  scale(k: number) {
     for (let i = 0; i < this.ARITY; i++) {
-      v[i] *= k
+      this.data[i] *= k
     }
 
-    return v
+    return this
   }
 
-  dot(v: V, w: V) {
+  dot(v: Vector<V, M>) {
     let value = 0
     for (let i = 0; i < this.ARITY; i++) {
-      value += v[i] * w[i]
+      value += this.data[i] * v.data[i]
     }
 
     return value
   }
 
-  mul(v: V, w: V) {
+  mul(v: Vector<V, M>) {
     for (let i = 0; i < this.ARITY; i++) {
-      v[i] *= w[i]
+      this.data[i] *= v.data[i]
     }
 
-    return v
+    return this
   }
 
-  angle(v: V, w: V) {
-    return Math.acos(this.dot(v, w) / (this.magnitude(v) * this.magnitude(w)))
+  angle(v: Vector<V, M>) {
+    return Math.acos(this.dot(v) / this.magnitude() ** 2)
   }
 
-  toApplyMatrix(v: V, m: M) {
-    const result = this.zero()
+  applyMatrix(m: Matrix<M>) {
+    const result = new Array(this.ARITY) as V
 
+    for (let i = 0; i < result.length; i++) {
+      result[i] = 0
+    }
     for (let i = 0; i < this.ARITY; i++) {
       for (let k = 0; k < this.ARITY; k++) {
-        result[i] += v[k] * m[i + k * this.ARITY]
+        result[i] += this.data[k] * m.data[i + k * this.ARITY]
       }
     }
 
-    return result
+    return this.set(result)
   }
 
-  isZero(v: V): boolean {
-    return v.every((value) => value === 0)
+  isZero(): boolean {
+    return this.data.every((value) => value === 0)
   }
 }

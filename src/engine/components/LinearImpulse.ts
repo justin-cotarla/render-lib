@@ -3,5 +3,5 @@ import { Vec3 } from '../../math/Vec3'
 
 export const LinearImpulse = new DefaultComponent<Vec3>(
   'LINEAR_IMPULSE',
-  Vec3.zero()
+  new Vec3()
 )

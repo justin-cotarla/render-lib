@@ -3,5 +3,5 @@ import { Mat4 } from '../../math/Mat4'
 
 export const LocalTransform = new DefaultComponent<Mat4>(
   'LOCAL_TRANSFORM',
-  Mat4.identity()
+  new Mat4().identity()
 )

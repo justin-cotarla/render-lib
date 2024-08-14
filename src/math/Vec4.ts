@@ -1,12 +1,17 @@
 import { AbstractVec } from './AbstractVec'
-import { Mat4ElementTuple } from './Mat4'
+import { Mat4Elements } from './Mat4'
 
-export type Vec4ElementTuple = [number, number, number, number]
+export type Vec4Elements = [number, number, number, number]
 
-class _Vec4 extends AbstractVec<Vec4ElementTuple, Mat4ElementTuple> {
-  constructor() {
-    super(4)
+export class Vec4 extends AbstractVec<Vec4Elements, Mat4Elements> {
+  constructor(data?: Vec4Elements) {
+    super(4, data ?? [0, 0, 0, 0])
+  }
+
+  clone() {
+    const v = new Vec4()
+    v.set(this.data)
+
+    return v
   }
 }
-
-export const Vec4 = new _Vec4()

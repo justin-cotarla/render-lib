@@ -5,121 +5,133 @@ export abstract class AbstractMat<M extends number[], N extends number[] = []>
 {
   constructor(
     readonly ARITY: number,
-    private readonly submatrix?: Matrix<N>
+    readonly data: M,
+    private readonly getSubmatrix?: () => Matrix<N>
   ) {}
 
-  create() {
-    const elementCount = this.ARITY ** 2
-    const m = new Array(elementCount) as M
+  abstract clone(): AbstractMat<M, N>
 
-    for (let i = 0; i < elementCount; i++) {
-      m[i] = 0
+  set(data: M): this {
+    for (let i = 0; i < data.length; i++) {
+      this.data[i] = data[i]
     }
 
-    return m
+    return this
   }
 
-  clone(m: M) {
-    return [...m] as M
-  }
-
-  toString(m: M) {
+  public toString() {
     let output = ''
 
     for (let j = 0; j < this.ARITY; j++) {
       output += '  '
       for (let i = 0; i < this.ARITY; i++) {
-        output = `${output}${m[i + j * this.ARITY]} `
+        output = `${output}${this.data[i + j * this.ARITY]} `
       }
       output = `${output}\n`
     }
     return `[\n${output}]`
   }
 
-  transpose(m: M) {
+  public transpose() {
     let swap
 
     for (let j = 0; j < this.ARITY; j++) {
       for (let i = j + 1; i < this.ARITY; i++) {
-        swap = m[i + j * this.ARITY]
-        m[i + j * this.ARITY] = m[j + i * this.ARITY]
-        m[j + i * this.ARITY] = swap
+        swap = this.data[i + j * this.ARITY]
+        this.data[i + j * this.ARITY] = this.data[j + i * this.ARITY]
+        this.data[j + i * this.ARITY] = swap
       }
     }
 
-    return m
+    return this
   }
 
-  add(m: M, n: M) {
+  public add(m: Matrix<M>) {
     for (let j = 0; j < this.ARITY; j++) {
       for (let i = 0; i < this.ARITY; i++) {
-        m[i + j * this.ARITY] += n[i + j * this.ARITY]
+        this.data[i + j * this.ARITY] += m.data[i + j * this.ARITY]
       }
     }
-    return m
+    return this
   }
 
-  subtract(m: M, n: M) {
+  public subtract(m: Matrix<M>) {
     for (let j = 0; j < this.ARITY; j++) {
       for (let i = 0; i < this.ARITY; i++) {
-        m[i + j * this.ARITY] -= n[i + j * this.ARITY]
+        this.data[i + j * this.ARITY] -= m.data[i + j * this.ARITY]
       }
     }
-    return m
+    return this
   }
 
-  scale(m: M, k: number) {
+  public scale(k: number) {
     for (let j = 0; j < this.ARITY; j++) {
       for (let i = 0; i < this.ARITY; i++) {
-        m[i + j * this.ARITY] *= k
+        this.data[i + j * this.ARITY] *= k
       }
     }
-    return m
+    return this
   }
 
-  toMultiply(m: M, n: M) {
-    const result = this.create()
+  public multiply(m: Matrix<M>) {
+    const result = new Array(this.ARITY ** 2) as M
+
+    for (let i = 0; i < result.length; i++) {
+      result[i] = 0
+    }
 
     for (let j = 0; j < this.ARITY; j++) {
       for (let i = 0; i < this.ARITY; i++) {
         for (let k = 0; k < this.ARITY; k++) {
           result[i + j * this.ARITY] +=
-            m[k + j * this.ARITY] * n[i + k * this.ARITY]
+            this.data[k + j * this.ARITY] * m.data[i + k * this.ARITY]
         }
       }
     }
 
-    m = result
+    this.set(result)
 
-    return result
+    return this
   }
 
-  determinant(m: M): number {
+  public determinant(): number {
     let determinant = 0
 
     for (let i = 0; i < this.ARITY; i++) {
-      determinant += m[i] * this.cofactor(m, i, 0)
+      determinant += this.data[i] * this.cofactor(i, 0)
     }
 
     return determinant
   }
 
-  toInverse(m: M): M {
-    const det = this.determinant(m)
+  public inverse() {
+    const det = this.determinant()
 
     if (det === 0) {
       throw new Error('Matrix is not invertible')
     }
 
-    return this.scale(this.toClassicalAdjoint(m), 1 / det)
+    return this.set(
+      this.toClassicalAdjoint().scale(1 / this.determinant()).data
+    )
   }
 
-  minor(m: M, x: number, y: number): number {
-    if (!this.submatrix) {
-      throw new Error(`Could not compute minor on ${m.toString()}`)
+  identity() {
+    for (let j = 0; j < this.ARITY; j++) {
+      for (let i = 0; i < this.ARITY; i++) {
+        this.data[i + j * this.ARITY] = i === j ? 1 : 0
+      }
     }
 
-    const submatrix = this.submatrix.create()
+    return this
+  }
+
+  protected minor(x: number, y: number): number {
+    if (!this.getSubmatrix) {
+      throw new Error(`Could not compute minor`)
+    }
+
+    const submatrix = this.getSubmatrix()
 
     let currentIndex = 0
 
@@ -131,43 +143,28 @@ export abstract class AbstractMat<M extends number[], N extends number[] = []>
         if (i === x) {
           continue
         }
-        submatrix[currentIndex++] = m[i + j * this.ARITY]
+        submatrix.data[currentIndex++] = this.data[i + j * this.ARITY]
       }
     }
 
-    return this.submatrix.determinant(submatrix)
+    return submatrix.determinant()
   }
 
-  cofactor(m: M, x: number, y: number): number {
+  protected cofactor(x: number, y: number): number {
     const multiplier = (x + y) % 2 === 0 ? 1 : -1
 
-    return multiplier * this.minor(m, x, y)
+    return multiplier * this.minor(x, y)
   }
 
-  toClassicalAdjoint(m: M) {
-    const ajoint = this.create()
+  protected toClassicalAdjoint() {
+    const ajoint = this.clone()
 
     for (let j = 0; j < this.ARITY; j++) {
       for (let i = 0; i < this.ARITY; i++) {
-        ajoint[j + i * this.ARITY] = this.cofactor(m, i, j)
+        ajoint.data[j + i * this.ARITY] = this.cofactor(i, j)
       }
     }
 
     return ajoint
-  }
-
-  identity() {
-    const m = this.create()
-
-    for (let j = 0; j < this.ARITY; j++) {
-      for (let i = 0; i < this.ARITY; i++) {
-        if (i === j) {
-          m[i + j * this.ARITY] = 1
-          continue
-        }
-      }
-    }
-
-    return m
   }
 }

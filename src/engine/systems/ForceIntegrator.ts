@@ -43,21 +43,15 @@ export class ForceIntegrator extends System {
           .scale(dt)
           .applyMatrix(
             new Mat3([
-              [
-                orientationMatrix[0][0],
-                orientationMatrix[0][1],
-                orientationMatrix[0][2],
-              ],
-              [
-                orientationMatrix[1][0],
-                orientationMatrix[1][1],
-                orientationMatrix[1][2],
-              ],
-              [
-                orientationMatrix[2][0],
-                orientationMatrix[2][1],
-                orientationMatrix[2][2],
-              ],
+              orientationMatrix.data[0],
+              orientationMatrix.data[1],
+              orientationMatrix.data[2],
+              orientationMatrix.data[4],
+              orientationMatrix.data[5],
+              orientationMatrix.data[6],
+              orientationMatrix.data[8],
+              orientationMatrix.data[9],
+              orientationMatrix.data[10],
             ])
           )
       )

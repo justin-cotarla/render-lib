@@ -8,6 +8,6 @@ export const ParentTransform = new DefaultComponent<{
   localToParentTransform: Mat4
   parentToLocalTransform: Mat4
 }>('PARENT_TRANSFORMS', {
-  localToParentTransform: Mat4.identity(),
-  parentToLocalTransform: Mat4.identity(),
+  localToParentTransform: new Mat4().identity(),
+  parentToLocalTransform: new Mat4().identity(),
 })

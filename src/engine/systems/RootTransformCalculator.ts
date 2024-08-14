@@ -33,7 +33,7 @@ export class RootTranformCalculator extends System {
     try {
       return RootTransform.getEntityData(entity)
     } catch {
-      const rootTransform = Mat4.identity()
+      const rootTransform = new Mat4().identity()
 
       entity.addComponent(RootTransform, rootTransform)
 
@@ -49,7 +49,7 @@ export class RootTranformCalculator extends System {
         entity.id
       )
 
-      rootTransformMatrix.set(localToParentTransform.rows)
+      rootTransformMatrix.set(localToParentTransform.data)
 
       this.chainRootTransform(entity, rootTransformMatrix)
     }

@@ -24,30 +24,30 @@ export class KeyboardMover extends System {
     new KeyboardObserver({
       press: {
         [DirectionKey.UP]: () => {
-          this.setLinearImpulse(new Vec3(0, 0, 0.01))
+          this.setLinearImpulse(new Vec3([0, 0, 0.01]))
         },
         [DirectionKey.DOWN]: () => {
-          this.setLinearImpulse(new Vec3(0, 0, -0.01))
+          this.setLinearImpulse(new Vec3([0, 0, -0.01]))
         },
         [DirectionKey.LEFT]: () => {
-          this.setLinearImpulse(new Vec3(-0.01, 0, 0))
+          this.setLinearImpulse(new Vec3([-0.01, 0, 0]))
         },
         [DirectionKey.RIGHT]: () => {
-          this.setLinearImpulse(new Vec3(0.01, 0, 0))
+          this.setLinearImpulse(new Vec3([0.01, 0, 0]))
         },
       },
       release: {
         [DirectionKey.UP]: () => {
-          this.setLinearImpulse(new Vec3(0, 0, -0.01))
+          this.setLinearImpulse(new Vec3([0, 0, -0.01]))
         },
         [DirectionKey.DOWN]: () => {
-          this.setLinearImpulse(new Vec3(0, 0, 0.01))
+          this.setLinearImpulse(new Vec3([0, 0, 0.01]))
         },
         [DirectionKey.LEFT]: () => {
-          this.setLinearImpulse(new Vec3(0.01, 0, 0))
+          this.setLinearImpulse(new Vec3([0.01, 0, 0]))
         },
         [DirectionKey.RIGHT]: () => {
-          this.setLinearImpulse(new Vec3(-0.01, 0, 0))
+          this.setLinearImpulse(new Vec3([-0.01, 0, 0]))
         },
       },
     })

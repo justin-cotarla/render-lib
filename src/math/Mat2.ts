@@ -1,20 +1,25 @@
 import { AbstractMat } from './AbstractMat'
-import { Vec2ElementTuple } from './Vec2'
+import { Vec2Elements } from './Vec2'
 
-export type Mat2ElementTuple = [...Vec2ElementTuple, ...Vec2ElementTuple]
+export type Mat2Elements = [...Vec2Elements, ...Vec2Elements]
 
-class _Mat2 extends AbstractMat<Mat2ElementTuple> {
-  constructor() {
-    super(2)
+export class Mat2 extends AbstractMat<Mat2Elements> {
+  constructor(data?: Mat2Elements) {
+    super(2, data ?? [0, 0, 0, 0])
   }
 
-  minor(m: Mat2ElementTuple, x: number, y: number) {
-    return m[((x + 1) % 2) + ((y + 1) % 2) * 2]
+  clone() {
+    const m = new Mat2()
+    m.set(this.data)
+
+    return m
   }
 
-  determinant(m: Mat2ElementTuple) {
-    return m[0] * m[3] - m[1] * m[2]
+  minor(x: number, y: number) {
+    return this.data[((x + 1) % 2) + ((y + 1) % 2) * 2]
+  }
+
+  determinant() {
+    return this.data[0] * this.data[3] - this.data[1] * this.data[2]
   }
 }
-
-export const Mat2 = new _Mat2()

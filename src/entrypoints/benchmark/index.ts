@@ -48,7 +48,7 @@ const start = async () => {
 
   const player = world.createEntity()
   player.addComponent(PerspectiveCamera)
-  player.addComponent(Position, new Vec3(0, 0, -30))
+  player.addComponent(Position, new Vec3([0, 0, -30]))
   player.addComponent(Orientation)
   player.addComponent(TransformTarget)
   player.addComponent(MouseControl)
@@ -59,29 +59,29 @@ const start = async () => {
   player.addComponent(KeyboardControl)
 
   const lightEntity = world.createEntity()
-  lightEntity.addComponent(Position, new Vec3(0, 10, 0))
+  lightEntity.addComponent(Position, new Vec3([0, 10, 0]))
   lightEntity.addComponent(Orientation)
   lightEntity.addComponent(Light)
 
-  const meshEntities = Array.from({ length: 500 }).map(() =>
+  const meshEntities = Array.from({ length: 100 }).map(() =>
     world.createEntity()
   )
 
   meshEntities.forEach((entity) => {
-    const rgb = new Vec4(Math.random(), Math.random(), Math.random(), 1)
+    const rgb = new Vec4([Math.random(), Math.random(), Math.random(), 1])
 
     entity.addComponent(
       Position,
-      new Vec3(
+      new Vec3([
         Math.random() * 20 - 10,
         Math.random() * 20 - 10,
-        Math.random() * 20
-      )
+        Math.random() * 20,
+      ])
     )
     entity.addComponent(Orientation)
     entity.addComponent(Material, {
       diffuse: rgb,
-      specular: new Vec4(1, 1, 1, 1),
+      specular: new Vec4([1, 1, 1, 1]),
       ambient: rgb,
       gloss: 16,
     })
