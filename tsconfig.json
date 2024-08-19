@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "es2016",
     "lib": ["DOM"],
-    "module": "commonjs",
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
     "typeRoots": [
       "./node_modules/@webgpu/types",
       "./node_modules/@types"

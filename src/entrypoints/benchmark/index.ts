@@ -63,7 +63,11 @@ const start = async () => {
   lightEntity.addComponent(Orientation)
   lightEntity.addComponent(Light)
 
-  const meshEntities = Array.from({ length: 100 }).map(() =>
+  const meshCount = import.meta.env.VITE_BENCHMARK_COUNT
+    ? parseInt(import.meta.env.VITE_BENCHMARK_COUNT, 10)
+    : 100
+
+  const meshEntities = Array.from({ length: meshCount }).map(() =>
     world.createEntity()
   )
 
