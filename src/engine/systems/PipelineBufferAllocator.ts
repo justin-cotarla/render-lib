@@ -16,9 +16,15 @@ export class PipelineBufferAllocator extends System {
 
   public allocateBuffers() {
     for (const entity of this.getMatchedEntities()) {
-      const pipeline =
-        this.pipelineMap[PipelineIdentifier.getEntityData(entity.id)]
+      const pipelineIdentifier = PipelineIdentifier.getEntityData(entity.id)
 
+      const pipeline = this.pipelineMap[pipelineIdentifier]
+
+      if (!pipeline) {
+        throw new Error(
+          `Pipeline ${pipelineIdentifier} on entity ${entity.id} does not exist`
+        )
+      }
       const gpuBuffers = pipeline.createGpuBuffers()
 
       entity.addComponent(BindGroupData, {
