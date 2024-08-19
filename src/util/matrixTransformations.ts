@@ -76,7 +76,7 @@ export const reverseEulerOrientationToMatrix = (
   ])
 }
 
-export const perspectiveCameaToClipMatrix = ({
+export const perspectiveCameraToClipMatrix = ({
   nearPlane,
   farPlane,
   fov,

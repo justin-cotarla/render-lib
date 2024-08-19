@@ -1,5 +1,5 @@
 import { Vec4 } from '../../../math/Vec4'
-import { perspectiveCameaToClipMatrix } from '../../../util/matrixTransformations'
+import { perspectiveCameraToClipMatrix } from '../../../util/matrixTransformations'
 import { computeMaterialBuffer } from '../../components/Material'
 import { Pipeline } from '../Pipeline'
 
@@ -90,7 +90,7 @@ export class MonoPhongPipeline extends Pipeline {
     rootClipTransformBuffer.set(
       scene.camera.localTransform
         .clone()
-        .multiply(perspectiveCameaToClipMatrix(scene.camera.perspectiveCamera))
+        .multiply(perspectiveCameraToClipMatrix(scene.camera.perspectiveCamera))
         .transpose().data
     )
 
