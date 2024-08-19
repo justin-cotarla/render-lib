@@ -69,13 +69,15 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
   getEntityData(entity: number | Entity): T {
     const entityId = entity instanceof Entity ? entity.id : entity
 
-    if (!this.entityData[entityId]) {
+    const entityData = this.entityData[entityId]
+
+    if (!entityData) {
       throw new Error(
         `Entity ${entityId} does not have a ${this.name} component`
       )
     }
 
-    return this.entityData[entityId]
+    return entityData
   }
 
   printAll(): void {
