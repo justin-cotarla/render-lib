@@ -23,22 +23,26 @@ struct VSOutput {
   @location(1) normal: vec4f,
 }
 
-struct EntityUni {
+struct GlobalUni {
   root_clip_transform: mat4x4f,
-  mesh_root_transform: mat4x4f,
   camera_pos_root: vec4f,
   light_pos_root: vec4f,
+}
+
+struct EntityUni {
+  mesh_root_transform: mat4x4f,
   material: Material
 }
 
-@group(0) @binding(0) var<uniform> entity_uni: EntityUni;
+@group(0) @binding(0) var<uniform> global_uni: GlobalUni;
+@group(0) @binding(1) var<uniform> entity_uni: EntityUni;
 
 @vertex
 fn vert(input: VSInput) -> VSOutput
 {
   var output : VSOutput;
 
-  output.clip_pos = input.mesh_pos * entity_uni.mesh_root_transform * entity_uni.root_clip_transform;
+  output.clip_pos = input.mesh_pos * entity_uni.mesh_root_transform * global_uni.root_clip_transform;
   output.mesh_pos = input.mesh_pos;
   output.normal = input.normal;
 
@@ -51,8 +55,8 @@ fn frag(input: FSInput) -> @location(0) vec4f
   let mesh_pos_root = input.mesh_pos * entity_uni.mesh_root_transform;
 
   let n = normalize(input.normal);
-  let l = normalize(entity_uni.light_pos_root - mesh_pos_root);
-  let v = normalize(entity_uni.camera_pos_root - mesh_pos_root);
+  let l = normalize(global_uni.light_pos_root - mesh_pos_root);
+  let v = normalize(global_uni.camera_pos_root - mesh_pos_root);
   let r = normalize((2 * dot(n, l) * n) - l);
 
   let g_amb = vec4(0.1, 0.1, 0.1, 1.0);

@@ -10,11 +10,10 @@ import { Position } from '../../engine/components/Position'
 import { Material } from '../../engine/components/Material'
 import { Mesh } from '../../engine/components/Mesh'
 import { ChildrenEntities } from '../../engine/components/ChildrenEntities'
-import { Renderer } from '../../engine/systems/Renderer'
+import { Renderer } from '../../engine/Renderer'
 import { ParentNormalizer } from '../../engine/systems/ParentNormalizer'
 import { Orientation } from '../../engine/components/Orientation'
 import { TransformTarget } from '../../engine/components/TransformTarget'
-import { PipelineIdentifier } from '../../engine/components/PipelineIdentifier'
 import { Light } from '../../engine/components/Light'
 import { CanvasResizer } from '../../engine/systems/CanvasResizer'
 import { CameraMover } from '../../engine/systems/CameraMover'
@@ -26,16 +25,19 @@ import { Velocity } from '../../engine/components/Velocity'
 import { ForceIntegrator } from '../../engine/systems/ForceIntegrator'
 import { KeyboardControl } from '../../engine/components/KeyboardControl'
 import { KeyboardMover } from '../../engine/systems/KeyboardMover'
+import { getDevice } from '../../util/window'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
 const start = async () => {
-  const renderer = await Renderer.create(canvas)
+  const device = await getDevice()
+
+  const renderer = await Renderer.create(device, canvas)
   const forceIntegrator = new ForceIntegrator()
 
   const _canvasResizer = new CanvasResizer(
     canvas,
-    renderer.getDeviceLimits().maxTextureDimension2D
+    device.limits.maxTextureDimension2D
   )
   const _cameraMover = new CameraMover(0.001)
   const _keyboardMover = new KeyboardMover()
@@ -73,7 +75,7 @@ const start = async () => {
   })
   phongSphere.addComponent(Mesh, loadObj(sphereModel))
   phongSphere.addComponent(TransformTarget)
-  phongSphere.addComponent(PipelineIdentifier, 'MONO_PHONG')
+  // phongSphere.addComponent(PipelineIdentifier, 'MONO_PHONG')
 
   const toonSphere = world.createEntity()
   toonSphere.addComponent(Position, new Vec3([-5, 1, 0]))
@@ -86,7 +88,7 @@ const start = async () => {
   })
   toonSphere.addComponent(Mesh, loadObj(sphereModel))
   toonSphere.addComponent(TransformTarget)
-  toonSphere.addComponent(PipelineIdentifier, 'MONO_TOON')
+  // toonSphere.addComponent(PipelineIdentifier, 'MONO_TOON')
 
   const phongCube = world.createEntity()
   phongCube.addComponent(Position, new Vec3([-3, 0, 5]))
@@ -99,7 +101,7 @@ const start = async () => {
   })
   phongCube.addComponent(Mesh, loadObj(flatCubeModel))
   phongCube.addComponent(TransformTarget)
-  phongCube.addComponent(PipelineIdentifier, 'MONO_PHONG')
+  // phongCube.addComponent(PipelineIdenti+fier, 'MONO_PHONG')
 
   // Build scene
   const sceneEntity = world.createEntity()
@@ -115,7 +117,7 @@ const start = async () => {
 
   parentNormalizer.normalizeParents()
 
-  renderer.allocateBuffers()
+  // renderer.allocateBuffers()
   renderer.loadStaticMeshBuffers()
 
   renderer.render()

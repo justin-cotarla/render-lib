@@ -1,62 +1,53 @@
-import { BindGroupData } from '../components/BindGroupData'
-import { Light } from '../components/Light'
-import { Vec3 } from '../../math/Vec3'
-import { Mat4 } from '../../math/Mat4'
-import { Material } from '../components/Material'
-import { PerspectiveCamera } from '../components/PerspectiveCamera'
+import { EntityBuffer } from '../components/EntityBuffer'
+import { GlobalBuffer } from '../components/GlobalBuffer'
+import { System } from '../../ecs/System'
+import { Entity } from '../../ecs/Entity'
+import { Component } from '../../ecs/Component'
+import { Mesh } from '../components/Mesh'
+import { MeshBuffer } from '../components/MeshBuffer'
 
-export abstract class Pipeline {
+export abstract class Pipeline extends System {
   constructor(
     readonly device: GPUDevice,
     readonly renderPipeline: GPURenderPipeline,
-    readonly uniformDataSize: number
-  ) {}
+    readonly BindGroup: Component<GPUBindGroup>
+  ) {
+    super()
 
-  public abstract loadMeshBuffers(params: {
-    bindGroupData: BindGroupData
-    mesh: {
-      rootTransform: Mat4
-      material: Material
-    }
-    scene: {
-      camera: {
-        position: Vec3
-        rootTransform: Mat4
-        localTransform: Mat4
-        perspectiveCamera: PerspectiveCamera
-      }
-      lights: {
-        position: Vec3
-        rootTransform: Mat4
-        light: Light
-      }[]
-    }
-  }): void
-  public abstract createGpuBuffers(): BindGroupData['gpuBuffers']
-
-  public createUniformBuffer = (): BindGroupData['uniformBuffer'] => {
-    return new Float32Array(this.uniformDataSize)
+    this.registerComponent(this.BindGroup)
+    this.registerComponent(Mesh)
+    this.registerComponent(EntityBuffer)
+    this.registerComponent(MeshBuffer)
   }
 
-  public createBindGroup = (
-    buffers: BindGroupData['gpuBuffers']
-  ): BindGroupData['bindGroup'] => {
-    return this.device.createBindGroup({
-      layout: this.renderPipeline.getBindGroupLayout(0),
-      entries: buffers.map((buffer, index) => ({
-        binding: index,
-        resource: { buffer },
-      })),
-    })
+  public registerEntity(entity: Entity): void {
+    const entityBuffer = this.createEntityBuffer()
+
+    entity.addComponent(
+      this.BindGroup,
+      this.createBindGroup(entityBuffer.gpuBuffer)
+    )
+    entity.addComponent(EntityBuffer, entityBuffer)
   }
 
-  public createPipelineData(): BindGroupData {
-    const gpuBuffers = this.createGpuBuffers()
+  public render(renderPass: GPURenderPassEncoder) {
+    renderPass.setPipeline(this.renderPipeline)
 
-    return {
-      gpuBuffers,
-      bindGroup: this.createBindGroup(gpuBuffers),
-      uniformBuffer: this.createUniformBuffer(),
-    }
+    this.loadGlobalBuffer?.()
+    this.renderEntities(renderPass)
   }
+
+  private _globalBuffer: GlobalBuffer | null = null
+  protected get globalBuffer(): GlobalBuffer | null {
+    this._globalBuffer ??= this.createGlobalBuffer?.() ?? null
+
+    return this._globalBuffer
+  }
+
+  public abstract createBindGroup(gpuBuffer: GPUBuffer): GPUBindGroup
+  public abstract createEntityBuffer(): EntityBuffer
+  protected createGlobalBuffer?(): GlobalBuffer
+
+  protected abstract renderEntities(renderPass: GPURenderPassEncoder): void
+  protected loadGlobalBuffer?(): void
 }

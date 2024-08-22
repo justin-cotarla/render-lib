@@ -1,12 +1,21 @@
+import { Component } from '../../../ecs/Component'
 import { Vec4 } from '../../../math/Vec4'
 import { perspectiveCameraToClipMatrix } from '../../../util/matrixTransformations'
-import { computeMaterialBuffer } from '../../components/Material'
+import { EntityBuffer } from '../../components/EntityBuffer'
+import { GlobalBuffer } from '../../components/GlobalBuffer'
+import { computeMaterialBuffer, Material } from '../../components/Material'
+import { Mesh } from '../../components/Mesh'
+import { MeshBuffer } from '../../components/MeshBuffer'
+import { RootTransform } from '../../components/RootTransform'
+import { PerspectiveCameraCollector } from '../../systems/CameraCollector'
+import { LightCollector } from '../../systems/LightCollector'
 import { Pipeline } from '../Pipeline'
 
 import shader from './shader.wgsl?raw'
 
 export class MonoPhongPipeline extends Pipeline {
-  static readonly ID = 'MONO_PHONG'
+  private lightCollector = new LightCollector()
+  private perspectiveCameraCollector = new PerspectiveCameraCollector()
 
   constructor(device: GPUDevice) {
     const vertexDescriptor: GPUVertexState = {
@@ -59,53 +68,112 @@ export class MonoPhongPipeline extends Pipeline {
       },
     })
 
-    super(device, renderPipeline, 56)
+    super(
+      device,
+      renderPipeline,
+      new Component<GPUBindGroup>('MONO_PHONG_SHADER')
+    )
+
+    this.registerComponent(Material)
   }
 
-  public createGpuBuffers() {
-    const entityBuffer = this.device.createBuffer({
-      label: 'entity_uni',
-      size: Float32Array.BYTES_PER_ELEMENT * 56,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  protected get globalBuffer(): GlobalBuffer {
+    return super.globalBuffer!
+  }
+
+  public createBindGroup(gpuBuffer: GPUBuffer): GPUBindGroup {
+    return this.device.createBindGroup({
+      layout: this.renderPipeline.getBindGroupLayout(0),
+      entries: [
+        {
+          binding: 0,
+          resource: { buffer: this.globalBuffer.gpuBuffer },
+        },
+        {
+          binding: 1,
+          resource: { buffer: gpuBuffer },
+        },
+      ],
     })
-
-    return [entityBuffer]
   }
 
-  public loadMeshBuffers(
-    ...[{ bindGroupData, mesh, scene }]: Parameters<Pipeline['loadMeshBuffers']>
-  ) {
-    const {
-      gpuBuffers: [entityBuffer],
-      uniformBuffer,
-    } = bindGroupData
+  public createGlobalBuffer(): GlobalBuffer {
+    return {
+      gpuBuffer: this.device.createBuffer({
+        label: 'global_uni',
+        size: Float32Array.BYTES_PER_ELEMENT * 24,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+      }),
+      buffer: new Float32Array(24),
+    }
+  }
 
-    const rootClipTransformBuffer = uniformBuffer.subarray(0, 16)
-    const meshRootTransformBuffer = uniformBuffer.subarray(16, 32)
-    const cameraPosRootBuffer = uniformBuffer.subarray(32, 36)
-    const lightPosRootBuffer = uniformBuffer.subarray(36, 40)
-    const materialBuffer = uniformBuffer.subarray(40, 56)
+  public createEntityBuffer() {
+    return {
+      gpuBuffer: this.device.createBuffer({
+        label: 'entity_uni',
+        size: Float32Array.BYTES_PER_ELEMENT * 32,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+      }),
+      buffer: new Float32Array(32),
+    } satisfies EntityBuffer
+  }
 
-    // VSUni
+  protected renderEntities(renderPass: GPURenderPassEncoder) {
+    for (const entity of this.getMatchedEntities()) {
+      const { buffer, gpuBuffer } = EntityBuffer.getEntityData(entity)
+      const material = Material.getEntityData(entity)
+      const rootTransform = RootTransform.getEntityData(entity)
+
+      const meshRootTransformBuffer = buffer.subarray(0, 16)
+      const materialBuffer = buffer.subarray(16, 32)
+
+      meshRootTransformBuffer.set(rootTransform.transpose().data)
+
+      materialBuffer.set(computeMaterialBuffer(material))
+
+      this.device.queue.writeBuffer(gpuBuffer, 0, buffer, 0, 32)
+
+      const vertexCount = Mesh.getEntityData(entity.id).triangles.length * 3
+      const bindGroup = this.BindGroup.getEntityData(entity.id)
+      const meshBuffer = MeshBuffer.getEntityData(entity.id)
+
+      renderPass.setBindGroup(0, bindGroup)
+      renderPass.setVertexBuffer(0, meshBuffer)
+
+      renderPass.draw(vertexCount)
+    }
+  }
+
+  protected loadGlobalBuffer(): void {
+    const rootClipTransformBuffer = this.globalBuffer.buffer.subarray(0, 16)
+    const cameraPosRootBuffer = this.globalBuffer.buffer.subarray(16, 20)
+    const lightPosRootBuffer = this.globalBuffer.buffer.subarray(20, 24)
+
+    const camera = this.perspectiveCameraCollector.collect()[0]
+    const lights = this.lightCollector.collect()
+
     rootClipTransformBuffer.set(
-      scene.camera.localTransform
+      camera.localTransform
         .clone()
-        .multiply(perspectiveCameraToClipMatrix(scene.camera.perspectiveCamera))
+        .multiply(perspectiveCameraToClipMatrix(camera.perspectiveCamera))
         .transpose().data
     )
 
-    meshRootTransformBuffer.set(mesh.rootTransform.transpose().data)
-
     cameraPosRootBuffer.set(
-      new Vec4([0, 0, 0, 1]).applyMatrix(scene.camera.rootTransform).data
+      new Vec4([0, 0, 0, 1]).applyMatrix(camera.rootTransform).data
     )
 
     lightPosRootBuffer.set(
-      new Vec4([0, 0, 0, 1]).applyMatrix(scene.lights[0].rootTransform).data
+      new Vec4([0, 0, 0, 1]).applyMatrix(lights[0].rootTransform).data
     )
 
-    materialBuffer.set(computeMaterialBuffer(mesh.material))
-
-    this.device.queue.writeBuffer(entityBuffer, 0, uniformBuffer, 0, 56)
+    this.device.queue.writeBuffer(
+      this.globalBuffer.gpuBuffer,
+      0,
+      this.globalBuffer.buffer,
+      0,
+      24
+    )
   }
 }

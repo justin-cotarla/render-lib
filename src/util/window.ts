@@ -15,3 +15,17 @@ export const setupResizeObserver = (
 
   return resizeObserver
 }
+
+export const getDevice = async (): Promise<GPUDevice> => {
+  if (!navigator.gpu) {
+    throw new Error('WebGPU not supported')
+  }
+
+  const adapter = await navigator.gpu.requestAdapter()
+
+  if (!adapter) {
+    throw Error("Couldn't request WebGPU adapter.")
+  }
+
+  return adapter.requestDevice()
+}

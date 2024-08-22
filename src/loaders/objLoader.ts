@@ -89,7 +89,7 @@ export const loadObj = (
         break
       }
       default:
-        console.log(`Skipping unknown keyword ${keyword}`)
+        // console.log(`Skipping unknown keyword ${keyword}`)
         break
     }
   }

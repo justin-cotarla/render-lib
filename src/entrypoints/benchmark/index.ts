@@ -9,11 +9,10 @@ import { Position } from '../../engine/components/Position'
 import { Material } from '../../engine/components/Material'
 import { Mesh } from '../../engine/components/Mesh'
 import { ChildrenEntities } from '../../engine/components/ChildrenEntities'
-import { Renderer } from '../../engine/systems/Renderer'
+import { Renderer } from '../../engine/Renderer'
 import { ParentNormalizer } from '../../engine/systems/ParentNormalizer'
 import { Orientation } from '../../engine/components/Orientation'
 import { TransformTarget } from '../../engine/components/TransformTarget'
-import { PipelineIdentifier } from '../../engine/components/PipelineIdentifier'
 import { Light } from '../../engine/components/Light'
 import { CanvasResizer } from '../../engine/systems/CanvasResizer'
 import { CameraMover } from '../../engine/systems/CameraMover'
@@ -26,17 +25,25 @@ import { ForceIntegrator } from '../../engine/systems/ForceIntegrator'
 import { KeyboardControl } from '../../engine/components/KeyboardControl'
 import { KeyboardMover } from '../../engine/systems/KeyboardMover'
 import { averageFps } from '../../util/fps'
+import { getDevice } from '../../util/window'
+import { MonoPhongPipeline } from '../../engine/pipelines/monoPhong'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 const statsDiv = document.querySelector('#stats') as HTMLDivElement
 
 const start = async () => {
-  const renderer = await Renderer.create(canvas)
+  const device = await getDevice()
+
+  const renderer = await Renderer.create(device, canvas)
+
+  const monoPhongPipeline = new MonoPhongPipeline(device)
+  renderer.registerPipeline(monoPhongPipeline)
+
   const forceIntegrator = new ForceIntegrator()
 
   const _canvasResizer = new CanvasResizer(
     canvas,
-    renderer.getDeviceLimits().maxTextureDimension2D
+    device.limits.maxTextureDimension2D
   )
   const _cameraMover = new CameraMover(0.001)
   const _keyboardMover = new KeyboardMover()
@@ -90,7 +97,7 @@ const start = async () => {
       gloss: 16,
     })
     entity.addComponent(Mesh, loadObj(sphereModel))
-    entity.addComponent(PipelineIdentifier, 'MONO_PHONG')
+    monoPhongPipeline.registerEntity(entity)
   })
 
   // Build scene
@@ -104,7 +111,6 @@ const start = async () => {
 
   parentNormalizer.normalizeParents()
 
-  renderer.allocateBuffers()
   renderer.loadStaticMeshBuffers()
 
   renderer.render()
