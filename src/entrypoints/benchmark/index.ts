@@ -26,7 +26,7 @@ import { KeyboardControl } from '../../engine/components/KeyboardControl'
 import { KeyboardMover } from '../../engine/systems/KeyboardMover'
 import { averageFps } from '../../util/fps'
 import { getDevice } from '../../util/window'
-import { MonoPhongPipeline } from '../../engine/pipelines/monoPhong'
+import { MonoPhongPipeline } from '../../engine/pipelines/monoPhong/MonoPhongPipeline'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 const statsDiv = document.querySelector('#stats') as HTMLDivElement

@@ -1,4 +1,4 @@
-import { Pipeline } from './pipelines/Pipeline'
+import { Pipeline } from './systems/Pipeline'
 import { LocalTranformCalculator } from './systems/LocalTransformCalculator'
 import { MeshBufferLoader } from './systems/MeshBufferLoader'
 import { ParentTranformCalculator } from './systems/ParentTransformCalculator'

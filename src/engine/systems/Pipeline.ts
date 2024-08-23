@@ -34,7 +34,19 @@ export abstract class Pipeline extends System {
     renderPass.setPipeline(this.renderPipeline)
 
     this.loadGlobalBuffer?.()
-    this.renderEntities(renderPass)
+
+    for (const entity of this.getMatchedEntities()) {
+      this.loadEntityBuffer(entity)
+
+      const vertexCount = Mesh.getEntityData(entity).triangles.length * 3
+      const bindGroup = this.BindGroup.getEntityData(entity)
+      const meshBuffer = MeshBuffer.getEntityData(entity)
+
+      renderPass.setBindGroup(0, bindGroup)
+      renderPass.setVertexBuffer(0, meshBuffer)
+
+      renderPass.draw(vertexCount)
+    }
   }
 
   private _globalBuffer: GlobalBuffer | null = null
@@ -44,10 +56,10 @@ export abstract class Pipeline extends System {
     return this._globalBuffer
   }
 
-  public abstract createBindGroup(gpuBuffer: GPUBuffer): GPUBindGroup
-  public abstract createEntityBuffer(): EntityBuffer
+  protected abstract createBindGroup(gpuBuffer: GPUBuffer): GPUBindGroup
+  protected abstract createEntityBuffer(): EntityBuffer
   protected createGlobalBuffer?(): GlobalBuffer
 
-  protected abstract renderEntities(renderPass: GPURenderPassEncoder): void
+  protected abstract loadEntityBuffer(entity: Entity): void
   protected loadGlobalBuffer?(): void
 }

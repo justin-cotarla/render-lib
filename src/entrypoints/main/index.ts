@@ -26,6 +26,8 @@ import { ForceIntegrator } from '../../engine/systems/ForceIntegrator'
 import { KeyboardControl } from '../../engine/components/KeyboardControl'
 import { KeyboardMover } from '../../engine/systems/KeyboardMover'
 import { getDevice } from '../../util/window'
+import { MonoToonPipeline } from '../../engine/pipelines/monoToon/MonoToonPipeline'
+import { MonoPhongPipeline } from '../../engine/pipelines/monoPhong/MonoPhongPipeline'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
@@ -33,6 +35,12 @@ const start = async () => {
   const device = await getDevice()
 
   const renderer = await Renderer.create(device, canvas)
+
+  const monoPhongPipeline = new MonoPhongPipeline(device)
+  const monoToonPipeline = new MonoToonPipeline(device)
+  renderer.registerPipeline(monoPhongPipeline)
+  renderer.registerPipeline(monoToonPipeline)
+
   const forceIntegrator = new ForceIntegrator()
 
   const _canvasResizer = new CanvasResizer(
@@ -75,7 +83,7 @@ const start = async () => {
   })
   phongSphere.addComponent(Mesh, loadObj(sphereModel))
   phongSphere.addComponent(TransformTarget)
-  // phongSphere.addComponent(PipelineIdentifier, 'MONO_PHONG')
+  monoPhongPipeline.registerEntity(phongSphere)
 
   const toonSphere = world.createEntity()
   toonSphere.addComponent(Position, new Vec3([-5, 1, 0]))
@@ -88,7 +96,7 @@ const start = async () => {
   })
   toonSphere.addComponent(Mesh, loadObj(sphereModel))
   toonSphere.addComponent(TransformTarget)
-  // toonSphere.addComponent(PipelineIdentifier, 'MONO_TOON')
+  monoToonPipeline.registerEntity(toonSphere)
 
   const phongCube = world.createEntity()
   phongCube.addComponent(Position, new Vec3([-3, 0, 5]))
@@ -101,7 +109,7 @@ const start = async () => {
   })
   phongCube.addComponent(Mesh, loadObj(flatCubeModel))
   phongCube.addComponent(TransformTarget)
-  // phongCube.addComponent(PipelineIdenti+fier, 'MONO_PHONG')
+  monoPhongPipeline.registerEntity(phongCube)
 
   // Build scene
   const sceneEntity = world.createEntity()
@@ -117,7 +125,6 @@ const start = async () => {
 
   parentNormalizer.normalizeParents()
 
-  // renderer.allocateBuffers()
   renderer.loadStaticMeshBuffers()
 
   renderer.render()

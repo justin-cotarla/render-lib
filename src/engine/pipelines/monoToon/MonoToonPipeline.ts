@@ -1,19 +1,18 @@
 import { Component } from '../../../ecs/Component'
+import { Entity } from '../../../ecs/Entity'
 import { Vec4 } from '../../../math/Vec4'
 import { perspectiveCameraToClipMatrix } from '../../../util/matrixTransformations'
 import { EntityBuffer } from '../../components/EntityBuffer'
 import { GlobalBuffer } from '../../components/GlobalBuffer'
 import { computeMaterialBuffer, Material } from '../../components/Material'
-import { Mesh } from '../../components/Mesh'
-import { MeshBuffer } from '../../components/MeshBuffer'
 import { RootTransform } from '../../components/RootTransform'
 import { PerspectiveCameraCollector } from '../../systems/CameraCollector'
 import { LightCollector } from '../../systems/LightCollector'
-import { Pipeline } from '../Pipeline'
+import { Pipeline } from '../../systems/Pipeline'
 
 import shader from './shader.wgsl?raw'
 
-export class MonoPhongPipeline extends Pipeline {
+export class MonoToonPipeline extends Pipeline {
   private lightCollector = new LightCollector()
   private perspectiveCameraCollector = new PerspectiveCameraCollector()
 
@@ -54,6 +53,7 @@ export class MonoPhongPipeline extends Pipeline {
     }
 
     const renderPipeline = device.createRenderPipeline({
+      label: 'mono_toon_pipeline',
       vertex: vertexDescriptor,
       fragment: fragmentDescriptor,
       layout: 'auto',
@@ -71,7 +71,7 @@ export class MonoPhongPipeline extends Pipeline {
     super(
       device,
       renderPipeline,
-      new Component<GPUBindGroup>('MONO_PHONG_SHADER')
+      new Component<GPUBindGroup>('MONO_TOON_PIPELINE')
     )
 
     this.registerComponent(Material)
@@ -83,6 +83,7 @@ export class MonoPhongPipeline extends Pipeline {
 
   public createBindGroup(gpuBuffer: GPUBuffer): GPUBindGroup {
     return this.device.createBindGroup({
+      label: 'mono_toon_bindgroup',
       layout: this.renderPipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -101,10 +102,10 @@ export class MonoPhongPipeline extends Pipeline {
     return {
       gpuBuffer: this.device.createBuffer({
         label: 'global_uni',
-        size: Float32Array.BYTES_PER_ELEMENT * 24,
+        size: Float32Array.BYTES_PER_ELEMENT * 40,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
       }),
-      buffer: new Float32Array(24),
+      buffer: new Float32Array(40),
     }
   }
 
@@ -119,45 +120,34 @@ export class MonoPhongPipeline extends Pipeline {
     } satisfies EntityBuffer
   }
 
-  protected renderEntities(renderPass: GPURenderPassEncoder) {
-    for (const entity of this.getMatchedEntities()) {
-      const { buffer, gpuBuffer } = EntityBuffer.getEntityData(entity)
-      const material = Material.getEntityData(entity)
-      const rootTransform = RootTransform.getEntityData(entity)
+  protected loadEntityBuffer(entity: Entity) {
+    const { buffer, gpuBuffer } = EntityBuffer.getEntityData(entity)
+    const material = Material.getEntityData(entity)
+    const rootTransform = RootTransform.getEntityData(entity)
 
-      const meshRootTransformBuffer = buffer.subarray(0, 16)
-      const materialBuffer = buffer.subarray(16, 32)
+    const meshRootTransformBuffer = buffer.subarray(0, 16)
+    const materialBuffer = buffer.subarray(16, 32)
 
-      meshRootTransformBuffer.set(rootTransform.transpose().data)
+    meshRootTransformBuffer.set(rootTransform.transpose().data)
 
-      materialBuffer.set(computeMaterialBuffer(material))
+    materialBuffer.set(computeMaterialBuffer(material))
 
-      this.device.queue.writeBuffer(gpuBuffer, 0, buffer, 0, 32)
-
-      const vertexCount = Mesh.getEntityData(entity.id).triangles.length * 3
-      const bindGroup = this.BindGroup.getEntityData(entity.id)
-      const meshBuffer = MeshBuffer.getEntityData(entity.id)
-
-      renderPass.setBindGroup(0, bindGroup)
-      renderPass.setVertexBuffer(0, meshBuffer)
-
-      renderPass.draw(vertexCount)
-    }
+    this.device.queue.writeBuffer(gpuBuffer, 0, buffer, 0, 32)
   }
 
   protected loadGlobalBuffer(): void {
-    const rootClipTransformBuffer = this.globalBuffer.buffer.subarray(0, 16)
-    const cameraPosRootBuffer = this.globalBuffer.buffer.subarray(16, 20)
-    const lightPosRootBuffer = this.globalBuffer.buffer.subarray(20, 24)
+    const rootCamTransformBuffer = this.globalBuffer.buffer.subarray(0, 16)
+    const camClipTransformBuffer = this.globalBuffer.buffer.subarray(16, 32)
+    const cameraPosRootBuffer = this.globalBuffer.buffer.subarray(32, 36)
+    const lightPosRootBuffer = this.globalBuffer.buffer.subarray(36, 40)
 
     const camera = this.perspectiveCameraCollector.collect()[0]
     const lights = this.lightCollector.collect()
 
-    rootClipTransformBuffer.set(
-      camera.localTransform
-        .clone()
-        .multiply(perspectiveCameraToClipMatrix(camera.perspectiveCamera))
-        .transpose().data
+    rootCamTransformBuffer.set(camera.localTransform.data)
+
+    camClipTransformBuffer.set(
+      perspectiveCameraToClipMatrix(camera.perspectiveCamera).data
     )
 
     cameraPosRootBuffer.set(
@@ -173,7 +163,7 @@ export class MonoPhongPipeline extends Pipeline {
       0,
       this.globalBuffer.buffer,
       0,
-      24
+      40
     )
   }
 }

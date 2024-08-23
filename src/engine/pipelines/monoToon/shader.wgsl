@@ -62,13 +62,13 @@ fn frag(input: FSInput) -> @location(0) vec4f
   let v = normalize(global_uni.camera_pos_root - mesh_pos_root);
   let r = -normalize(reflect(l, n));
 
-  let g_amb = vec4(0.1, 0.1, 0.1, 1.0);
+  let g_amb = vec4(0.4, 0.4, 0.4, 1.0);
 
   let s_spec = vec4(0.8, 0.8, 0.8, 0.8);
   let s_diff = s_spec;
 
-  let c_spec = (s_spec * entity_uni.material.m_spec) * pow(max(dot(v, r), 0), entity_uni.material.m_gls);
-  let c_diff = (s_diff * entity_uni.material.m_diff) * max(dot(n, l), 0);
+  let c_spec = (s_spec * entity_uni.material.m_spec) * smoothstep(0.005, 0.01, pow(max(dot(v, r), 0), entity_uni.material.m_gls * entity_uni.material.m_gls));
+  let c_diff = (s_diff * entity_uni.material.m_diff) * smoothstep(0.0, 0.01, dot(n, l));
   let c_amb = g_amb * entity_uni.material.m_amb;
 
   var color = vec4(0.0, 0.0, 0.0, 1.0);
