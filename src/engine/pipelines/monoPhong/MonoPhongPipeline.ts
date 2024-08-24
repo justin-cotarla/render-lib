@@ -1,7 +1,6 @@
 import { Component } from '../../../ecs/Component'
 import { Entity } from '../../../ecs/Entity'
 import { Vec4 } from '../../../math/Vec4'
-import { perspectiveCameraToClipMatrix } from '../../../util/matrixTransformations'
 import { EntityBuffer } from '../../components/EntityBuffer'
 import { GlobalBuffer } from '../../components/GlobalBuffer'
 import { computeMaterialBuffer, Material } from '../../components/Material'
@@ -102,10 +101,10 @@ export class MonoPhongPipeline extends Pipeline {
     return {
       gpuBuffer: this.device.createBuffer({
         label: 'global_uni',
-        size: Float32Array.BYTES_PER_ELEMENT * 40,
+        size: Float32Array.BYTES_PER_ELEMENT * 24,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
       }),
-      buffer: new Float32Array(40),
+      buffer: new Float32Array(24),
     }
   }
 
@@ -136,19 +135,14 @@ export class MonoPhongPipeline extends Pipeline {
   }
 
   protected loadGlobalBuffer(): void {
-    const rootCamTransformBuffer = this.globalBuffer.buffer.subarray(0, 16)
-    const camClipTransformBuffer = this.globalBuffer.buffer.subarray(16, 32)
-    const cameraPosRootBuffer = this.globalBuffer.buffer.subarray(32, 36)
-    const lightPosRootBuffer = this.globalBuffer.buffer.subarray(36, 40)
+    const rootClipTransformBuffer = this.globalBuffer.buffer.subarray(0, 16)
+    const cameraPosRootBuffer = this.globalBuffer.buffer.subarray(16, 20)
+    const lightPosRootBuffer = this.globalBuffer.buffer.subarray(20, 24)
 
     const camera = this.perspectiveCameraCollector.collect()[0]
     const lights = this.lightCollector.collect()
 
-    rootCamTransformBuffer.set(camera.localTransform.data)
-
-    camClipTransformBuffer.set(
-      perspectiveCameraToClipMatrix(camera.perspectiveCamera).data
-    )
+    rootClipTransformBuffer.set(camera.rootClipTransform.data)
 
     cameraPosRootBuffer.set(
       new Vec4([0, 0, 0, 1]).applyMatrix(camera.rootTransform).data
@@ -163,7 +157,7 @@ export class MonoPhongPipeline extends Pipeline {
       0,
       this.globalBuffer.buffer,
       0,
-      40
+      24
     )
   }
 }

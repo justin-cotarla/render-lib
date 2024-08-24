@@ -23,9 +23,9 @@ struct VSOutput {
   @location(1) normal: vec4f,
 }
 
+
 struct GlobalUni {
-  root_cam_transform: mat4x4f,
-  cam_clip_transform: mat4x4f,
+  root_clip_transform: mat4x4f,
   camera_pos_root: vec4f,
   light_pos_root: vec4f,
 }
@@ -43,9 +43,7 @@ fn vert(input: VSInput) -> VSOutput
 {
   var output : VSOutput;
 
-  let root_clip_transform = global_uni.cam_clip_transform * global_uni.root_cam_transform;
-
-  output.clip_pos = input.mesh_pos * entity_uni.mesh_root_transform * transpose(root_clip_transform);
+  output.clip_pos = input.mesh_pos * entity_uni.mesh_root_transform * global_uni.root_clip_transform;
   output.mesh_pos = input.mesh_pos;
   output.normal = input.normal;
 

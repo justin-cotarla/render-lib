@@ -3,11 +3,13 @@ import { LocalTranformCalculator } from './systems/LocalTransformCalculator'
 import { MeshBufferLoader } from './systems/MeshBufferLoader'
 import { ParentTranformCalculator } from './systems/ParentTransformCalculator'
 import { RootTranformCalculator } from './systems/RootTransformCalculator'
+import { RootClipTransformCalculator } from './systems/RootClipTransformCalculator'
 
 export class Renderer {
   private parentTransformCalculator = new ParentTranformCalculator()
   private rootTransformCalculator = new RootTranformCalculator()
   private localTransformCalculator = new LocalTranformCalculator()
+  private rootClipTransformCalculator = new RootClipTransformCalculator()
 
   private meshBufferLoader: MeshBufferLoader
   private registeredPipelines: Pipeline[] = []
@@ -86,6 +88,7 @@ export class Renderer {
     this.parentTransformCalculator.calculateParentTransforms()
     this.rootTransformCalculator.calculateRootTransforms()
     this.localTransformCalculator.calculateLocalTransforms()
+    this.rootClipTransformCalculator.calculateRootClipTransforms()
 
     const commandEncoder = this.device.createCommandEncoder()
     const renderPass = commandEncoder.beginRenderPass(
