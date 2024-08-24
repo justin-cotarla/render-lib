@@ -27,6 +27,7 @@ import { KeyboardMover } from '../../engine/systems/KeyboardMover'
 import { averageFps } from '../../util/fps'
 import { getDevice } from '../../util/window'
 import { MonoPhongPipeline } from '../../engine/pipelines/monoPhong/MonoPhongPipeline'
+import { SceneRoot } from '../../engine/components/SceneRoot'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 const statsDiv = document.querySelector('#stats') as HTMLDivElement
@@ -102,6 +103,7 @@ const start = async () => {
 
   // Build scene
   const sceneEntity = world.createEntity()
+  sceneEntity.addComponent(SceneRoot)
 
   sceneEntity.addComponent(ChildrenEntities, [
     player,

@@ -28,6 +28,7 @@ import { KeyboardMover } from '../../engine/systems/KeyboardMover'
 import { getDevice } from '../../util/window'
 import { MonoToonPipeline } from '../../engine/pipelines/monoToon/MonoToonPipeline'
 import { MonoPhongPipeline } from '../../engine/pipelines/monoPhong/MonoPhongPipeline'
+import { SceneRoot } from '../../engine/components/SceneRoot'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 
@@ -82,7 +83,6 @@ const start = async () => {
     gloss: 16,
   })
   phongSphere.addComponent(Mesh, loadObj(sphereModel))
-  phongSphere.addComponent(TransformTarget)
   monoPhongPipeline.registerEntity(phongSphere)
 
   const toonSphere = world.createEntity()
@@ -95,7 +95,6 @@ const start = async () => {
     gloss: 10,
   })
   toonSphere.addComponent(Mesh, loadObj(sphereModel))
-  toonSphere.addComponent(TransformTarget)
   monoToonPipeline.registerEntity(toonSphere)
 
   const phongCube = world.createEntity()
@@ -108,11 +107,11 @@ const start = async () => {
     gloss: 10,
   })
   phongCube.addComponent(Mesh, loadObj(flatCubeModel))
-  phongCube.addComponent(TransformTarget)
   monoPhongPipeline.registerEntity(phongCube)
 
   // Build scene
   const sceneEntity = world.createEntity()
+  sceneEntity.addComponent(SceneRoot)
 
   sceneEntity.addComponent(ChildrenEntities, [
     player,

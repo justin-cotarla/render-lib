@@ -56,7 +56,7 @@ export const loadObj = (
         const triangleVertices = data.split(' ')
 
         if (triangleVertices.length !== 3) {
-          console.log('Could not parse normal, skipping')
+          console.log('Could not parse face, skipping')
           break
         }
 
@@ -81,7 +81,7 @@ export const loadObj = (
         try {
           normals.push(parseVec3Data(data))
         } catch (err) {
-          console.log('Could not parse vertex, skipping', err)
+          console.log('Could not parse normal, skipping', err)
         }
         break
       }

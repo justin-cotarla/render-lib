@@ -1,29 +1,34 @@
 import { Entity } from '../../ecs/Entity'
 import { System } from '../../ecs/System'
 import { Mat4 } from '../../math/Mat4'
-import { ParentEntity } from '../components/ParentEntity'
+import { ChildrenEntities } from '../components/ChildrenEntities'
 import { ParentTransform } from '../components/ParentTransform'
 import { RootTransform } from '../components/RootTransform'
+import { SceneRoot } from '../components/SceneRoot'
 
 export class RootTranformCalculator extends System {
   constructor() {
     super()
 
-    this.registerComponent(ParentEntity)
-    this.registerComponent(ParentTransform)
+    this.registerComponent(SceneRoot)
+    this.registerComponent(ChildrenEntities)
   }
 
-  private chainRootTransform(entity: Entity, matrix: Mat4): void {
+  private setChildrenTransforms(entity: Entity, parentMatrix?: Mat4): void {
     try {
-      const parentEntity = ParentEntity.getEntityData(entity)
+      for (const childEntity of ChildrenEntities.getEntityData(entity)) {
+        const { localToParentTransform } =
+          ParentTransform.getEntityData(childEntity)
+        const rootTransformMatrix = this.getRootTransformMatrix(childEntity)
 
-      const { localToParentTransform } =
-        ParentTransform.getEntityData(parentEntity)
+        rootTransformMatrix.set(localToParentTransform.data)
 
-      this.chainRootTransform(
-        parentEntity,
-        matrix.multiply(localToParentTransform)
-      )
+        if (parentMatrix) {
+          rootTransformMatrix.multiply(parentMatrix)
+        }
+
+        this.setChildrenTransforms(childEntity, rootTransformMatrix)
+      }
     } catch {
       return
     }
@@ -43,15 +48,7 @@ export class RootTranformCalculator extends System {
 
   public calculateRootTransforms() {
     for (const entity of this.getMatchedEntities()) {
-      const rootTransformMatrix = this.getRootTransformMatrix(entity)
-
-      const { localToParentTransform } = ParentTransform.getEntityData(
-        entity.id
-      )
-
-      rootTransformMatrix.set(localToParentTransform.data)
-
-      this.chainRootTransform(entity, rootTransformMatrix)
+      this.setChildrenTransforms(entity)
     }
   }
 }
