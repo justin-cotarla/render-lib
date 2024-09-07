@@ -2,10 +2,12 @@
   "name": "render-lib",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "prepare": "npx husky install",
-    "start": "npx vite ./src/entrypoints/main --host",
-    "start:benchmark": "npx vite ./src/entrypoints/benchmark --host",
+    "start": "npx vite ./src/entrypoints/main --host --config vite.config.ts",
+    "start:benchmark": "npx vite ./src/entrypoints/benchmark --host --config vite.config.ts",
+    "start:gltf": "npx vite ./src/entrypoints/gltf --host --config vite.config.ts",
     "test": "jest"
   },
   "author": "Justin Cotarla",
