@@ -1,6 +1,6 @@
 import { Entity } from './Entity.ts'
 
-export class World {
+class World {
   entityList: Entity[] = []
 
   createEntity(): Entity {
@@ -15,3 +15,5 @@ export class World {
   //   delete this.entityList[entity.id]
   // }
 }
+
+export const WorldInstance = new World()

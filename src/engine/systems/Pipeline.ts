@@ -5,8 +5,12 @@ import { Entity } from '../../ecs/Entity.ts'
 import { Component } from '../../ecs/Component.ts'
 import { Mesh } from '../components/Mesh.ts'
 import { MeshBuffer } from '../components/MeshBuffer.ts'
+import { ActivePipeline } from '../components/ActivePipeline.ts'
+import { WorldInstance } from '../../ecs/World.ts'
 
 export abstract class Pipeline extends System {
+  private activeTag: Entity
+
   constructor(
     readonly device: GPUDevice,
     readonly renderPipeline: GPURenderPipeline,
@@ -14,10 +18,21 @@ export abstract class Pipeline extends System {
   ) {
     super()
 
+    this.activeTag = WorldInstance.createEntity()
+    this.activate()
+
     this.registerComponent(this.BindGroup)
     this.registerComponent(Mesh)
     this.registerComponent(EntityBuffer)
     this.registerComponent(MeshBuffer)
+  }
+
+  public activate() {
+    this.activeTag.addComponent(ActivePipeline, this)
+  }
+
+  public deactivate() {
+    this.activeTag.removeComponent(ActivePipeline)
   }
 
   public registerEntity(entity: Entity): void {

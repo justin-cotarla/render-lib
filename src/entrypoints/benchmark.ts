@@ -3,12 +3,11 @@ import { Vec3 } from '../math/Vec3.ts'
 import { Vec4 } from '../math/Vec4.ts'
 
 import sphereModel from '../../models/sphere.obj' with { type: 'text' }
-import { World } from '../ecs/World.ts'
 import { PerspectiveCamera } from '../engine/components/PerspectiveCamera.ts'
 import { Position } from '../engine/components/Position.ts'
 import { Material } from '../engine/components/Material.ts'
 import { Mesh } from '../engine/components/Mesh.ts'
-import { Renderer } from '../engine/Renderer.ts'
+import { Renderer } from '../engine/systems/Renderer.ts'
 import { Orientation } from '../engine/components/Orientation.ts'
 import { TransformTarget } from '../engine/components/TransformTarget.ts'
 import { Light } from '../engine/components/Light.ts'
@@ -28,6 +27,7 @@ import { MonoPhongPipeline } from '../engine/pipelines/monoPhong/MonoPhongPipeli
 import { mainloop } from '@gfx/dwm'
 import { createWindowGPU } from '@gfx/dwm/ext/webgpu'
 import { Scene } from '../engine/Scene.ts'
+import { WorldInstance } from '../ecs/World.ts'
 
 const start = async () => {
   const window = await createWindowGPU({
@@ -42,7 +42,6 @@ const start = async () => {
   const renderer = Renderer.create(device, window)
 
   const monoPhongPipeline = new MonoPhongPipeline(device)
-  renderer.registerPipeline(monoPhongPipeline)
 
   const forceIntegrator = new ForceIntegrator()
 
@@ -54,10 +53,9 @@ const start = async () => {
   // const _keyboardMover = new KeyboardMover()
 
   // Scene
-  const world = new World()
-  const scene = new Scene(world)
+  const scene = new Scene()
 
-  const player = world.createEntity()
+  const player = WorldInstance.createEntity()
   player.addComponent(PerspectiveCamera)
   player.addComponent(Position, new Vec3([0, 0, -30]))
   player.addComponent(Orientation)
@@ -69,7 +67,7 @@ const start = async () => {
   player.addComponent(Velocity)
   // player.addComponent(KeyboardControl)
 
-  const lightEntity = world.createEntity()
+  const lightEntity = WorldInstance.createEntity()
   lightEntity.addComponent(Position, new Vec3([0, 10, 0]))
   lightEntity.addComponent(Orientation)
   lightEntity.addComponent(Light)
@@ -77,7 +75,7 @@ const start = async () => {
   const meshCount = Deno.args[0] ? parseInt(Deno.args[0], 10) : 100
 
   const meshEntities = Array.from({ length: meshCount }).map(() =>
-    world.createEntity()
+    WorldInstance.createEntity()
   )
 
   meshEntities.forEach((entity) => {

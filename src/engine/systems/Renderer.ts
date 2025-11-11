@@ -1,16 +1,20 @@
 import { WindowGPU } from '@gfx/dwm/ext/webgpu'
 
-import { Pipeline } from './systems/Pipeline.ts'
-import { MeshBufferLoader } from './systems/MeshBufferLoader.ts'
+import { MeshBufferLoader } from './MeshBufferLoader.ts'
+import { System } from '../../ecs/System.ts'
+import { ActivePipeline } from '../components/ActivePipeline.ts'
 
-export class Renderer {
+export class Renderer extends System {
   private meshBufferLoader: MeshBufferLoader
-  private registeredPipelines: Pipeline[] = []
 
   private constructor(
     private readonly device: GPUDevice,
     private readonly context: GPUCanvasContext,
   ) {
+    super()
+
+    this.registerComponent(ActivePipeline)
+
     this.meshBufferLoader = new MeshBufferLoader(this.device)
   }
 
@@ -21,10 +25,6 @@ export class Renderer {
     const context = this.getRenderContext(device, window)
 
     return new Renderer(device, context)
-  }
-
-  public registerPipeline(pipeline: Pipeline): void {
-    this.registeredPipelines.push(pipeline)
   }
 
   public loadStaticMeshBuffers() {
@@ -82,8 +82,8 @@ export class Renderer {
       this.getRenderPassDescriptor(),
     )
 
-    for (const pipeline of this.registeredPipelines) {
-      pipeline.render(renderPass)
+    for (const pipelineId of this.getMatchedEntities()) {
+      ActivePipeline.getEntityData(pipelineId).render(renderPass)
     }
 
     renderPass.end()

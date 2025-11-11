@@ -1,5 +1,5 @@
 import { Entity } from '../ecs/Entity.ts'
-import { World } from '../ecs/World.ts'
+import { WorldInstance } from '../ecs/World.ts'
 import { ChildrenEntities } from './components/ChildrenEntities.ts'
 import { ParentEntity } from './components/ParentEntity.ts'
 import { SceneRoot } from './components/SceneRoot.ts'
@@ -18,8 +18,8 @@ export class Scene {
 
   private sceneRoot: Entity
 
-  constructor(world: World) {
-    this.sceneRoot = world.createEntity()
+  constructor() {
+    this.sceneRoot = WorldInstance.createEntity()
     this.sceneRoot.addComponent(SceneRoot)
   }
 

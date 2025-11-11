@@ -4,12 +4,12 @@ import { Vec4 } from '../math/Vec4.ts'
 
 import flatCubeModel from '../../models/flat_cube.obj' with { type: 'text' }
 import sphereModel from '../../models/sphere.obj' with { type: 'text' }
-import { World } from '../ecs/World.ts'
+import { WorldInstance } from '../ecs/World.ts'
 import { PerspectiveCamera } from '../engine/components/PerspectiveCamera.ts'
 import { Position } from '../engine/components/Position.ts'
 import { Material } from '../engine/components/Material.ts'
 import { Mesh } from '../engine/components/Mesh.ts'
-import { Renderer } from '../engine/Renderer.ts'
+import { Renderer } from '../engine/systems/Renderer.ts'
 import { Orientation } from '../engine/components/Orientation.ts'
 import { TransformTarget } from '../engine/components/TransformTarget.ts'
 import { Light } from '../engine/components/Light.ts'
@@ -40,8 +40,6 @@ const start = async () => {
 
   const monoPhongPipeline = new MonoPhongPipeline(device)
   const monoToonPipeline = new MonoToonPipeline(device)
-  renderer.registerPipeline(monoPhongPipeline)
-  renderer.registerPipeline(monoToonPipeline)
 
   const forceIntegrator = new ForceIntegrator()
 
@@ -53,10 +51,9 @@ const start = async () => {
   // const _keyboardMover = new KeyboardMover()
 
   // Scene
-  const world = new World()
-  const scene = new Scene(world)
+  const scene = new Scene()
 
-  const player = world.createEntity()
+  const player = WorldInstance.createEntity()
   player.addComponent(PerspectiveCamera)
   player.addComponent(Position, new Vec3([0, 3, -20]))
   player.addComponent(Orientation)
@@ -68,12 +65,12 @@ const start = async () => {
   player.addComponent(Velocity)
   // player.addComponent(KeyboardControl)
 
-  const lightEntity = world.createEntity()
+  const lightEntity = WorldInstance.createEntity()
   lightEntity.addComponent(Position, new Vec3([0, 10, 0]))
   lightEntity.addComponent(Orientation)
   lightEntity.addComponent(Light)
 
-  const phongSphere = world.createEntity()
+  const phongSphere = WorldInstance.createEntity()
   phongSphere.addComponent(Position, new Vec3([5, 1, 0]))
   phongSphere.addComponent(Orientation)
   phongSphere.addComponent(Material, {
@@ -85,7 +82,7 @@ const start = async () => {
   phongSphere.addComponent(Mesh, loadObj(sphereModel))
   monoPhongPipeline.registerEntity(phongSphere)
 
-  const toonSphere = world.createEntity()
+  const toonSphere = WorldInstance.createEntity()
   toonSphere.addComponent(Position, new Vec3([0, 1, 0]))
   toonSphere.addComponent(Orientation)
   toonSphere.addComponent(Material, {
@@ -97,7 +94,7 @@ const start = async () => {
   toonSphere.addComponent(Mesh, loadObj(sphereModel))
   monoToonPipeline.registerEntity(toonSphere)
 
-  const phongCube = world.createEntity()
+  const phongCube = WorldInstance.createEntity()
   phongCube.addComponent(Position, new Vec3([-6, 0, 5]))
   phongCube.addComponent(Orientation)
   phongCube.addComponent(Material, {
