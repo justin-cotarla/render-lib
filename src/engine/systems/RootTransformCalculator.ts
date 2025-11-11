@@ -6,6 +6,12 @@ import { ParentTransform } from '../components/ParentTransform.ts'
 import { RootTransform } from '../components/RootTransform.ts'
 import { SceneRoot } from '../components/SceneRoot.ts'
 
+/**
+ * Recursively computes root transform matrices for all children
+ * of a SceneRoot entity: entity space --> scene space
+ *
+ * The matrices are set in a RootTransform component.
+ */
 export class RootTranformCalculator extends System {
   constructor() {
     super()

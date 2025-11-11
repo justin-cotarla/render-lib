@@ -6,6 +6,12 @@ import { LocalTransform } from '../components/LocalTransform.ts'
 import { PerspectiveCamera } from '../components/PerspectiveCamera.ts'
 import { RootClipTransform } from '../components/RootClipTransform.ts'
 
+/**
+ * Computes matrices for tranforming from scene space --> clip space
+ * in the local space of a camera.
+ *
+ * The matrices are set in a RootClipTransform component.
+ */
 export class RootClipTransformCalculator extends System {
   constructor() {
     super()

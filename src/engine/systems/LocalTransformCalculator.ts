@@ -6,6 +6,12 @@ import { ParentEntity } from '../components/ParentEntity.ts'
 import { ParentTransform } from '../components/ParentTransform.ts'
 import { TransformTarget } from '../components/TransformTarget.ts'
 
+/**
+ * Computes transform matrices for tranforming entities tagged with TransformTarget
+ * from scene space --> entity space.
+ *
+ * The matrices are set in a LocalTransform component.
+ */
 export class LocalTranformCalculator extends System {
   constructor() {
     super()

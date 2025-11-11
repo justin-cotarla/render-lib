@@ -11,6 +11,13 @@ import { ParentEntity } from '../components/ParentEntity.ts'
 import { ParentTransform } from '../components/ParentTransform.ts'
 import { Position } from '../components/Position.ts'
 
+/**
+ * Creates transform matrices for transforming
+ *  - from local space --> parent space
+ *  - from parent space --> local space
+ *
+ * The matrices are set in a ParentTransform component.
+ */
 export class ParentTranformCalculator extends System {
   constructor() {
     super()
