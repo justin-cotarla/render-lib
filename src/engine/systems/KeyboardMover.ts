@@ -1,8 +1,8 @@
-import { System } from '../../ecs/System'
-import { DirectionKey, KeyboardObserver } from '../../input/KeyboardObserver'
-import { Vec3 } from '../../math/Vec3'
-import { KeyboardControl } from '../components/KeyboardControl'
-import { LinearImpulse } from '../components/LinearImpulse'
+import { System } from '../../ecs/System.ts'
+import { DirectionKey, KeyboardObserver } from '../../input/KeyboardObserver.ts'
+import { Vec3 } from '../../math/Vec3.ts'
+import { KeyboardControl } from '../components/KeyboardControl.ts'
+import { LinearImpulse } from '../components/LinearImpulse.ts'
 
 export class KeyboardMover extends System {
   constructor() {

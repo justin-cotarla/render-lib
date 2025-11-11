@@ -1,12 +1,12 @@
-import { TypedEventTarget } from '../types/TypedEventTarget'
-import { Entity } from './Entity'
+import { TypedEventTarget } from '../types/TypedEventTarget.ts'
+import { Entity } from './Entity.ts'
 
 export class ComponentAddEvent extends Event {
   static readonly type = 'componentadd'
 
   constructor(
     readonly name: string,
-    readonly entityId: number
+    readonly entityId: number,
   ) {
     super(ComponentAddEvent.type)
   }
@@ -17,7 +17,7 @@ export class ComponentRemoveEvent extends Event {
 
   constructor(
     readonly name: string,
-    readonly entityId: number
+    readonly entityId: number,
   ) {
     super(ComponentRemoveEvent.type)
   }
@@ -44,7 +44,7 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
   updateEntityData(entityId: number, value: T): void {
     if (!this.entityData[entityId]) {
       throw new Error(
-        `Entity ${entityId} does not have a ${this.name} component`
+        `Entity ${entityId} does not have a ${this.name} component`,
       )
     }
 
@@ -55,7 +55,7 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
   removeFromEntity(entityId: number): void {
     if (!this.entityData[entityId]) {
       throw new Error(
-        `Entity ${entityId} does not have a ${this.name} component`
+        `Entity ${entityId} does not have a ${this.name} component`,
       )
     }
 
@@ -73,7 +73,7 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
 
     if (!entityData) {
       throw new Error(
-        `Entity ${entityId} does not have a ${this.name} component`
+        `Entity ${entityId} does not have a ${this.name} component`,
       )
     }
 

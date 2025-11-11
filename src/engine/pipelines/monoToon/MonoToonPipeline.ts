@@ -1,15 +1,15 @@
-import { Component } from '../../../ecs/Component'
-import { Entity } from '../../../ecs/Entity'
-import { Vec4 } from '../../../math/Vec4'
-import { EntityBuffer } from '../../components/EntityBuffer'
-import { GlobalBuffer } from '../../components/GlobalBuffer'
-import { computeMaterialBuffer, Material } from '../../components/Material'
-import { RootTransform } from '../../components/RootTransform'
-import { PerspectiveCameraCollector } from '../../systems/CameraCollector'
-import { LightCollector } from '../../systems/LightCollector'
-import { Pipeline } from '../../systems/Pipeline'
+import { Component } from '../../../ecs/Component.ts'
+import { Entity } from '../../../ecs/Entity.ts'
+import { Vec4 } from '../../../math/Vec4.ts'
+import { EntityBuffer } from '../../components/EntityBuffer.ts'
+import { GlobalBuffer } from '../../components/GlobalBuffer.ts'
+import { computeMaterialBuffer, Material } from '../../components/Material.ts'
+import { RootTransform } from '../../components/RootTransform.ts'
+import { PerspectiveCameraCollector } from '../../systems/CameraCollector.ts'
+import { LightCollector } from '../../systems/LightCollector.ts'
+import { Pipeline } from '../../systems/Pipeline.ts'
 
-import shader from './shader.wgsl?raw'
+import shader from './shader.wgsl' with { type: 'text' }
 
 export class MonoToonPipeline extends Pipeline {
   private lightCollector = new LightCollector()
@@ -70,7 +70,7 @@ export class MonoToonPipeline extends Pipeline {
     super(
       device,
       renderPipeline,
-      new Component<GPUBindGroup>('MONO_TOON_PIPELINE')
+      new Component<GPUBindGroup>('MONO_TOON_PIPELINE'),
     )
 
     this.registerComponent(Material)
@@ -131,7 +131,7 @@ export class MonoToonPipeline extends Pipeline {
 
     materialBuffer.set(computeMaterialBuffer(material))
 
-    this.device.queue.writeBuffer(gpuBuffer, 0, buffer, 0, 32)
+    this.device.queue.writeBuffer(gpuBuffer, 0, buffer, 0, buffer.byteLength)
   }
 
   protected loadGlobalBuffer(): void {
@@ -145,11 +145,11 @@ export class MonoToonPipeline extends Pipeline {
     rootClipTransformBuffer.set(camera.rootClipTransform.data)
 
     cameraPosRootBuffer.set(
-      new Vec4([0, 0, 0, 1]).applyMatrix(camera.rootTransform).data
+      new Vec4([0, 0, 0, 1]).applyMatrix(camera.rootTransform).data,
     )
 
     lightPosRootBuffer.set(
-      new Vec4([0, 0, 0, 1]).applyMatrix(lights[0].rootTransform).data
+      new Vec4([0, 0, 0, 1]).applyMatrix(lights[0].rootTransform).data,
     )
 
     this.device.queue.writeBuffer(
@@ -157,7 +157,7 @@ export class MonoToonPipeline extends Pipeline {
       0,
       this.globalBuffer.buffer,
       0,
-      24
+      this.globalBuffer.buffer.byteLength,
     )
   }
 }

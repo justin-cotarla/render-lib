@@ -1,15 +1,15 @@
-import { Component } from '../../../ecs/Component'
-import { Entity } from '../../../ecs/Entity'
-import { Vec4 } from '../../../math/Vec4'
-import { EntityBuffer } from '../../components/EntityBuffer'
-import { GlobalBuffer } from '../../components/GlobalBuffer'
-import { computeMaterialBuffer, Material } from '../../components/Material'
-import { RootTransform } from '../../components/RootTransform'
-import { PerspectiveCameraCollector } from '../../systems/CameraCollector'
-import { LightCollector } from '../../systems/LightCollector'
-import { Pipeline } from '../../systems/Pipeline'
+import { Component } from '../../../ecs/Component.ts'
+import { Entity } from '../../../ecs/Entity.ts'
+import { Vec4 } from '../../../math/Vec4.ts'
+import { EntityBuffer } from '../../components/EntityBuffer.ts'
+import { GlobalBuffer } from '../../components/GlobalBuffer.ts'
+import { computeMaterialBuffer, Material } from '../../components/Material.ts'
+import { RootTransform } from '../../components/RootTransform.ts'
+import { PerspectiveCameraCollector } from '../../systems/CameraCollector.ts'
+import { LightCollector } from '../../systems/LightCollector.ts'
+import { Pipeline } from '../../systems/Pipeline.ts'
 
-import shader from './shader.wgsl?raw'
+import shader from './shader.wgsl' with { type: 'text' }
 
 export class MonoPhongPipeline extends Pipeline {
   private lightCollector = new LightCollector()
@@ -20,6 +20,7 @@ export class MonoPhongPipeline extends Pipeline {
       module: device.createShaderModule({
         code: shader,
       }),
+      entryPoint: 'vert',
       buffers: [
         {
           attributes: [
@@ -44,6 +45,7 @@ export class MonoPhongPipeline extends Pipeline {
       module: device.createShaderModule({
         code: shader,
       }),
+      entryPoint: 'frag',
       targets: [
         {
           format: navigator.gpu.getPreferredCanvasFormat(),
@@ -70,17 +72,17 @@ export class MonoPhongPipeline extends Pipeline {
     super(
       device,
       renderPipeline,
-      new Component<GPUBindGroup>('MONO_PHONG_PIPELINE')
+      new Component<GPUBindGroup>('MONO_PHONG_PIPELINE'),
     )
 
     this.registerComponent(Material)
   }
 
-  protected get globalBuffer(): GlobalBuffer {
+  protected override get globalBuffer(): GlobalBuffer {
     return super.globalBuffer!
   }
 
-  public createBindGroup(gpuBuffer: GPUBuffer): GPUBindGroup {
+  public override createBindGroup(gpuBuffer: GPUBuffer): GPUBindGroup {
     return this.device.createBindGroup({
       label: 'mono_phong_bindgroup',
       layout: this.renderPipeline.getBindGroupLayout(0),
@@ -97,7 +99,7 @@ export class MonoPhongPipeline extends Pipeline {
     })
   }
 
-  public createGlobalBuffer(): GlobalBuffer {
+  public override createGlobalBuffer(): GlobalBuffer {
     return {
       gpuBuffer: this.device.createBuffer({
         label: 'global_uni',
@@ -108,7 +110,7 @@ export class MonoPhongPipeline extends Pipeline {
     }
   }
 
-  public createEntityBuffer() {
+  public override createEntityBuffer() {
     return {
       gpuBuffer: this.device.createBuffer({
         label: 'entity_uni',
@@ -119,7 +121,7 @@ export class MonoPhongPipeline extends Pipeline {
     } satisfies EntityBuffer
   }
 
-  protected loadEntityBuffer(entity: Entity) {
+  protected override loadEntityBuffer(entity: Entity) {
     const { buffer, gpuBuffer } = EntityBuffer.getEntityData(entity)
     const material = Material.getEntityData(entity)
     const rootTransform = RootTransform.getEntityData(entity)
@@ -131,10 +133,10 @@ export class MonoPhongPipeline extends Pipeline {
 
     materialBuffer.set(computeMaterialBuffer(material))
 
-    this.device.queue.writeBuffer(gpuBuffer, 0, buffer, 0, 32)
+    this.device.queue.writeBuffer(gpuBuffer, 0, buffer, 0, buffer.byteLength)
   }
 
-  protected loadGlobalBuffer(): void {
+  protected override loadGlobalBuffer(): void {
     const rootClipTransformBuffer = this.globalBuffer.buffer.subarray(0, 16)
     const cameraPosRootBuffer = this.globalBuffer.buffer.subarray(16, 20)
     const lightPosRootBuffer = this.globalBuffer.buffer.subarray(20, 24)
@@ -145,11 +147,11 @@ export class MonoPhongPipeline extends Pipeline {
     rootClipTransformBuffer.set(camera.rootClipTransform.data)
 
     cameraPosRootBuffer.set(
-      new Vec4([0, 0, 0, 1]).applyMatrix(camera.rootTransform).data
+      new Vec4([0, 0, 0, 1]).applyMatrix(camera.rootTransform).data,
     )
 
     lightPosRootBuffer.set(
-      new Vec4([0, 0, 0, 1]).applyMatrix(lights[0].rootTransform).data
+      new Vec4([0, 0, 0, 1]).applyMatrix(lights[0].rootTransform).data,
     )
 
     this.device.queue.writeBuffer(
@@ -157,7 +159,7 @@ export class MonoPhongPipeline extends Pipeline {
       0,
       this.globalBuffer.buffer,
       0,
-      24
+      this.globalBuffer.buffer.byteLength,
     )
   }
 }

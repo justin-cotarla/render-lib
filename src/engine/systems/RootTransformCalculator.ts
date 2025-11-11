@@ -1,10 +1,10 @@
-import { Entity } from '../../ecs/Entity'
-import { System } from '../../ecs/System'
-import { Mat4 } from '../../math/Mat4'
-import { ChildrenEntities } from '../components/ChildrenEntities'
-import { ParentTransform } from '../components/ParentTransform'
-import { RootTransform } from '../components/RootTransform'
-import { SceneRoot } from '../components/SceneRoot'
+import { Entity } from '../../ecs/Entity.ts'
+import { System } from '../../ecs/System.ts'
+import { Mat4 } from '../../math/Mat4.ts'
+import { ChildrenEntities } from '../components/ChildrenEntities.ts'
+import { ParentTransform } from '../components/ParentTransform.ts'
+import { RootTransform } from '../components/RootTransform.ts'
+import { SceneRoot } from '../components/SceneRoot.ts'
 
 export class RootTranformCalculator extends System {
   constructor() {
@@ -17,8 +17,9 @@ export class RootTranformCalculator extends System {
   private setChildrenTransforms(entity: Entity, parentMatrix?: Mat4): void {
     try {
       for (const childEntity of ChildrenEntities.getEntityData(entity)) {
-        const { localToParentTransform } =
-          ParentTransform.getEntityData(childEntity)
+        const { localToParentTransform } = ParentTransform.getEntityData(
+          childEntity,
+        )
         const rootTransformMatrix = this.getRootTransformMatrix(childEntity)
 
         rootTransformMatrix.set(localToParentTransform.data)

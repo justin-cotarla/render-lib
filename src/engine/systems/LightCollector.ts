@@ -1,9 +1,9 @@
-import { System } from '../../ecs/System'
-import { Mat4 } from '../../math/Mat4'
-import { Vec3 } from '../../math/Vec3'
-import { Light } from '../components/Light'
-import { Position } from '../components/Position'
-import { RootTransform } from '../components/RootTransform'
+import { System } from '../../ecs/System.ts'
+import { Mat4 } from '../../math/Mat4.ts'
+import { Vec3 } from '../../math/Vec3.ts'
+import { Light } from '../components/Light.ts'
+import { Position } from '../components/Position.ts'
+import { RootTransform } from '../components/RootTransform.ts'
 
 export class LightCollector extends System {
   constructor() {

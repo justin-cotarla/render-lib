@@ -1,16 +1,16 @@
-import { EntityBuffer } from '../components/EntityBuffer'
-import { GlobalBuffer } from '../components/GlobalBuffer'
-import { System } from '../../ecs/System'
-import { Entity } from '../../ecs/Entity'
-import { Component } from '../../ecs/Component'
-import { Mesh } from '../components/Mesh'
-import { MeshBuffer } from '../components/MeshBuffer'
+import { EntityBuffer } from '../components/EntityBuffer.ts'
+import { GlobalBuffer } from '../components/GlobalBuffer.ts'
+import { System } from '../../ecs/System.ts'
+import { Entity } from '../../ecs/Entity.ts'
+import { Component } from '../../ecs/Component.ts'
+import { Mesh } from '../components/Mesh.ts'
+import { MeshBuffer } from '../components/MeshBuffer.ts'
 
 export abstract class Pipeline extends System {
   constructor(
     readonly device: GPUDevice,
     readonly renderPipeline: GPURenderPipeline,
-    readonly BindGroup: Component<GPUBindGroup>
+    readonly BindGroup: Component<GPUBindGroup>,
   ) {
     super()
 
@@ -25,7 +25,7 @@ export abstract class Pipeline extends System {
 
     entity.addComponent(
       this.BindGroup,
-      this.createBindGroup(entityBuffer.gpuBuffer)
+      this.createBindGroup(entityBuffer.gpuBuffer),
     )
     entity.addComponent(EntityBuffer, entityBuffer)
   }

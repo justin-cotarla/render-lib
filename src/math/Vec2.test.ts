@@ -1,5 +1,9 @@
-import { Mat2 } from './Mat2'
-import { Vec2 } from './Vec2'
+import { describe, it } from '@std/testing/bdd'
+import { assertSnapshot } from '@std/testing/snapshot'
+import { expect } from '@std/expect'
+
+import { Mat2 } from './Mat2.ts'
+import { Vec2 } from './Vec2.ts'
 
 describe('Vec2', () => {
   describe('clone', () => {
@@ -13,9 +17,9 @@ describe('Vec2', () => {
   })
 
   describe('toString', () => {
-    it('prints its value', () => {
+    it('prints its value', async (t) => {
       const vector = new Vec2([1, 2])
-      expect(vector.toString()).toMatchInlineSnapshot(`"[1, 2]"`)
+      await assertSnapshot(t, vector.toString())
     })
   })
 

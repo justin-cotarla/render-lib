@@ -1,5 +1,9 @@
-import { Component, ComponentAddEvent, ComponentRemoveEvent } from './Component'
-import { Entity } from './Entity'
+import {
+  Component,
+  ComponentAddEvent,
+  ComponentRemoveEvent,
+} from './Component.ts'
+import { Entity } from './Entity.ts'
 
 export class System {
   private collectedEntitySignalCounts = new Map<number, number>()
@@ -18,7 +22,7 @@ export class System {
 
     const onComponentAdd = (event: ComponentAddEvent) => {
       const entitySignalCount = this.collectedEntitySignalCounts.get(
-        event.entityId
+        event.entityId,
       )
 
       if (entitySignalCount === undefined) {
@@ -28,13 +32,13 @@ export class System {
 
       this.collectedEntitySignalCounts.set(
         event.entityId,
-        entitySignalCount + 1
+        entitySignalCount + 1,
       )
     }
 
     const onComponentRemove = (event: ComponentRemoveEvent) => {
       const entitySignalCount = this.collectedEntitySignalCounts.get(
-        event.entityId
+        event.entityId,
       )
 
       if (entitySignalCount === undefined) {
@@ -43,7 +47,7 @@ export class System {
 
       this.collectedEntitySignalCounts.set(
         event.entityId,
-        entitySignalCount - 1
+        entitySignalCount - 1,
       )
     }
 
@@ -66,7 +70,7 @@ export class System {
     component.removeEventListener('componentadd', callbacks.onComponentAdd)
     component.removeEventListener(
       'componentremove',
-      callbacks.onComponentRemove
+      callbacks.onComponentRemove,
     )
 
     this.registeredComponents.delete(component)
@@ -78,8 +82,10 @@ export class System {
   *getMatchedEntities(): Generator<Entity, void, unknown> {
     const registeredComponentCount = this.registeredComponents.size
 
-    for (const [entityId, collectedSignals] of this
-      .collectedEntitySignalCounts) {
+    for (
+      const [entityId, collectedSignals] of this
+        .collectedEntitySignalCounts
+    ) {
       if (collectedSignals === registeredComponentCount) {
         yield new Entity(entityId)
       }

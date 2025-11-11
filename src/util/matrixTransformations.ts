@@ -1,6 +1,6 @@
-import { Orientation } from '../engine/components/Orientation'
-import { PerspectiveCamera } from '../engine/components/PerspectiveCamera'
-import { Mat4 } from '../math/Mat4'
+import { Orientation } from '../engine/components/Orientation.ts'
+import { PerspectiveCamera } from '../engine/components/PerspectiveCamera.ts'
+import { Mat4 } from '../math/Mat4.ts'
 
 export const eulerOrientationToMatrix = (orientation: Orientation): Mat4 => {
   if (
@@ -39,7 +39,7 @@ export const eulerOrientationToMatrix = (orientation: Orientation): Mat4 => {
 }
 
 export const reverseEulerOrientationToMatrix = (
-  orientation: Orientation
+  orientation: Orientation,
 ): Mat4 => {
   if (
     orientation.heading === 0 &&

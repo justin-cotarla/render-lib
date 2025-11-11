@@ -1,5 +1,5 @@
-import { Triangle } from '../engine/components/Mesh'
-import { Vec3, Vec3Elements } from '../math/Vec3'
+import { Triangle } from '../engine/components/Mesh.ts'
+import { Vec3, Vec3Elements } from '../math/Vec3.ts'
 
 const KEYWORDS = ['v', 'vn', 'f', '#'] as const
 
@@ -11,12 +11,12 @@ const parseVec3Data = (data: string): Vec3 => {
   }
 
   return new Vec3(
-    data.split(' ').map((value) => parseFloat(value)) as Vec3Elements
+    data.split(' ').map((value) => parseFloat(value)) as Vec3Elements,
   )
 }
 
 export const loadObj = (
-  rawMesh: string
+  rawMesh: string,
 ): {
   vertices: Vec3[]
   normals: Vec3[]

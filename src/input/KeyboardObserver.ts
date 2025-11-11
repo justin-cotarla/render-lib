@@ -36,23 +36,22 @@ export class KeyboardObserver {
       KeyAction,
       Record<DirectionKey, () => void> & Record<string, () => void>
     >,
-    readonly keyMode: 'arrows' | 'wasd' = 'wasd'
+    readonly keyMode: 'arrows' | 'wasd' = 'wasd',
   ) {
     const onPress = this.onKey('press')
     const onRelease = this.onKey('release')
 
-    window.addEventListener('keydown', onPress)
-    window.addEventListener('keyup', onRelease)
+    globalThis.addEventListener('keydown', onPress)
+    globalThis.addEventListener('keyup', onRelease)
 
     this._cleanup = () => {
-      window.removeEventListener('keydown', onPress)
-      window.removeEventListener('keyup', onRelease)
+      globalThis.removeEventListener('keydown', onPress)
+      globalThis.removeEventListener('keyup', onRelease)
     }
   }
 
   private onKey =
-    (keyAction: KeyAction) =>
-    ({ key, repeat }: KeyboardEvent) => {
+    (keyAction: KeyAction) => ({ key, repeat }: KeyboardEvent) => {
       if (repeat) {
         return
       }

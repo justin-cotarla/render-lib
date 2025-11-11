@@ -6,7 +6,6 @@ struct Material {
 }
 
 struct VSInput {
-  @builtin(vertex_index) index : u32,
   @location(0) mesh_pos: vec4f,
   @location(1) normal: vec4f
 }
@@ -14,20 +13,20 @@ struct VSInput {
 struct FSInput {
   @builtin(position) pos : vec4f,
   @location(0) mesh_pos: vec4f,
-  @location(1) normal: vec4f,
+  @location(1) normal: vec4f
 }
 
 struct VSOutput {
   @builtin(position) clip_pos : vec4f,
   @location(0) mesh_pos: vec4f,
-  @location(1) normal: vec4f,
+  @location(1) normal: vec4f
 }
 
 
 struct GlobalUni {
   root_clip_transform: mat4x4f,
   camera_pos_root: vec4f,
-  light_pos_root: vec4f,
+  light_pos_root: vec4f
 }
 
 struct EntityUni {
@@ -65,8 +64,8 @@ fn frag(input: FSInput) -> @location(0) vec4f
   let s_spec = vec4(0.8, 0.8, 0.8, 0.8);
   let s_diff = s_spec;
 
-  let c_spec = (s_spec * entity_uni.material.m_spec) * pow(max(dot(v, r), 0), entity_uni.material.m_gls);
-  let c_diff = (s_diff * entity_uni.material.m_diff) * max(dot(n, l), 0);
+  let c_spec = (s_spec * entity_uni.material.m_spec) * pow(max(dot(v, r), 0.0), entity_uni.material.m_gls);
+  let c_diff = (s_diff * entity_uni.material.m_diff) * max(dot(n, l), 0.0);
   let c_amb = g_amb * entity_uni.material.m_amb;
 
   var color = vec4(0.0, 0.0, 0.0, 1.0);

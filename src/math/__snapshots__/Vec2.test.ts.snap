@@ -1,0 +1,3 @@
+export const snapshot = {};
+
+snapshot[`Vec2 > toString > prints its value 1`] = `"[1, 2]"`;

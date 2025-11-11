@@ -1,8 +1,8 @@
-import { System } from '../../ecs/System'
-import { MouseObserver } from '../../input/MouseObserver'
-import { Orientation } from '../components/Orientation'
-import { PerspectiveCamera } from '../components/PerspectiveCamera'
-import { MouseControl } from '../components/MouseControl'
+import { System } from '../../ecs/System.ts'
+import { MouseObserver } from '../../input/MouseObserver.ts'
+import { Orientation } from '../components/Orientation.ts'
+import { PerspectiveCamera } from '../components/PerspectiveCamera.ts'
+import { MouseControl } from '../components/MouseControl.ts'
 
 export class CameraMover extends System {
   private setupMouseObserver() {

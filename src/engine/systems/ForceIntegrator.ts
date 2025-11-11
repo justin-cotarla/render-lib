@@ -1,12 +1,12 @@
-import { System } from '../../ecs/System'
-import { Mat3 } from '../../math/Mat3'
-import { eulerOrientationToMatrix } from '../../util/matrixTransformations'
-import { Force } from '../components/Force'
-import { LinearImpulse } from '../components/LinearImpulse'
-import { Mass } from '../components/Mass'
-import { Orientation } from '../components/Orientation'
-import { Position } from '../components/Position'
-import { Velocity } from '../components/Velocity'
+import { System } from '../../ecs/System.ts'
+import { Mat3 } from '../../math/Mat3.ts'
+import { eulerOrientationToMatrix } from '../../util/matrixTransformations.ts'
+import { Force } from '../components/Force.ts'
+import { LinearImpulse } from '../components/LinearImpulse.ts'
+import { Mass } from '../components/Mass.ts'
+import { Orientation } from '../components/Orientation.ts'
+import { Position } from '../components/Position.ts'
+import { Velocity } from '../components/Velocity.ts'
 
 export class ForceIntegrator extends System {
   constructor() {
@@ -52,8 +52,8 @@ export class ForceIntegrator extends System {
               orientationMatrix.data[8],
               orientationMatrix.data[9],
               orientationMatrix.data[10],
-            ])
-          )
+            ]),
+          ),
       )
 
       force.zero()

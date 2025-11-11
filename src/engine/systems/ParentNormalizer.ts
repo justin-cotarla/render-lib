@@ -1,6 +1,6 @@
-import { System } from '../../ecs/System'
-import { ChildrenEntities } from '../components/ChildrenEntities'
-import { ParentEntity } from '../components/ParentEntity'
+import { System } from '../../ecs/System.ts'
+import { ChildrenEntities } from '../components/ChildrenEntities.ts'
+import { ParentEntity } from '../components/ParentEntity.ts'
 
 export class ParentNormalizer extends System {
   constructor() {

@@ -1,9 +1,9 @@
-import { Component } from './Component'
+import { Component } from './Component.ts'
 
 export class DefaultComponent<T> extends Component<T> {
   constructor(
     readonly name: string,
-    readonly defaultValue: T
+    readonly defaultValue: T,
   ) {
     super(name)
   }

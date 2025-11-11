@@ -1,5 +1,5 @@
-import { AbstractVec } from './AbstractVec'
-import { Mat4Elements } from './Mat4'
+import { AbstractVec } from './AbstractVec.ts'
+import { Mat4Elements } from './Mat4.ts'
 
 export type Vec4Elements = [number, number, number, number]
 

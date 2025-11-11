@@ -1,10 +1,10 @@
-import { Entity } from '../../ecs/Entity'
-import { System } from '../../ecs/System'
-import { Mat4 } from '../../math/Mat4'
-import { LocalTransform } from '../components/LocalTransform'
-import { ParentEntity } from '../components/ParentEntity'
-import { ParentTransform } from '../components/ParentTransform'
-import { TransformTarget } from '../components/TransformTarget'
+import { Entity } from '../../ecs/Entity.ts'
+import { System } from '../../ecs/System.ts'
+import { Mat4 } from '../../math/Mat4.ts'
+import { LocalTransform } from '../components/LocalTransform.ts'
+import { ParentEntity } from '../components/ParentEntity.ts'
+import { ParentTransform } from '../components/ParentTransform.ts'
+import { TransformTarget } from '../components/TransformTarget.ts'
 
 export class LocalTranformCalculator extends System {
   constructor() {
@@ -19,12 +19,13 @@ export class LocalTranformCalculator extends System {
     try {
       const parentEntity = ParentEntity.getEntityData(entity)
 
-      const { parentToLocalTransform } =
-        ParentTransform.getEntityData(parentEntity)
+      const { parentToLocalTransform } = ParentTransform.getEntityData(
+        parentEntity,
+      )
 
       this.chainLocalTransform(
         parentEntity,
-        matrix.multiply(parentToLocalTransform)
+        matrix.multiply(parentToLocalTransform),
       )
     } catch {
       return
@@ -48,7 +49,7 @@ export class LocalTranformCalculator extends System {
       const localTransformMatrix = this.getLocalTransformMatrix(entity)
 
       const { parentToLocalTransform } = ParentTransform.getEntityData(
-        entity.id
+        entity.id,
       )
 
       localTransformMatrix.set(parentToLocalTransform.data)

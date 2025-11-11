@@ -1,5 +1,5 @@
-import { Component } from './Component'
-import { DefaultComponent } from './DefaultComponent'
+import { Component } from './Component.ts'
+import { DefaultComponent } from './DefaultComponent.ts'
 
 export class Entity {
   constructor(readonly id: number) {}

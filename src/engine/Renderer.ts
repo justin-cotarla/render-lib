@@ -1,9 +1,11 @@
-import { Pipeline } from './systems/Pipeline'
-import { LocalTranformCalculator } from './systems/LocalTransformCalculator'
-import { MeshBufferLoader } from './systems/MeshBufferLoader'
-import { ParentTranformCalculator } from './systems/ParentTransformCalculator'
-import { RootTranformCalculator } from './systems/RootTransformCalculator'
-import { RootClipTransformCalculator } from './systems/RootClipTransformCalculator'
+import { WindowGPU } from '@gfx/dwm/ext/webgpu'
+
+import { Pipeline } from './systems/Pipeline.ts'
+import { LocalTranformCalculator } from './systems/LocalTransformCalculator.ts'
+import { MeshBufferLoader } from './systems/MeshBufferLoader.ts'
+import { ParentTranformCalculator } from './systems/ParentTransformCalculator.ts'
+import { RootTranformCalculator } from './systems/RootTransformCalculator.ts'
+import { RootClipTransformCalculator } from './systems/RootClipTransformCalculator.ts'
 
 export class Renderer {
   private parentTransformCalculator = new ParentTranformCalculator()
@@ -16,16 +18,16 @@ export class Renderer {
 
   private constructor(
     private readonly device: GPUDevice,
-    private readonly context: GPUCanvasContext
+    private readonly context: GPUCanvasContext,
   ) {
     this.meshBufferLoader = new MeshBufferLoader(this.device)
   }
 
-  public static create = async (
+  public static create = (
     device: GPUDevice,
-    canvas: HTMLCanvasElement
-  ): Promise<Renderer> => {
-    const context = this.getRenderContext(device, canvas)
+    window: WindowGPU,
+  ): Renderer => {
+    const context = this.getRenderContext(device, window)
 
     return new Renderer(device, context)
   }
@@ -40,9 +42,9 @@ export class Renderer {
 
   private static getRenderContext = (
     device: GPUDevice,
-    canvas: HTMLCanvasElement
+    window: WindowGPU,
   ): GPUCanvasContext => {
-    const context = canvas.getContext('webgpu')
+    const context = window.getContext('webgpu')
 
     if (!context) {
       throw new Error('Could not load canvas context')
@@ -51,7 +53,6 @@ export class Renderer {
     context.configure({
       device,
       format: navigator.gpu.getPreferredCanvasFormat(),
-      alphaMode: 'premultiplied',
     })
 
     return context
@@ -84,7 +85,7 @@ export class Renderer {
     }
   }
 
-  public render = async () => {
+  public render = () => {
     this.parentTransformCalculator.calculateParentTransforms()
     this.rootTransformCalculator.calculateRootTransforms()
     this.localTransformCalculator.calculateLocalTransforms()
@@ -92,7 +93,7 @@ export class Renderer {
 
     const commandEncoder = this.device.createCommandEncoder()
     const renderPass = commandEncoder.beginRenderPass(
-      this.getRenderPassDescriptor()
+      this.getRenderPassDescriptor(),
     )
 
     for (const pipeline of this.registeredPipelines) {

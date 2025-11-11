@@ -1,6 +1,6 @@
-import { System } from '../../ecs/System'
-import { PerspectiveCamera } from '../components/PerspectiveCamera'
-import { MouseControl } from '../components/MouseControl'
+import { System } from '../../ecs/System.ts'
+import { PerspectiveCamera } from '../components/PerspectiveCamera.ts'
+import { MouseControl } from '../components/MouseControl.ts'
 
 export class CanvasResizer extends System {
   private resizeObserver: ResizeObserver
@@ -17,11 +17,11 @@ export class CanvasResizer extends System {
 
       this.canvas.width = Math.max(
         1,
-        Math.min(width, this.maxTextureDimension2D)
+        Math.min(width, this.maxTextureDimension2D),
       )
       this.canvas.height = Math.max(
         1,
-        Math.min(height, this.maxTextureDimension2D)
+        Math.min(height, this.maxTextureDimension2D),
       )
 
       for (const entity of this.getMatchedEntities()) {
@@ -39,7 +39,7 @@ export class CanvasResizer extends System {
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
-    readonly maxTextureDimension2D: GPUSupportedLimits['maxTextureDimension2D']
+    readonly maxTextureDimension2D: GPUSupportedLimits['maxTextureDimension2D'],
   ) {
     super()
 

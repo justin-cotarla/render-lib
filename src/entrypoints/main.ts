@@ -1,41 +1,44 @@
-import { loadObj } from '../../loaders/objLoader'
-import { Vec3 } from '../../math/Vec3'
-import { Vec4 } from '../../math/Vec4'
+import { loadObj } from '../loaders/objLoader.ts'
+import { Vec3 } from '../math/Vec3.ts'
+import { Vec4 } from '../math/Vec4.ts'
 
-import flatCubeModel from '../../../models/flat_cube.obj?raw'
-import sphereModel from '../../../models/sphere.obj?raw'
-import { World } from '../../ecs/World'
-import { PerspectiveCamera } from '../../engine/components/PerspectiveCamera'
-import { Position } from '../../engine/components/Position'
-import { Material } from '../../engine/components/Material'
-import { Mesh } from '../../engine/components/Mesh'
-import { ChildrenEntities } from '../../engine/components/ChildrenEntities'
-import { Renderer } from '../../engine/Renderer'
-import { ParentNormalizer } from '../../engine/systems/ParentNormalizer'
-import { Orientation } from '../../engine/components/Orientation'
-import { TransformTarget } from '../../engine/components/TransformTarget'
-import { Light } from '../../engine/components/Light'
-import { CanvasResizer } from '../../engine/systems/CanvasResizer'
-import { CameraMover } from '../../engine/systems/CameraMover'
-import { MouseControl } from '../../engine/components/MouseControl'
-import { Mass } from '../../engine/components/Mass'
-import { Force } from '../../engine/components/Force'
-import { LinearImpulse } from '../../engine/components/LinearImpulse'
-import { Velocity } from '../../engine/components/Velocity'
-import { ForceIntegrator } from '../../engine/systems/ForceIntegrator'
-import { KeyboardControl } from '../../engine/components/KeyboardControl'
-import { KeyboardMover } from '../../engine/systems/KeyboardMover'
-import { getDevice } from '../../util/window'
-import { MonoToonPipeline } from '../../engine/pipelines/monoToon/MonoToonPipeline'
-import { MonoPhongPipeline } from '../../engine/pipelines/monoPhong/MonoPhongPipeline'
-import { SceneRoot } from '../../engine/components/SceneRoot'
-
-const canvas = document.querySelector('#canvas') as HTMLCanvasElement
+import flatCubeModel from '../../models/flat_cube.obj' with { type: 'text' }
+import sphereModel from '../../models/sphere.obj' with { type: 'text' }
+import { World } from '../ecs/World.ts'
+import { PerspectiveCamera } from '../engine/components/PerspectiveCamera.ts'
+import { Position } from '../engine/components/Position.ts'
+import { Material } from '../engine/components/Material.ts'
+import { Mesh } from '../engine/components/Mesh.ts'
+import { ChildrenEntities } from '../engine/components/ChildrenEntities.ts'
+import { Renderer } from '../engine/Renderer.ts'
+import { ParentNormalizer } from '../engine/systems/ParentNormalizer.ts'
+import { Orientation } from '../engine/components/Orientation.ts'
+import { TransformTarget } from '../engine/components/TransformTarget.ts'
+import { Light } from '../engine/components/Light.ts'
+// import { MouseControl } from '../../engine/components/MouseControl.ts'
+import { Mass } from '../engine/components/Mass.ts'
+import { Force } from '../engine/components/Force.ts'
+import { LinearImpulse } from '../engine/components/LinearImpulse.ts'
+import { Velocity } from '../engine/components/Velocity.ts'
+import { ForceIntegrator } from '../engine/systems/ForceIntegrator.ts'
+import { KeyboardControl } from '../engine/components/KeyboardControl.ts'
+import { KeyboardMover } from '../engine/systems/KeyboardMover.ts'
+import { MonoToonPipeline } from '../engine/pipelines/monoToon/MonoToonPipeline.ts'
+import { MonoPhongPipeline } from '../engine/pipelines/monoPhong/MonoPhongPipeline.ts'
+import { SceneRoot } from '../engine/components/SceneRoot.ts'
+import { createWindowGPU, mainloop } from '@gfx/dwm/ext/webgpu'
 
 const start = async () => {
-  const device = await getDevice()
+  const window = await createWindowGPU({
+    title: 'Deno Window Manager',
+    width: 1024,
+    height: 1024,
+    resizable: true,
+  })
 
-  const renderer = await Renderer.create(device, canvas)
+  const device = window.device
+
+  const renderer = Renderer.create(device, window)
 
   const monoPhongPipeline = new MonoPhongPipeline(device)
   const monoToonPipeline = new MonoToonPipeline(device)
@@ -44,12 +47,12 @@ const start = async () => {
 
   const forceIntegrator = new ForceIntegrator()
 
-  const _canvasResizer = new CanvasResizer(
-    canvas,
-    device.limits.maxTextureDimension2D
-  )
-  const _cameraMover = new CameraMover(0.001)
-  const _keyboardMover = new KeyboardMover()
+  // const _canvasResizer = new CanvasResizer(
+  //   window,
+  //   device.limits.maxTextureDimension2D
+  // )
+  // const _cameraMover = new CameraMover(0.001)
+  // const _keyboardMover = new KeyboardMover()
 
   const parentNormalizer = new ParentNormalizer()
 
@@ -61,12 +64,12 @@ const start = async () => {
   player.addComponent(Position, new Vec3([0, 3, -20]))
   player.addComponent(Orientation)
   player.addComponent(TransformTarget)
-  player.addComponent(MouseControl)
+  // player.addComponent(MouseControl)
   player.addComponent(Mass, 1)
   player.addComponent(Force)
   player.addComponent(LinearImpulse)
   player.addComponent(Velocity)
-  player.addComponent(KeyboardControl)
+  // player.addComponent(KeyboardControl)
 
   const lightEntity = world.createEntity()
   lightEntity.addComponent(Position, new Vec3([0, 10, 0]))
@@ -118,6 +121,7 @@ const start = async () => {
     lightEntity,
     toonSphere,
     phongSphere,
+    phongCube,
   ])
 
   toonSphere.addComponent(ChildrenEntities, [phongCube])
@@ -126,20 +130,21 @@ const start = async () => {
 
   renderer.loadStaticMeshBuffers()
 
-  renderer.render()
-
   let previousTime: number
 
-  const cycle: FrameRequestCallback = async (time) => {
+  addEventListener('keydown', () => {
+    Deno.exit(0)
+  })
+
+  mainloop((time) => {
     const deltaMs = previousTime ? time - previousTime : 0
     previousTime = time
 
     forceIntegrator.integrate(deltaMs)
     renderer.render()
-    requestAnimationFrame(cycle)
-  }
 
-  requestAnimationFrame(cycle)
+    window.surface.present()
+  })
 }
 
 start()
