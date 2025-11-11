@@ -1,18 +1,9 @@
 import { WindowGPU } from '@gfx/dwm/ext/webgpu'
 
 import { Pipeline } from './systems/Pipeline.ts'
-import { LocalTranformCalculator } from './systems/LocalTransformCalculator.ts'
 import { MeshBufferLoader } from './systems/MeshBufferLoader.ts'
-import { ParentTranformCalculator } from './systems/ParentTransformCalculator.ts'
-import { RootTranformCalculator } from './systems/RootTransformCalculator.ts'
-import { RootClipTransformCalculator } from './systems/RootClipTransformCalculator.ts'
 
 export class Renderer {
-  private parentTransformCalculator = new ParentTranformCalculator()
-  private rootTransformCalculator = new RootTranformCalculator()
-  private localTransformCalculator = new LocalTranformCalculator()
-  private rootClipTransformCalculator = new RootClipTransformCalculator()
-
   private meshBufferLoader: MeshBufferLoader
   private registeredPipelines: Pipeline[] = []
 
@@ -86,11 +77,6 @@ export class Renderer {
   }
 
   public render = () => {
-    this.parentTransformCalculator.calculateParentTransforms()
-    this.rootTransformCalculator.calculateRootTransforms()
-    this.localTransformCalculator.calculateLocalTransforms()
-    this.rootClipTransformCalculator.calculateRootClipTransforms()
-
     const commandEncoder = this.device.createCommandEncoder()
     const renderPass = commandEncoder.beginRenderPass(
       this.getRenderPassDescriptor(),

@@ -8,9 +8,7 @@ import { PerspectiveCamera } from '../engine/components/PerspectiveCamera.ts'
 import { Position } from '../engine/components/Position.ts'
 import { Material } from '../engine/components/Material.ts'
 import { Mesh } from '../engine/components/Mesh.ts'
-import { ChildrenEntities } from '../engine/components/ChildrenEntities.ts'
 import { Renderer } from '../engine/Renderer.ts'
-import { ParentNormalizer } from '../engine/systems/ParentNormalizer.ts'
 import { Orientation } from '../engine/components/Orientation.ts'
 import { TransformTarget } from '../engine/components/TransformTarget.ts'
 import { Light } from '../engine/components/Light.ts'
@@ -27,9 +25,9 @@ import { ForceIntegrator } from '../engine/systems/ForceIntegrator.ts'
 import { averageFps } from '../util/fps.ts'
 // import { getDevice } from '../../util/window.ts'
 import { MonoPhongPipeline } from '../engine/pipelines/monoPhong/MonoPhongPipeline.ts'
-import { SceneRoot } from '../engine/components/SceneRoot.ts'
 import { mainloop } from '@gfx/dwm'
 import { createWindowGPU } from '@gfx/dwm/ext/webgpu'
+import { Scene } from '../engine/Scene.ts'
 
 const start = async () => {
   const window = await createWindowGPU({
@@ -55,10 +53,9 @@ const start = async () => {
   // const _cameraMover = new CameraMover(0.001)
   // const _keyboardMover = new KeyboardMover()
 
-  const parentNormalizer = new ParentNormalizer()
-
   // Scene
   const world = new World()
+  const scene = new Scene(world)
 
   const player = world.createEntity()
   player.addComponent(PerspectiveCamera)
@@ -105,17 +102,11 @@ const start = async () => {
     monoPhongPipeline.registerEntity(entity)
   })
 
-  // Build scene
-  const sceneEntity = world.createEntity()
-  sceneEntity.addComponent(SceneRoot)
-
-  sceneEntity.addComponent(ChildrenEntities, [
+  scene.addNodes([
     player,
     lightEntity,
     ...meshEntities,
   ])
-
-  parentNormalizer.normalizeParents()
 
   renderer.loadStaticMeshBuffers()
 
@@ -134,6 +125,7 @@ const start = async () => {
     console.log(`${fps.toString()} FPS`)
 
     forceIntegrator.integrate(deltaMs)
+    scene.calculateTransforms()
     renderer.render()
 
     window.surface.present()

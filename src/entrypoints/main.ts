@@ -9,9 +9,7 @@ import { PerspectiveCamera } from '../engine/components/PerspectiveCamera.ts'
 import { Position } from '../engine/components/Position.ts'
 import { Material } from '../engine/components/Material.ts'
 import { Mesh } from '../engine/components/Mesh.ts'
-import { ChildrenEntities } from '../engine/components/ChildrenEntities.ts'
 import { Renderer } from '../engine/Renderer.ts'
-import { ParentNormalizer } from '../engine/systems/ParentNormalizer.ts'
 import { Orientation } from '../engine/components/Orientation.ts'
 import { TransformTarget } from '../engine/components/TransformTarget.ts'
 import { Light } from '../engine/components/Light.ts'
@@ -25,8 +23,8 @@ import { KeyboardControl } from '../engine/components/KeyboardControl.ts'
 import { KeyboardMover } from '../engine/systems/KeyboardMover.ts'
 import { MonoToonPipeline } from '../engine/pipelines/monoToon/MonoToonPipeline.ts'
 import { MonoPhongPipeline } from '../engine/pipelines/monoPhong/MonoPhongPipeline.ts'
-import { SceneRoot } from '../engine/components/SceneRoot.ts'
 import { createWindowGPU, mainloop } from '@gfx/dwm/ext/webgpu'
+import { Scene } from '../engine/Scene.ts'
 
 const start = async () => {
   const window = await createWindowGPU({
@@ -54,10 +52,9 @@ const start = async () => {
   // const _cameraMover = new CameraMover(0.001)
   // const _keyboardMover = new KeyboardMover()
 
-  const parentNormalizer = new ParentNormalizer()
-
   // Scene
   const world = new World()
+  const scene = new Scene(world)
 
   const player = world.createEntity()
   player.addComponent(PerspectiveCamera)
@@ -89,7 +86,7 @@ const start = async () => {
   monoPhongPipeline.registerEntity(phongSphere)
 
   const toonSphere = world.createEntity()
-  toonSphere.addComponent(Position, new Vec3([-5, 1, 0]))
+  toonSphere.addComponent(Position, new Vec3([0, 1, 0]))
   toonSphere.addComponent(Orientation)
   toonSphere.addComponent(Material, {
     diffuse: new Vec4([1, 1, 0, 1]),
@@ -101,7 +98,7 @@ const start = async () => {
   monoToonPipeline.registerEntity(toonSphere)
 
   const phongCube = world.createEntity()
-  phongCube.addComponent(Position, new Vec3([-3, 0, 5]))
+  phongCube.addComponent(Position, new Vec3([-6, 0, 5]))
   phongCube.addComponent(Orientation)
   phongCube.addComponent(Material, {
     diffuse: new Vec4([1, 0, 0, 1]),
@@ -112,21 +109,14 @@ const start = async () => {
   phongCube.addComponent(Mesh, loadObj(flatCubeModel))
   monoPhongPipeline.registerEntity(phongCube)
 
-  // Build scene
-  const sceneEntity = world.createEntity()
-  sceneEntity.addComponent(SceneRoot)
-
-  sceneEntity.addComponent(ChildrenEntities, [
+  scene.addNodes([
     player,
     lightEntity,
-    toonSphere,
     phongSphere,
-    phongCube,
+    [toonSphere, [
+      phongCube,
+    ]],
   ])
-
-  toonSphere.addComponent(ChildrenEntities, [phongCube])
-
-  parentNormalizer.normalizeParents()
 
   renderer.loadStaticMeshBuffers()
 
@@ -141,6 +131,7 @@ const start = async () => {
     previousTime = time
 
     forceIntegrator.integrate(deltaMs)
+    scene.calculateTransforms()
     renderer.render()
 
     window.surface.present()
