@@ -1,4 +1,8 @@
 {
+  "tasks": {
+    "main": "deno run -P src/entrypoints/main.ts",
+    "benchmark": "deno run -P src/entrypoints/benchmark.ts"
+  },
   "imports": {
     "@gfx/dwm": "jsr:@gfx/dwm@^0.3.9",
     "@std/expect": "jsr:@std/expect@^1.0.17",
