@@ -74,13 +74,13 @@ const start = async () => {
   phongSphere.addComponent(Position, new Vec3([5, 1, 0]))
   phongSphere.addComponent(Orientation)
   phongSphere.addComponent(Material, {
-    diffuse: new Vec4([1, 1, 0, 1]),
+    diffuse: new Vec4([1, 0, 1, 1]),
     specular: new Vec4([1, 1, 1, 1]),
-    ambient: new Vec4([1, 1, 0, 1]),
+    ambient: new Vec4([1, 0, 1, 1]),
     gloss: 16,
   })
   phongSphere.addComponent(Mesh, loadObj(sphereModel))
-  monoPhongPipeline.registerEntity(phongSphere)
+  phongSphere.addComponent(monoPhongPipeline.component)
 
   const toonSphere = WorldInstance.createEntity()
   toonSphere.addComponent(Position, new Vec3([0, 1, 0]))
@@ -92,7 +92,7 @@ const start = async () => {
     gloss: 10,
   })
   toonSphere.addComponent(Mesh, loadObj(sphereModel))
-  monoToonPipeline.registerEntity(toonSphere)
+  toonSphere.addComponent(monoToonPipeline.component)
 
   const phongCube = WorldInstance.createEntity()
   phongCube.addComponent(Position, new Vec3([-6, 0, 5]))
@@ -104,7 +104,7 @@ const start = async () => {
     gloss: 10,
   })
   phongCube.addComponent(Mesh, loadObj(flatCubeModel))
-  monoPhongPipeline.registerEntity(phongCube)
+  phongCube.addComponent(monoPhongPipeline.component)
 
   scene.addNodes([
     player,

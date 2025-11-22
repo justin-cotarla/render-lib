@@ -1,80 +1,86 @@
-import { EntityBuffer } from '../components/EntityBuffer.ts'
-import { GlobalBuffer } from '../components/GlobalBuffer.ts'
 import { System } from '../../ecs/System.ts'
 import { Entity } from '../../ecs/Entity.ts'
-import { Component } from '../../ecs/Component.ts'
-import { Mesh } from '../components/Mesh.ts'
-import { MeshBuffer } from '../components/MeshBuffer.ts'
 import { ActivePipeline } from '../components/ActivePipeline.ts'
 import { WorldInstance } from '../../ecs/World.ts'
+import { Component } from '../../ecs/Component.ts'
+import { RootTransform } from '../components/RootTransform.ts'
 
 export abstract class Pipeline extends System {
-  private activeTag: Entity
+  static DEFAULT_BUFFER_SIZE_BYTES = 4
+  static GROWTH_FACTOR = 1.5
+
+  private prevEntityCount = 0
+
+  private pipelineEntity: Entity
+  private _component: Component
+  protected buffer: ArrayBuffer = new ArrayBuffer(
+    Pipeline.DEFAULT_BUFFER_SIZE_BYTES,
+  )
 
   constructor(
-    readonly device: GPUDevice,
     readonly renderPipeline: GPURenderPipeline,
-    readonly BindGroup: Component<GPUBindGroup>,
+    readonly name: string,
   ) {
     super()
 
-    this.activeTag = WorldInstance.createEntity()
-    this.activate()
+    this.registerComponent(RootTransform)
 
-    this.registerComponent(this.BindGroup)
-    this.registerComponent(Mesh)
-    this.registerComponent(EntityBuffer)
-    this.registerComponent(MeshBuffer)
+    this._component = new Component(`PIPELINE_TAG_${name.toLocaleUpperCase()}`)
+
+    this.registerComponent(this._component)
+
+    this.pipelineEntity = WorldInstance.createEntity()
+    this.activate()
   }
 
   public activate() {
-    this.activeTag.addComponent(ActivePipeline, this)
+    this.pipelineEntity.addComponent(ActivePipeline, this)
   }
 
   public deactivate() {
-    this.activeTag.removeComponent(ActivePipeline)
-  }
-
-  public registerEntity(entity: Entity): void {
-    const entityBuffer = this.createEntityBuffer()
-
-    entity.addComponent(
-      this.BindGroup,
-      this.createBindGroup(entityBuffer.gpuBuffer),
-    )
-    entity.addComponent(EntityBuffer, entityBuffer)
+    this.pipelineEntity.removeComponent(ActivePipeline)
   }
 
   public render(renderPass: GPURenderPassEncoder) {
+    if (!this.matchedEntityCount) {
+      return
+    }
+
     renderPass.setPipeline(this.renderPipeline)
 
-    this.loadGlobalBuffer?.()
+    this.prerender?.(this.prevEntityCount, this.matchedEntityCount)
+    this.prevEntityCount = this.matchedEntityCount
 
+    let renderIndex = 0
     for (const entity of this.getMatchedEntities()) {
-      this.loadEntityBuffer(entity)
-
-      const vertexCount = Mesh.getEntityData(entity).triangles.length * 3
-      const bindGroup = this.BindGroup.getEntityData(entity)
-      const meshBuffer = MeshBuffer.getEntityData(entity)
-
-      renderPass.setBindGroup(0, bindGroup)
-      renderPass.setVertexBuffer(0, meshBuffer)
-
-      renderPass.draw(vertexCount)
+      this.renderEntity(renderPass, entity, renderIndex)
+      renderIndex++
     }
   }
 
-  private _globalBuffer: GlobalBuffer | null = null
-  protected get globalBuffer(): GlobalBuffer | null {
-    this._globalBuffer ??= this.createGlobalBuffer?.() ?? null
-
-    return this._globalBuffer
+  public get component(): Component {
+    return this._component
   }
 
-  protected abstract createBindGroup(gpuBuffer: GPUBuffer): GPUBindGroup
-  protected abstract createEntityBuffer(): EntityBuffer
-  protected createGlobalBuffer?(): GlobalBuffer
+  protected growBuffer(byteOffset: number, byteSize: number): void {
+    let newSizeBytes = this.buffer.byteLength
 
-  protected abstract loadEntityBuffer(entity: Entity): void
-  protected loadGlobalBuffer?(): void
+    while (newSizeBytes < byteSize + byteOffset) {
+      newSizeBytes = Math.ceil(
+        newSizeBytes * Pipeline.GROWTH_FACTOR,
+      )
+    }
+
+    this.buffer = this.buffer.transfer(
+      newSizeBytes,
+    )
+  }
+
+  protected prerender?(entityCount: number, prevEntityCount: number): void
+
+  protected abstract renderEntity(
+    renderPass: GPURenderPassEncoder,
+    entity: Entity,
+    renderIndex: number,
+  ): void
 }

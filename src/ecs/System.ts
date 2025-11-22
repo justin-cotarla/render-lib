@@ -6,6 +6,7 @@ import {
 import { Entity } from './Entity.ts'
 
 export class System {
+  private _matchedEntityCount = 0
   private collectedEntitySignalCounts = new Map<number, number>()
   private registeredComponents = new Map<
     Component<unknown>,
@@ -25,15 +26,16 @@ export class System {
         event.entityId,
       )
 
-      if (entitySignalCount === undefined) {
-        this.collectedEntitySignalCounts.set(event.entityId, 1)
-        return
-      }
+      const newSignalCount = (entitySignalCount ?? 0) + 1
 
       this.collectedEntitySignalCounts.set(
         event.entityId,
-        entitySignalCount + 1,
+        newSignalCount,
       )
+
+      if (newSignalCount === this.registeredComponents.size) {
+        this._matchedEntityCount += 1
+      }
     }
 
     const onComponentRemove = (event: ComponentRemoveEvent) => {
@@ -49,6 +51,8 @@ export class System {
         event.entityId,
         entitySignalCount - 1,
       )
+
+      this._matchedEntityCount -= 1
     }
 
     this.registeredComponents.set(component, {
@@ -90,5 +94,9 @@ export class System {
         yield new Entity(entityId)
       }
     }
+  }
+
+  protected get matchedEntityCount(): number {
+    return this._matchedEntityCount
   }
 }

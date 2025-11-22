@@ -97,7 +97,7 @@ const start = async () => {
       gloss: 16,
     })
     entity.addComponent(Mesh, loadObj(sphereModel))
-    monoPhongPipeline.registerEntity(entity)
+    entity.addComponent(monoPhongPipeline.component)
   })
 
   scene.addNodes([
