@@ -1,9 +1,5 @@
-import { describe, it } from '@std/testing/bdd'
-import { assertSnapshot } from '@std/testing/snapshot'
-import { expect } from '@std/expect'
-
-import { Mat3 } from './Mat3.ts'
-import { Vec3 } from './Vec3.ts'
+import { Mat3 } from './Mat3'
+import { Vec3 } from './Vec3'
 
 describe('Vec3', () => {
   describe('cross', () => {
@@ -24,9 +20,9 @@ describe('Vec3', () => {
   })
 
   describe('toString', () => {
-    it('prints its value', async (t) => {
+    it('prints its value', () => {
       const vector = new Vec3([1, 2, 3])
-      await assertSnapshot(t, vector.toString())
+      expect(vector.toString()).toMatchInlineSnapshot(`"[1, 2, 3]"`)
     })
   })
 

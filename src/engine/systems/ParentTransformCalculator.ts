@@ -1,15 +1,15 @@
-import { Entity } from '../../ecs/Entity.ts'
-import { System } from '../../ecs/System.ts'
-import { Mat4 } from '../../math/Mat4.ts'
-import { Vec3 } from '../../math/Vec3.ts'
+import { Entity } from '../../ecs/Entity'
+import { System } from '../../ecs/System'
+import { Mat4 } from '../../math/Mat4'
+import { Vec3 } from '../../math/Vec3'
 import {
   eulerOrientationToMatrix,
   reverseEulerOrientationToMatrix,
-} from '../../util/matrixTransformations.ts'
-import { Orientation } from '../components/Orientation.ts'
-import { ParentEntity } from '../components/ParentEntity.ts'
-import { ParentTransform } from '../components/ParentTransform.ts'
-import { Position } from '../components/Position.ts'
+} from '../../util/matrixTransformations'
+import { Orientation } from '../components/Orientation'
+import { ParentEntity } from '../components/ParentEntity'
+import { ParentTransform } from '../components/ParentTransform'
+import { Position } from '../components/Position'
 
 /**
  * Creates transform matrices for transforming
@@ -70,7 +70,7 @@ export class ParentTranformCalculator extends System {
   }
 
   private getParentTransformMatrices = (
-    entity: Entity,
+    entity: Entity
   ): {
     localToParentTransform: Mat4
     parentToLocalTransform: Mat4
@@ -98,8 +98,8 @@ export class ParentTranformCalculator extends System {
       const position = Position.getEntityData(entity.id)
       const orientation = Orientation.getEntityData(entity.id)
 
-      const { localToParentTransform, parentToLocalTransform } = this
-        .getParentTransformMatrices(entity)
+      const { localToParentTransform, parentToLocalTransform } =
+        this.getParentTransformMatrices(entity)
 
       localToParentTransform
         .set(eulerOrientationToMatrix(orientation).data)

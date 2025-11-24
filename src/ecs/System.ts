@@ -1,9 +1,5 @@
-import {
-  Component,
-  ComponentAddEvent,
-  ComponentRemoveEvent,
-} from './Component.ts'
-import { Entity } from './Entity.ts'
+import { Component, ComponentAddEvent, ComponentRemoveEvent } from './Component'
+import { Entity } from './Entity'
 
 export class System {
   private _matchedEntityCount = 0
@@ -23,15 +19,12 @@ export class System {
 
     const onComponentAdd = (event: ComponentAddEvent) => {
       const entitySignalCount = this.collectedEntitySignalCounts.get(
-        event.entityId,
+        event.entityId
       )
 
       const newSignalCount = (entitySignalCount ?? 0) + 1
 
-      this.collectedEntitySignalCounts.set(
-        event.entityId,
-        newSignalCount,
-      )
+      this.collectedEntitySignalCounts.set(event.entityId, newSignalCount)
 
       if (newSignalCount === this.registeredComponents.size) {
         this._matchedEntityCount += 1
@@ -40,7 +33,7 @@ export class System {
 
     const onComponentRemove = (event: ComponentRemoveEvent) => {
       const entitySignalCount = this.collectedEntitySignalCounts.get(
-        event.entityId,
+        event.entityId
       )
 
       if (entitySignalCount === undefined) {
@@ -49,7 +42,7 @@ export class System {
 
       this.collectedEntitySignalCounts.set(
         event.entityId,
-        entitySignalCount - 1,
+        entitySignalCount - 1
       )
 
       this._matchedEntityCount -= 1
@@ -74,7 +67,7 @@ export class System {
     component.removeEventListener('componentadd', callbacks.onComponentAdd)
     component.removeEventListener(
       'componentremove',
-      callbacks.onComponentRemove,
+      callbacks.onComponentRemove
     )
 
     this.registeredComponents.delete(component)
@@ -86,10 +79,8 @@ export class System {
   *getMatchedEntities(): Generator<Entity, void, unknown> {
     const registeredComponentCount = this.registeredComponents.size
 
-    for (
-      const [entityId, collectedSignals] of this
-        .collectedEntitySignalCounts
-    ) {
+    for (const [entityId, collectedSignals] of this
+      .collectedEntitySignalCounts) {
       if (collectedSignals === registeredComponentCount) {
         yield new Entity(entityId)
       }

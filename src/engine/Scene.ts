@@ -1,12 +1,12 @@
-import { Entity } from '../ecs/Entity.ts'
-import { WorldInstance } from '../ecs/World.ts'
-import { ChildrenEntities } from './components/ChildrenEntities.ts'
-import { ParentEntity } from './components/ParentEntity.ts'
-import { SceneRoot } from './components/SceneRoot.ts'
-import { LocalTranformCalculator } from './systems/LocalTransformCalculator.ts'
-import { ParentTranformCalculator } from './systems/ParentTransformCalculator.ts'
-import { RootClipTransformCalculator } from './systems/RootClipTransformCalculator.ts'
-import { RootTranformCalculator } from './systems/RootTransformCalculator.ts'
+import { Entity } from '../ecs/Entity'
+import { WorldInstance } from '../ecs/World'
+import { ChildrenEntities } from './components/ChildrenEntities'
+import { ParentEntity } from './components/ParentEntity'
+import { SceneRoot } from './components/SceneRoot'
+import { LocalTranformCalculator } from './systems/LocalTransformCalculator'
+import { ParentTranformCalculator } from './systems/ParentTransformCalculator'
+import { RootClipTransformCalculator } from './systems/RootClipTransformCalculator'
+import { RootTranformCalculator } from './systems/RootTransformCalculator'
 
 type SceneNode = Entity | [Entity, SceneNode[]]
 
@@ -24,15 +24,10 @@ export class Scene {
   }
 
   public addNodes(nodes: SceneNode[]) {
-    this.attachNode(
-      [this.sceneRoot, nodes],
-    )
+    this.attachNode([this.sceneRoot, nodes])
   }
 
-  private attachNode(
-    node: SceneNode,
-    parentNode?: Entity,
-  ): Entity {
+  private attachNode(node: SceneNode, parentNode?: Entity): Entity {
     const [entity, childNodes] = Array.isArray(node)
       ? [node[0], node[1]]
       : [node]

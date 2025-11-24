@@ -8,7 +8,7 @@ export class MouseObserver {
   }
 
   constructor(
-    readonly mouseAction: (movementX: number, movementY: number) => void,
+    readonly mouseAction: (movementX: number, movementY: number) => void
   ) {
     document.addEventListener('mousemove', this.onMouseMove)
 

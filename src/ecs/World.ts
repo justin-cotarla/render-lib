@@ -1,4 +1,4 @@
-import { Entity } from './Entity.ts'
+import { Entity } from './Entity'
 
 class World {
   entityList: Entity[] = []

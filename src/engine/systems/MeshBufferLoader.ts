@@ -1,6 +1,6 @@
-import { System } from '../../ecs/System.ts'
-import { Mesh } from '../components/Mesh.ts'
-import { MeshBuffer } from '../components/MeshBuffer.ts'
+import { System } from '../../ecs/System'
+import { Mesh } from '../components/Mesh'
+import { MeshBuffer } from '../components/MeshBuffer'
 
 export class MeshBufferLoader extends System {
   constructor(readonly device: GPUDevice) {
@@ -8,7 +8,7 @@ export class MeshBufferLoader extends System {
     this.registerComponent(Mesh)
   }
 
-  private computeVertexData = (mesh: Mesh): Float32Array<ArrayBuffer> => {
+  private computeVertexData = (mesh: Mesh): Float32Array => {
     return new Float32Array(
       mesh.triangles.flatMap(({ vertexIndices, normalIndices }) =>
         Array.from({ length: 3 }).flatMap((_, index) => [
@@ -17,7 +17,7 @@ export class MeshBufferLoader extends System {
           ...mesh.normals[normalIndices[index]].data,
           0,
         ])
-      ),
+      )
     )
   }
 

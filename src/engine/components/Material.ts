@@ -1,5 +1,5 @@
-import { Vec4 } from '../../math/Vec4.ts'
-import { DefaultComponent } from '../../ecs/DefaultComponent.ts'
+import { Vec4 } from '../../math/Vec4'
+import { DefaultComponent } from '../../ecs/DefaultComponent'
 
 export interface Material {
   diffuse: Vec4
@@ -16,9 +16,7 @@ export const Material = new DefaultComponent<Material>('MATERIAL', {
 })
 
 // TODO: Do not compute this buffer on every render, it is static
-export const computeMaterialBuffer = (
-  material: Material,
-): Float32Array<ArrayBuffer> => {
+export const computeMaterialBuffer = (material: Material): Float32Array => {
   const buffer = new Float32Array(13)
   buffer.set(material.diffuse.data, 0)
   buffer.set(material.specular.data, 4)

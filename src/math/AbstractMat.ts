@@ -1,11 +1,12 @@
-import { Matrix } from './Matrix.ts'
+import { Matrix } from './Matrix'
 
 export abstract class AbstractMat<M extends number[], N extends number[] = []>
-  implements Matrix<M> {
+  implements Matrix<M>
+{
   constructor(
     readonly ARITY: number,
     readonly data: M,
-    private readonly getSubmatrix?: () => Matrix<N>,
+    private readonly getSubmatrix?: () => Matrix<N>
   ) {}
 
   abstract clone(): AbstractMat<M, N>
@@ -82,8 +83,8 @@ export abstract class AbstractMat<M extends number[], N extends number[] = []>
     for (let j = 0; j < this.ARITY; j++) {
       for (let i = 0; i < this.ARITY; i++) {
         for (let k = 0; k < this.ARITY; k++) {
-          result[i + j * this.ARITY] += this.data[k + j * this.ARITY] *
-            m.data[i + k * this.ARITY]
+          result[i + j * this.ARITY] +=
+            this.data[k + j * this.ARITY] * m.data[i + k * this.ARITY]
         }
       }
     }
@@ -111,7 +112,7 @@ export abstract class AbstractMat<M extends number[], N extends number[] = []>
     }
 
     return this.set(
-      this.toClassicalAdjoint().scale(1 / this.determinant()).data,
+      this.toClassicalAdjoint().scale(1 / this.determinant()).data
     )
   }
 

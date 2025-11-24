@@ -1,8 +1,4 @@
-import { describe, it } from '@std/testing/bdd'
-import { assertSnapshot } from '@std/testing/snapshot'
-import { expect } from '@std/expect'
-
-import { Mat2 } from './Mat2.ts'
+import { Mat2 } from './Mat2'
 
 describe('Mat2', () => {
   describe('clone', () => {
@@ -24,11 +20,9 @@ describe('Mat2', () => {
   })
 
   describe('toString', () => {
-    it('prints its value', async (t) => {
+    it('prints its value', () => {
       const matrix = new Mat2([1, 2, 3, 4])
-
-      console.log(matrix.toString())
-      await assertSnapshot(t, matrix.toString())
+      expect(matrix.toString()).toMatchSnapshot()
     })
   })
 

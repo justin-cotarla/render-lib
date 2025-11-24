@@ -1,4 +1,4 @@
-import { DefaultComponent } from '../../ecs/DefaultComponent.ts'
+import { DefaultComponent } from '../../ecs/DefaultComponent'
 
 export interface PerspectiveCamera {
   nearPlane: number
@@ -14,5 +14,5 @@ export const PerspectiveCamera = new DefaultComponent<PerspectiveCamera>(
     farPlane: 100,
     fov: 60,
     aspectRatio: 1,
-  },
+  }
 )

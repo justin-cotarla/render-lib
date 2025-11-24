@@ -1,6 +1,6 @@
-export const snapshot = {};
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
-snapshot[`Mat2 > toString > prints its value 1`] = `
+exports[`Mat2 toString prints its value 1`] = `
 "[
   1 2 
   3 4 

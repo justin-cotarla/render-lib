@@ -1,7 +1,7 @@
-import { DefaultComponent } from '../../ecs/DefaultComponent.ts'
-import { Entity } from '../../ecs/Entity.ts'
+import { DefaultComponent } from '../../ecs/DefaultComponent'
+import { Entity } from '../../ecs/Entity'
 
 export const ChildrenEntities = new DefaultComponent<Entity[]>(
   'CHILDREN_ENTITIES',
-  [],
+  []
 )

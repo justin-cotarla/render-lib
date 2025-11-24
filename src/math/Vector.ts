@@ -1,4 +1,4 @@
-import { Matrix } from './Matrix.ts'
+import { Matrix } from './Matrix'
 
 export interface Vector<V extends number[], M extends number[]> {
   data: V

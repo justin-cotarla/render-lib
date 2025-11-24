@@ -1,10 +1,10 @@
-import { Entity } from '../../ecs/Entity.ts'
-import { System } from '../../ecs/System.ts'
-import { Mat4 } from '../../math/Mat4.ts'
-import { perspectiveCameraToClipMatrix } from '../../util/matrixTransformations.ts'
-import { LocalTransform } from '../components/LocalTransform.ts'
-import { PerspectiveCamera } from '../components/PerspectiveCamera.ts'
-import { RootClipTransform } from '../components/RootClipTransform.ts'
+import { Entity } from '../../ecs/Entity'
+import { System } from '../../ecs/System'
+import { Mat4 } from '../../math/Mat4'
+import { perspectiveCameraToClipMatrix } from '../../util/matrixTransformations'
+import { LocalTransform } from '../components/LocalTransform'
+import { PerspectiveCamera } from '../components/PerspectiveCamera'
+import { RootClipTransform } from '../components/RootClipTransform'
 
 /**
  * Computes matrices for tranforming from scene space --> clip space

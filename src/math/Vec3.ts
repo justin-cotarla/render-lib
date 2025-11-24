@@ -1,5 +1,5 @@
-import { AbstractVec } from './AbstractVec.ts'
-import { Mat3Elements } from './Mat3.ts'
+import { AbstractVec } from './AbstractVec'
+import { Mat3Elements } from './Mat3'
 
 export type Vec3Elements = [number, number, number]
 

@@ -1,9 +1,5 @@
-import { describe, it } from '@std/testing/bdd'
-import { assertSnapshot } from '@std/testing/snapshot'
-import { expect } from '@std/expect'
-
-import { Mat4 } from './Mat4.ts'
-import { Vec4 } from './Vec4.ts'
+import { Mat4 } from './Mat4'
+import { Vec4 } from './Vec4'
 
 describe('Vec4', () => {
   describe('clone', () => {
@@ -17,9 +13,9 @@ describe('Vec4', () => {
   })
 
   describe('toString', () => {
-    it('prints its value', async (t) => {
+    it('prints its value', () => {
       const vector = new Vec4([1, 2, 3, 4])
-      await assertSnapshot(t, vector.toString())
+      expect(vector.toString()).toMatchInlineSnapshot(`"[1, 2, 3, 4]"`)
     })
   })
 
@@ -91,22 +87,7 @@ describe('Vec4', () => {
     it('multiplies by a given matrix', () => {
       const vector = new Vec4([1, 2, 3, 4])
       const matrix = new Mat4([
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
       ])
 
       expect(vector.applyMatrix(matrix).data).toEqual([90, 100, 110, 120])

@@ -1,8 +1,4 @@
-import { describe, it } from '@std/testing/bdd'
-import { assertSnapshot } from '@std/testing/snapshot'
-import { expect } from '@std/expect'
-
-import { Mat3 } from './Mat3.ts'
+import { Mat3 } from './Mat3'
 
 describe('Mat3', () => {
   describe('clone', () => {
@@ -24,16 +20,16 @@ describe('Mat3', () => {
   })
 
   describe('toString', () => {
-    it('prints its value', async (t) => {
+    it('prints its value', () => {
       const matrix = new Mat3([1, 2, 3, 4, 5, 6, 7, 8, 9])
-      await assertSnapshot(t, matrix.toString())
+      expect(matrix.toString()).toMatchSnapshot()
     })
   })
 
   describe('add', () => {
     it('computes the addition of two matrices', () => {
       const matrix = new Mat3([1, 2, 3, 4, 5, 6, 7, 8, 9]).add(
-        new Mat3([10, 20, 30, 40, 50, 60, 70, 80, 90]),
+        new Mat3([10, 20, 30, 40, 50, 60, 70, 80, 90])
       )
       expect(matrix.data).toEqual([11, 22, 33, 44, 55, 66, 77, 88, 99])
     })
@@ -42,7 +38,7 @@ describe('Mat3', () => {
   describe('subtract', () => {
     it('computes the subtraction of two matrices', () => {
       const matrix = new Mat3([1, 2, 3, 4, 5, 6, 7, 8, 9]).subtract(
-        new Mat3([10, 20, 30, 40, 50, 60, 70, 80, 90]),
+        new Mat3([10, 20, 30, 40, 50, 60, 70, 80, 90])
       )
       expect(matrix.data).toEqual([-9, -18, -27, -36, -45, -54, -63, -72, -81])
     })
@@ -58,18 +54,10 @@ describe('Mat3', () => {
   describe('multiply', () => {
     it('computes the multiplication of two matrices', () => {
       const matrix = new Mat3([1, 2, 3, 4, 5, 6, 7, 8, 9]).multiply(
-        new Mat3([10, 20, 30, 40, 50, 60, 70, 80, 90]),
+        new Mat3([10, 20, 30, 40, 50, 60, 70, 80, 90])
       )
       expect(matrix.data).toEqual([
-        300,
-        360,
-        420,
-        660,
-        810,
-        960,
-        1020,
-        1260,
-        1500,
+        300, 360, 420, 660, 810, 960, 1020, 1260, 1500,
       ])
     })
   })

@@ -1,14 +1,14 @@
-import { Entity } from '../../../ecs/Entity.ts'
-import { Vec4 } from '../../../math/Vec4.ts'
-import { computeMaterialBuffer, Material } from '../../components/Material.ts'
-import { Mesh } from '../../components/Mesh.ts'
-import { MeshBuffer } from '../../components/MeshBuffer.ts'
-import { RootTransform } from '../../components/RootTransform.ts'
-import { PerspectiveCameraCollector } from '../../systems/CameraCollector.ts'
-import { LightCollector } from '../../systems/LightCollector.ts'
-import { Pipeline } from '../../systems/Pipeline.ts'
+import { Entity } from '../../../ecs/Entity'
+import { Vec4 } from '../../../math/Vec4'
+import { computeMaterialBuffer, Material } from '../../components/Material'
+import { Mesh } from '../../components/Mesh'
+import { MeshBuffer } from '../../components/MeshBuffer'
+import { RootTransform } from '../../components/RootTransform'
+import { PerspectiveCameraCollector } from '../../systems/CameraCollector'
+import { LightCollector } from '../../systems/LightCollector'
+import { Pipeline } from '../../systems/Pipeline'
 
-import shader from './shader.wgsl' with { type: 'text' }
+import shader from './shader.wgsl?raw'
 
 export class MonoPhongPipeline extends Pipeline {
   private lightCollector = new LightCollector()
@@ -65,17 +65,20 @@ export class MonoPhongPipeline extends Pipeline {
       layout: device.createPipelineLayout({
         bindGroupLayouts: [
           device.createBindGroupLayout({
-            entries: [{
-              binding: 0,
-              buffer: {},
-              visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX,
-            }, {
-              binding: 1,
-              buffer: {
-                hasDynamicOffset: true,
+            entries: [
+              {
+                binding: 0,
+                buffer: {},
+                visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX,
               },
-              visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX,
-            }],
+              {
+                binding: 1,
+                buffer: {
+                  hasDynamicOffset: true,
+                },
+                visibility: GPUShaderStage.FRAGMENT | GPUShaderStage.VERTEX,
+              },
+            ],
           }),
         ],
       }),
@@ -90,17 +93,14 @@ export class MonoPhongPipeline extends Pipeline {
       },
     })
 
-    super(
-      renderPipeline,
-      name,
-    )
+    super(renderPipeline, name)
 
-    this.OFFSET_ENTITY_BUFFER_SIZE_BYTES = Math.ceil(
-      this.ENTITY_BUFFER_SIZE_BYTES /
-        device.limits.minUniformBufferOffsetAlignment,
-    ) * device.limits.minUniformBufferOffsetAlignment
+    this.OFFSET_ENTITY_BUFFER_SIZE_BYTES =
+      Math.ceil(
+        this.ENTITY_BUFFER_SIZE_BYTES /
+          device.limits.minUniformBufferOffsetAlignment
+      ) * device.limits.minUniformBufferOffsetAlignment
 
-    this.registerComponent
     this.registerComponent(Material)
     this.registerComponent(Mesh)
     this.registerComponent(MeshBuffer)
@@ -126,7 +126,7 @@ export class MonoPhongPipeline extends Pipeline {
 
   private createBindGroup(
     pipelineBuffer: GPUBuffer,
-    entityBuffer: GPUBuffer,
+    entityBuffer: GPUBuffer
   ): GPUBindGroup {
     return this.device.createBindGroup({
       label: `${this.name}_bindgroup`,
@@ -159,7 +159,7 @@ export class MonoPhongPipeline extends Pipeline {
       this.buffer,
       this.PIPELINE_BUFFER_SIZE_BYTES +
         renderIndex * this.OFFSET_ENTITY_BUFFER_SIZE_BYTES,
-      this.OFFSET_ENTITY_BUFFER_SIZE_BYTES / Float32Array.BYTES_PER_ELEMENT,
+      this.OFFSET_ENTITY_BUFFER_SIZE_BYTES / Float32Array.BYTES_PER_ELEMENT
     )
 
     const meshRootTransformBuffer = entityBuffer.subarray(0, 16)
@@ -174,13 +174,10 @@ export class MonoPhongPipeline extends Pipeline {
     const pipelineBuffer = new Float32Array(
       this.buffer,
       0,
-      this.PIPELINE_BUFFER_SIZE_BYTES / Float32Array.BYTES_PER_ELEMENT,
+      this.PIPELINE_BUFFER_SIZE_BYTES / Float32Array.BYTES_PER_ELEMENT
     )
 
-    const rootClipTransformBuffer = pipelineBuffer.subarray(
-      0,
-      16,
-    )
+    const rootClipTransformBuffer = pipelineBuffer.subarray(0, 16)
     const cameraPosRootBuffer = pipelineBuffer.subarray(16, 20)
     const lightPosRootBuffer = pipelineBuffer.subarray(20, 24)
 
@@ -190,11 +187,11 @@ export class MonoPhongPipeline extends Pipeline {
     rootClipTransformBuffer.set(camera.rootClipTransform.data)
 
     cameraPosRootBuffer.set(
-      new Vec4([0, 0, 0, 1]).applyMatrix(camera.rootTransform).data,
+      new Vec4([0, 0, 0, 1]).applyMatrix(camera.rootTransform).data
     )
 
     lightPosRootBuffer.set(
-      new Vec4([0, 0, 0, 1]).applyMatrix(lights[0].rootTransform).data,
+      new Vec4([0, 0, 0, 1]).applyMatrix(lights[0].rootTransform).data
     )
 
     this.device.queue.writeBuffer(
@@ -202,25 +199,25 @@ export class MonoPhongPipeline extends Pipeline {
       0,
       this.buffer,
       0,
-      this.PIPELINE_BUFFER_SIZE_BYTES,
+      this.PIPELINE_BUFFER_SIZE_BYTES
     )
   }
 
   protected override prerender(
     prevEntityCount: number,
-    entityCount: number,
+    entityCount: number
   ): void {
     if (entityCount > prevEntityCount) {
       this.growBuffer(
         0,
         this.PIPELINE_BUFFER_SIZE_BYTES +
-          this.OFFSET_ENTITY_BUFFER_SIZE_BYTES * entityCount,
+          this.OFFSET_ENTITY_BUFFER_SIZE_BYTES * entityCount
       )
 
       this.entityBuffer = this.createEntityBuffer(entityCount)
       this.bindGroup = this.createBindGroup(
         this.pipelineBuffer,
-        this.entityBuffer,
+        this.entityBuffer
       )
     }
 
@@ -231,14 +228,14 @@ export class MonoPhongPipeline extends Pipeline {
       0,
       this.buffer,
       this.PIPELINE_BUFFER_SIZE_BYTES,
-      this.OFFSET_ENTITY_BUFFER_SIZE_BYTES * entityCount,
+      this.OFFSET_ENTITY_BUFFER_SIZE_BYTES * entityCount
     )
   }
 
   override renderEntity(
     renderPass: GPURenderPassEncoder,
     entity: Entity,
-    renderIndex: number,
+    renderIndex: number
   ) {
     if (!this.bindGroup) {
       return

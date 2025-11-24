@@ -1,9 +1,9 @@
-import { System } from '../../ecs/System.ts'
-import { Entity } from '../../ecs/Entity.ts'
-import { ActivePipeline } from '../components/ActivePipeline.ts'
-import { WorldInstance } from '../../ecs/World.ts'
-import { Component } from '../../ecs/Component.ts'
-import { RootTransform } from '../components/RootTransform.ts'
+import { System } from '../../ecs/System'
+import { Entity } from '../../ecs/Entity'
+import { ActivePipeline } from '../components/ActivePipeline'
+import { WorldInstance } from '../../ecs/World'
+import { Component } from '../../ecs/Component'
+import { RootTransform } from '../components/RootTransform'
 
 export abstract class Pipeline extends System {
   static DEFAULT_BUFFER_SIZE_BYTES = 4
@@ -14,12 +14,12 @@ export abstract class Pipeline extends System {
   private pipelineEntity: Entity
   private _component: Component
   protected buffer: ArrayBuffer = new ArrayBuffer(
-    Pipeline.DEFAULT_BUFFER_SIZE_BYTES,
+    Pipeline.DEFAULT_BUFFER_SIZE_BYTES
   )
 
   constructor(
     readonly renderPipeline: GPURenderPipeline,
-    readonly name: string,
+    readonly name: string
   ) {
     super()
 
@@ -66,14 +66,10 @@ export abstract class Pipeline extends System {
     let newSizeBytes = this.buffer.byteLength
 
     while (newSizeBytes < byteSize + byteOffset) {
-      newSizeBytes = Math.ceil(
-        newSizeBytes * Pipeline.GROWTH_FACTOR,
-      )
+      newSizeBytes = Math.ceil(newSizeBytes * Pipeline.GROWTH_FACTOR)
     }
 
-    this.buffer = this.buffer.transfer(
-      newSizeBytes,
-    )
+    this.buffer = this.buffer.transfer(newSizeBytes)
   }
 
   protected prerender?(entityCount: number, prevEntityCount: number): void
@@ -81,6 +77,6 @@ export abstract class Pipeline extends System {
   protected abstract renderEntity(
     renderPass: GPURenderPassEncoder,
     entity: Entity,
-    renderIndex: number,
+    renderIndex: number
   ): void
 }

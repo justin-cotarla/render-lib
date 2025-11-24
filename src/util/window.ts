@@ -1,5 +1,5 @@
 export const setupResizeObserver = (
-  onChange: (width: number, height: number) => void,
+  onChange: (width: number, height: number) => void
 ): ResizeObserver => {
   const resizeObserver = new ResizeObserver((entries) => {
     if (!entries[0]?.borderBoxSize[0]) {

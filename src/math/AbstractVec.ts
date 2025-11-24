@@ -1,11 +1,12 @@
-import { Matrix } from './Matrix.ts'
-import { Vector } from './Vector.ts'
+import { Matrix } from './Matrix'
+import { Vector } from './Vector'
 
 export abstract class AbstractVec<V extends number[], M extends number[]>
-  implements Vector<V, M> {
+  implements Vector<V, M>
+{
   constructor(
     protected readonly ARITY: number,
-    readonly data: V,
+    readonly data: V
   ) {}
 
   abstract clone(): AbstractVec<V, M>

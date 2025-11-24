@@ -1,6 +1,6 @@
-import { AbstractMat } from './AbstractMat.ts'
-import { Mat3, Mat3Elements } from './Mat3.ts'
-import { Vec4Elements } from './Vec4.ts'
+import { AbstractMat } from './AbstractMat'
+import { Mat3, Mat3Elements } from './Mat3'
+import { Vec4Elements } from './Vec4'
 
 export type Mat4Elements = [
   ...Vec4Elements,
@@ -14,7 +14,7 @@ export class Mat4 extends AbstractMat<Mat4Elements, Mat3Elements> {
     super(
       4,
       data ?? [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      () => new Mat3(),
+      () => new Mat3()
     )
   }
 

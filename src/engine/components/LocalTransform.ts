@@ -1,7 +1,7 @@
-import { DefaultComponent } from '../../ecs/DefaultComponent.ts'
-import { Mat4 } from '../../math/Mat4.ts'
+import { DefaultComponent } from '../../ecs/DefaultComponent'
+import { Mat4 } from '../../math/Mat4'
 
 export const LocalTransform = new DefaultComponent<Mat4>(
   'LOCAL_TRANSFORM',
-  new Mat4().identity(),
+  new Mat4().identity()
 )

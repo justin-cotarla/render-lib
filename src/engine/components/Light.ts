@@ -1,5 +1,5 @@
-import { Vec4 } from '../../math/Vec4.ts'
-import { DefaultComponent } from '../../ecs/DefaultComponent.ts'
+import { Vec4 } from '../../math/Vec4'
+import { DefaultComponent } from '../../ecs/DefaultComponent'
 
 export interface Light {
   diffuse: Vec4

@@ -1,5 +1,5 @@
-import { Component } from '../../ecs/Component.ts'
-import { Vec3 } from '../../math/Vec3.ts'
+import { Component } from '../../ecs/Component'
+import { Vec3 } from '../../math/Vec3'
 
 export interface Triangle {
   vertexIndices: [number, number, number]

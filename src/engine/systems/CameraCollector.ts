@@ -1,10 +1,10 @@
-import { System } from '../../ecs/System.ts'
-import { Mat4 } from '../../math/Mat4.ts'
-import { Vec3 } from '../../math/Vec3.ts'
-import { PerspectiveCamera } from '../components/PerspectiveCamera.ts'
-import { Position } from '../components/Position.ts'
-import { RootClipTransform } from '../components/RootClipTransform.ts'
-import { RootTransform } from '../components/RootTransform.ts'
+import { System } from '../../ecs/System'
+import { Mat4 } from '../../math/Mat4'
+import { Vec3 } from '../../math/Vec3'
+import { PerspectiveCamera } from '../components/PerspectiveCamera'
+import { Position } from '../components/Position'
+import { RootClipTransform } from '../components/RootClipTransform'
+import { RootTransform } from '../components/RootTransform'
 
 export class PerspectiveCameraCollector extends System {
   constructor() {

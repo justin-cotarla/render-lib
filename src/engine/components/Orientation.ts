@@ -1,4 +1,4 @@
-import { DefaultComponent } from '../../ecs/DefaultComponent.ts'
+import { DefaultComponent } from '../../ecs/DefaultComponent'
 
 export interface Orientation {
   bank: number
