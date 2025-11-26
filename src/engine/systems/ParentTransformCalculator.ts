@@ -75,21 +75,21 @@ export class ParentTranformCalculator extends System {
     localToParentTransform: Mat4
     parentToLocalTransform: Mat4
   } => {
-    try {
+    if (ParentTransform.hasEntity(entity)) {
       return ParentTransform.getEntityData(entity)
-    } catch {
-      const localToParentTransform = new Mat4().identity()
-      const parentToLocalTransform = new Mat4().identity()
+    }
 
-      entity.addComponent(ParentTransform, {
-        localToParentTransform,
-        parentToLocalTransform,
-      })
+    const localToParentTransform = new Mat4().identity()
+    const parentToLocalTransform = new Mat4().identity()
 
-      return {
-        localToParentTransform,
-        parentToLocalTransform,
-      }
+    entity.addComponent(ParentTransform, {
+      localToParentTransform,
+      parentToLocalTransform,
+    })
+
+    return {
+      localToParentTransform,
+      parentToLocalTransform,
     }
   }
 

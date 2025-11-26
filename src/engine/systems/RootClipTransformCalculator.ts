@@ -21,15 +21,15 @@ export class RootClipTransformCalculator extends System {
   }
 
   private getRootClipTransform(entity: Entity): Mat4 {
-    try {
+    if (RootClipTransform.hasEntity(entity)) {
       return RootClipTransform.getEntityData(entity)
-    } catch {
-      const rootClipTransform = new Mat4().identity()
-
-      entity.addComponent(RootClipTransform, rootClipTransform)
-
-      return rootClipTransform
     }
+
+    const rootClipTransform = new Mat4().identity()
+
+    entity.addComponent(RootClipTransform, rootClipTransform)
+
+    return rootClipTransform
   }
 
   public calculateRootClipTransforms() {

@@ -80,6 +80,14 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
     return entityData
   }
 
+  hasEntity(entity: Entity): boolean
+  hasEntity(entity: number): boolean
+  hasEntity(entity: number | Entity): boolean {
+    const entityId = entity instanceof Entity ? entity.id : entity
+
+    return entityId in this.entityData
+  }
+
   printAll(): void {
     this.entityData.forEach((data, index) => {
       console.log({ entity: index, data: `${data}` })

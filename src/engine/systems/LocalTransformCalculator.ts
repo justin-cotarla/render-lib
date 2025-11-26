@@ -22,31 +22,35 @@ export class LocalTranformCalculator extends System {
   }
 
   private chainLocalTransform(entity: Entity, matrix: Mat4): void {
-    try {
-      const parentEntity = ParentEntity.getEntityData(entity)
-
-      const { parentToLocalTransform } =
-        ParentTransform.getEntityData(parentEntity)
-
-      this.chainLocalTransform(
-        parentEntity,
-        matrix.multiply(parentToLocalTransform)
-      )
-    } catch {
+    if (!ParentEntity.hasEntity(entity)) {
       return
     }
+
+    const parentEntity = ParentEntity.getEntityData(entity)
+
+    if (!ParentTransform.hasEntity(parentEntity)) {
+      return
+    }
+
+    const { parentToLocalTransform } =
+      ParentTransform.getEntityData(parentEntity)
+
+    this.chainLocalTransform(
+      parentEntity,
+      matrix.multiply(parentToLocalTransform)
+    )
   }
 
   private getLocalTransformMatrix(entity: Entity): Mat4 {
-    try {
+    if (LocalTransform.hasEntity(entity)) {
       return LocalTransform.getEntityData(entity)
-    } catch {
-      const localTransform = new Mat4().identity()
-
-      entity.addComponent(LocalTransform, localTransform)
-
-      return localTransform
     }
+
+    const localTransform = new Mat4().identity()
+
+    entity.addComponent(LocalTransform, localTransform)
+
+    return localTransform
   }
 
   public calculateLocalTransforms() {
