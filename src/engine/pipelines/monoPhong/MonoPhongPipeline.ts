@@ -4,15 +4,23 @@ import { computeMaterialBuffer, Material } from '../../components/Material'
 import { Mesh } from '../../components/Mesh'
 import { MeshBuffer } from '../../components/MeshBuffer'
 import { RootTransform } from '../../components/RootTransform'
-import { PerspectiveCameraCollector } from '../../systems/CameraCollector'
-import { LightCollector } from '../../systems/LightCollector'
 import { Pipeline } from '../../systems/Pipeline'
 
 import shader from './shader.wgsl?raw'
+import { Light } from '../../components/Light'
+import { PerspectiveCamera } from '../../components/PerspectiveCamera'
+import { Position } from '../../components/Position'
+import { RootClipTransform } from '../../components/RootClipTransform'
+import { Collector } from '../../systems/Collector'
 
 export class MonoPhongPipeline extends Pipeline {
-  private lightCollector = new LightCollector()
-  private perspectiveCameraCollector = new PerspectiveCameraCollector()
+  private lightCollector = new Collector([Light, Position, RootTransform])
+  private perspectiveCameraCollector = new Collector([
+    PerspectiveCamera,
+    Position,
+    RootClipTransform,
+    RootTransform,
+  ])
 
   private pipelineBuffer: GPUBuffer
   private entityBuffer?: GPUBuffer
@@ -182,16 +190,18 @@ export class MonoPhongPipeline extends Pipeline {
     const lightPosRootBuffer = pipelineBuffer.subarray(20, 24)
 
     const camera = this.perspectiveCameraCollector.collect()[0]
-    const lights = this.lightCollector.collect()
+    const light = this.lightCollector.collect()[0]
 
-    rootClipTransformBuffer.set(camera.rootClipTransform.data)
+    rootClipTransformBuffer.set(RootClipTransform.getEntityData(camera).data)
 
     cameraPosRootBuffer.set(
-      new Vec4([0, 0, 0, 1]).applyMatrix(camera.rootTransform).data
+      new Vec4([0, 0, 0, 1]).applyMatrix(RootTransform.getEntityData(camera))
+        .data
     )
 
     lightPosRootBuffer.set(
-      new Vec4([0, 0, 0, 1]).applyMatrix(lights[0].rootTransform).data
+      new Vec4([0, 0, 0, 1]).applyMatrix(RootTransform.getEntityData(light))
+        .data
     )
 
     this.device.queue.writeBuffer(
