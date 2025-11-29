@@ -25,8 +25,8 @@ import { KeyboardMover } from '../../engine/systems/KeyboardMover'
 import { Renderer } from '../../engine/systems/Renderer'
 import { averageFps } from '../../util/fps'
 import { getDevice } from '../../util/window'
-import { Scene } from '../../engine/Scene'
 import { WorldInstance } from '../../ecs/World'
+import { Scene3D } from '../../engine/scene/Scene3D'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 const statsDiv = document.querySelector('#stats') as HTMLDivElement
@@ -48,7 +48,7 @@ const start = async () => {
   const _keyboardMover = new KeyboardMover()
 
   // Scene
-  const scene = new Scene()
+  const scene = new Scene3D()
 
   const player = WorldInstance.createEntity()
   player.addComponent(PerspectiveCamera)

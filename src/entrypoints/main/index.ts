@@ -16,7 +16,7 @@ import { TransformTarget } from '../../engine/components/TransformTarget'
 import { Velocity } from '../../engine/components/Velocity'
 import { MonoPhongPipeline } from '../../engine/pipelines/monoPhong/MonoPhongPipeline'
 import { MonoToonPipeline } from '../../engine/pipelines/monoToon/MonoToonPipeline'
-import { Scene } from '../../engine/Scene'
+import { Scene3D } from '../../engine/scene/Scene3D'
 import { CameraMover } from '../../engine/systems/CameraMover'
 import { CanvasResizer } from '../../engine/systems/CanvasResizer'
 import { ForceIntegrator } from '../../engine/systems/ForceIntegrator'
@@ -47,7 +47,7 @@ const start = async () => {
   const _keyboardMover = new KeyboardMover()
 
   // Scene
-  const scene = new Scene()
+  const scene = new Scene3D()
 
   const player = WorldInstance.createEntity()
   player.addComponent(PerspectiveCamera)
