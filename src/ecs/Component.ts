@@ -1,6 +1,8 @@
 import { TypedEventTarget } from '../types/TypedEventTarget'
 import { Entity } from './Entity'
 
+export type ComponentData<T> = T extends Component<infer G> ? G & {} : never
+
 export class ComponentAddEvent extends Event {
   static readonly type = 'componentadd'
 
