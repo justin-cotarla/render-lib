@@ -34,7 +34,7 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
   }
 
   addToEntity(entityId: number, value: T): void {
-    if (!this.entityData[entityId]) {
+    if (this.entityData[entityId] == null) {
       this.dispatchEvent(new ComponentAddEvent(this.name, entityId))
     }
 
@@ -42,7 +42,7 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
   }
 
   updateEntityData(entityId: number, value: T): void {
-    if (!this.entityData[entityId]) {
+    if (this.entityData[entityId] == null) {
       throw new Error(
         `Entity ${entityId} does not have a ${this.name} component`
       )
@@ -53,7 +53,7 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
   }
 
   removeFromEntity(entityId: number): void {
-    if (!this.entityData[entityId]) {
+    if (this.entityData[entityId] == null) {
       throw new Error(
         `Entity ${entityId} does not have a ${this.name} component`
       )
@@ -71,7 +71,7 @@ export class Component<T = never> extends (EventTarget as TypedEventTarget<{
 
     const entityData = this.entityData[entityId]
 
-    if (!entityData) {
+    if (entityData == null) {
       throw new Error(
         `Entity ${entityId} does not have a ${this.name} component`
       )
