@@ -8,7 +8,6 @@ import { Pipeline } from '../../systems/Pipeline'
 
 import shader from './shader.wgsl?raw'
 import { Light } from '../../components/Light'
-import { PerspectiveCamera } from '../../components/PerspectiveCamera'
 import { Position } from '../../components/Position'
 import { RootClipTransform } from '../../components/RootClipTransform'
 import { Collector } from '../../systems/Collector'
@@ -16,7 +15,6 @@ import { Collector } from '../../systems/Collector'
 export class MonoPhongPipeline extends Pipeline {
   private lightCollector = new Collector([Light, Position, RootTransform])
   private perspectiveCameraCollector = new Collector([
-    PerspectiveCamera,
     Position,
     RootClipTransform,
     RootTransform,
@@ -92,7 +90,8 @@ export class MonoPhongPipeline extends Pipeline {
       }),
       primitive: {
         topology: 'triangle-list',
-        cullMode: 'front',
+        cullMode: 'back',
+        frontFace: 'cw',
       },
       depthStencil: {
         depthWriteEnabled: true,

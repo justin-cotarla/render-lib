@@ -26,7 +26,7 @@ import { Renderer } from '../../engine/systems/Renderer'
 import { averageFps } from '../../util/fps'
 import { getDevice } from '../../util/window'
 import { WorldInstance } from '../../ecs/World'
-import { Scene3D } from '../../engine/scene/Scene3D'
+import { Scene } from '../../engine/Scene'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
 const statsDiv = document.querySelector('#stats') as HTMLDivElement
@@ -48,7 +48,7 @@ const start = async () => {
   const _keyboardMover = new KeyboardMover()
 
   // Scene
-  const scene = new Scene3D()
+  const scene = new Scene()
 
   const player = WorldInstance.createEntity()
   player.addComponent(PerspectiveCamera)
@@ -118,7 +118,7 @@ const start = async () => {
     statsDiv.textContent = `${fps.toString()} FPS`
 
     forceIntegrator.integrate(deltaMs)
-    scene.calculateTransforms()
+    scene.calculateSceneTransforms()
     renderer.render()
     requestAnimationFrame(cycle)
   }

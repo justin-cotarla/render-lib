@@ -9,14 +9,12 @@ import { Pipeline } from '../../systems/Pipeline'
 import shader from './shader.wgsl?raw'
 import { Collector } from '../../systems/Collector'
 import { RootClipTransform } from '../../components/RootClipTransform'
-import { PerspectiveCamera } from '../../components/PerspectiveCamera'
 import { Position } from '../../components/Position'
 import { Light } from '../../components/Light'
 
 export class MonoToonPipeline extends Pipeline {
   private lightCollector = new Collector([Light, Position, RootTransform])
   private perspectiveCameraCollector = new Collector([
-    PerspectiveCamera,
     Position,
     RootClipTransform,
     RootTransform,

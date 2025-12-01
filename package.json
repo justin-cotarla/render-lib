@@ -6,6 +6,7 @@
     "prepare": "npx husky install",
     "start": "npx vite ./src/entrypoints/main --host",
     "start:benchmark": "npx vite ./src/entrypoints/benchmark --host",
+    "start:ortho": "npx vite ./src/entrypoints/ortho --host",
     "test": "jest",
     "preinstall": "husky install"
   },

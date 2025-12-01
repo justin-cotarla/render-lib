@@ -1,8 +1,13 @@
+import { ComponentData } from '../../ecs/Component'
 import { Entity } from '../../ecs/Entity'
 import { System } from '../../ecs/System'
 import { Mat4 } from '../../math/Mat4'
-import { perspectiveCameraToClipMatrix } from '../../util/matrixTransformations'
+import {
+  orthographicCameraToClipMatrix,
+  perspectiveCameraToClipMatrix,
+} from '../../util/matrixTransformations'
 import { LocalTransform } from '../components/LocalTransform'
+import { OrthographicCamera } from '../components/OrthographicCamera'
 import { PerspectiveCamera } from '../components/PerspectiveCamera'
 import { RootClipTransform } from '../components/RootClipTransform'
 
@@ -13,10 +18,17 @@ import { RootClipTransform } from '../components/RootClipTransform'
  * The matrices are set in a RootClipTransform component.
  */
 export class RootClipTransformCalculator extends System {
-  constructor() {
+  private cameraComponent: typeof PerspectiveCamera | typeof OrthographicCamera
+
+  constructor(
+    readonly projectionType: 'perspective' | 'orthographic' = 'perspective'
+  ) {
     super()
 
-    this.registerComponent(PerspectiveCamera)
+    this.cameraComponent =
+      projectionType === 'perspective' ? PerspectiveCamera : OrthographicCamera
+
+    this.registerComponent(this.cameraComponent)
     this.registerComponent(LocalTransform)
   }
 
@@ -37,12 +49,21 @@ export class RootClipTransformCalculator extends System {
       const rootClipTransform = this.getRootClipTransform(entity)
 
       const localTransform = LocalTransform.getEntityData(entity)
-      const perspectiveCamera = PerspectiveCamera.getEntityData(entity)
+      const camera = this.cameraComponent.getEntityData(entity)
 
-      rootClipTransform
-        .set(localTransform.data)
-        .multiply(perspectiveCameraToClipMatrix(perspectiveCamera))
-        .transpose()
+      rootClipTransform.set(localTransform.data)
+
+      rootClipTransform.multiply(
+        this.projectionType === 'perspective'
+          ? perspectiveCameraToClipMatrix(
+              camera as ComponentData<typeof PerspectiveCamera>
+            )
+          : orthographicCameraToClipMatrix(
+              camera as ComponentData<typeof OrthographicCamera>
+            )
+      )
+
+      rootClipTransform.transpose()
     }
   }
 }

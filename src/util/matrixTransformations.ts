@@ -1,4 +1,6 @@
+import { ComponentData } from '../ecs/Component'
 import { Orientation } from '../engine/components/Orientation'
+import { OrthographicCamera } from '../engine/components/OrthographicCamera'
 import { PerspectiveCamera } from '../engine/components/PerspectiveCamera'
 import { Mat4 } from '../math/Mat4'
 
@@ -72,6 +74,35 @@ export const reverseEulerOrientationToMatrix = (
     0,
     0,
     0,
+    1,
+  ])
+}
+
+export const orthographicCameraToClipMatrix = ({
+  aspectRatio,
+  farPlane,
+  nearPlane,
+  width,
+}: ComponentData<typeof OrthographicCamera>): Mat4 => {
+  const zoomX = 2 / width
+  const zoomY = zoomX / aspectRatio
+
+  return new Mat4([
+    zoomX,
+    0,
+    0,
+    0,
+    0,
+    zoomY,
+    0,
+    0,
+    0,
+    0,
+    1 / (farPlane - nearPlane),
+    0,
+    0,
+    0,
+    nearPlane / (nearPlane - farPlane),
     1,
   ])
 }
