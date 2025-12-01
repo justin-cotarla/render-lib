@@ -1,13 +1,21 @@
-import sphereModel from '../../../models/sphere.obj?raw'
+import flatCubeModel from '../models/flat_cube.obj?raw'
+import sphereModel from '../models/sphere.obj?raw'
 import { WorldInstance } from '../../ecs/World'
+import { Force } from '../../engine/components/Force'
+import { KeyboardControl } from '../../engine/components/KeyboardControl'
 import { Light } from '../../engine/components/Light'
+import { LinearImpulse } from '../../engine/components/LinearImpulse'
+import { Mass } from '../../engine/components/Mass'
 import { Material } from '../../engine/components/Material'
 import { Mesh } from '../../engine/components/Mesh'
+import { MouseControl } from '../../engine/components/MouseControl'
 import { Orientation } from '../../engine/components/Orientation'
-import { OrthographicCamera } from '../../engine/components/OrthographicCamera'
+import { PerspectiveCamera } from '../../engine/components/PerspectiveCamera'
 import { Position } from '../../engine/components/Position'
 import { TransformTarget } from '../../engine/components/TransformTarget'
+import { Velocity } from '../../engine/components/Velocity'
 import { MonoPhongPipeline } from '../../engine/pipelines/monoPhong/MonoPhongPipeline'
+import { MonoToonPipeline } from '../../engine/pipelines/monoToon/MonoToonPipeline'
 import { Scene } from '../../engine/Scene'
 import { CameraMover } from '../../engine/systems/CameraMover'
 import { CanvasResizer } from '../../engine/systems/CanvasResizer'
@@ -27,6 +35,7 @@ const start = async () => {
   const renderer = Renderer.create(device, canvas)
 
   const monoPhongPipeline = new MonoPhongPipeline(device)
+  const monoToonPipeline = new MonoToonPipeline(device)
 
   const forceIntegrator = new ForceIntegrator()
 
@@ -38,21 +47,27 @@ const start = async () => {
   const _keyboardMover = new KeyboardMover()
 
   // Scene
-  const scene = new Scene('orthographic')
+  const scene = new Scene()
 
-  const camera = WorldInstance.createEntity()
-  camera.addComponent(OrthographicCamera)
-  camera.addComponent(Position, new Vec3([0, 0, -10]))
-  camera.addComponent(Orientation)
-  camera.addComponent(TransformTarget)
+  const player = WorldInstance.createEntity()
+  player.addComponent(PerspectiveCamera)
+  player.addComponent(Position, new Vec3([0, 3, -20]))
+  player.addComponent(Orientation)
+  player.addComponent(TransformTarget)
+  player.addComponent(MouseControl)
+  player.addComponent(Mass, 1)
+  player.addComponent(Force)
+  player.addComponent(LinearImpulse)
+  player.addComponent(Velocity)
+  player.addComponent(KeyboardControl)
 
   const lightEntity = WorldInstance.createEntity()
-  lightEntity.addComponent(Position, new Vec3([1, 10, -10]))
+  lightEntity.addComponent(Position, new Vec3([0, 10, 0]))
   lightEntity.addComponent(Orientation)
   lightEntity.addComponent(Light)
 
   const phongSphere = WorldInstance.createEntity()
-  phongSphere.addComponent(Position, new Vec3([0, 0, 0]))
+  phongSphere.addComponent(Position, new Vec3([5, 1, 0]))
   phongSphere.addComponent(Orientation)
   phongSphere.addComponent(Material, {
     diffuse: new Vec4([1, 0, 1, 1]),
@@ -63,7 +78,31 @@ const start = async () => {
   phongSphere.addComponent(Mesh, loadObj(sphereModel))
   phongSphere.addComponent(monoPhongPipeline.component)
 
-  scene.addNodes([camera, lightEntity, phongSphere])
+  const toonSphere = WorldInstance.createEntity()
+  toonSphere.addComponent(Position, new Vec3([0, 1, 0]))
+  toonSphere.addComponent(Orientation)
+  toonSphere.addComponent(Material, {
+    diffuse: new Vec4([1, 1, 0, 1]),
+    specular: new Vec4([1, 1, 1, 1]),
+    ambient: new Vec4([1, 1, 0, 1]),
+    gloss: 10,
+  })
+  toonSphere.addComponent(Mesh, loadObj(sphereModel))
+  toonSphere.addComponent(monoToonPipeline.component)
+
+  const phongCube = WorldInstance.createEntity()
+  phongCube.addComponent(Position, new Vec3([-6, 0, 5]))
+  phongCube.addComponent(Orientation)
+  phongCube.addComponent(Material, {
+    diffuse: new Vec4([1, 0, 0, 1]),
+    specular: new Vec4([1, 1, 1, 1]),
+    ambient: new Vec4([1, 0, 0, 1]),
+    gloss: 10,
+  })
+  phongCube.addComponent(Mesh, loadObj(flatCubeModel))
+  phongCube.addComponent(monoPhongPipeline.component)
+
+  scene.addNodes([player, lightEntity, phongSphere, [toonSphere, [phongCube]]])
 
   renderer.loadStaticMeshBuffers()
 

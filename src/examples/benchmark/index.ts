@@ -2,7 +2,7 @@ import { loadObj } from '../../loaders/objLoader'
 import { Vec3 } from '../../math/Vec3'
 import { Vec4 } from '../../math/Vec4'
 
-import sphereModel from '../../../models/sphere.obj?raw'
+import sphereModel from '../models/sphere.obj?raw'
 import { Force } from '../../engine/components/Force'
 import { KeyboardControl } from '../../engine/components/KeyboardControl'
 import { Light } from '../../engine/components/Light'

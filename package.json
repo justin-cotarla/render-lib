@@ -4,10 +4,10 @@
   "main": "index.js",
   "scripts": {
     "prepare": "npx husky install",
-    "start": "npx vite ./src/entrypoints/main --host",
-    "start:benchmark": "npx vite ./src/entrypoints/benchmark --host",
-    "start:2D": "npx vite ./src/entrypoints/2d --host",
-    "start:ortho": "npx vite ./src/entrypoints/ortho --host",
+    "start": "npx vite ./src/examples/main --host",
+    "start:benchmark": "npx vite ./src/examples/benchmark --host",
+    "start:2D": "npx vite ./src/examples/2d --host",
+    "start:ortho": "npx vite ./src/examples/ortho --host",
     "test": "jest",
     "preinstall": "husky install"
   },
