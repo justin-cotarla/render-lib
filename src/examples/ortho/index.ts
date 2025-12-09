@@ -1,5 +1,5 @@
 import sphereModel from '../models/sphere.obj?raw'
-import { WorldInstance } from '../../ecs/World'
+import { WorldInstance } from '../../engine/World'
 import { Light } from '../../engine/components/Light'
 import { Material } from '../../engine/components/Material'
 import { Mesh } from '../../engine/components/Mesh'
@@ -41,19 +41,39 @@ const start = async () => {
   const scene = new Scene('orthographic')
 
   const camera = WorldInstance.createEntity()
-  camera.addComponent(OrthographicCamera)
+  camera.addComponent(OrthographicCamera, {
+    nearPlane: 0,
+    farPlane: 10,
+    width: 10,
+    aspectRatio: 1,
+  })
   camera.addComponent(Position, new Vec3([0, 0, -10]))
-  camera.addComponent(Orientation)
+  camera.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
   camera.addComponent(TransformTarget)
 
   const lightEntity = WorldInstance.createEntity()
   lightEntity.addComponent(Position, new Vec3([1, 10, -10]))
-  lightEntity.addComponent(Orientation)
-  lightEntity.addComponent(Light)
+  lightEntity.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
+  lightEntity.addComponent(Light, {
+    diffuse: new Vec4([1, 0, 0, 1]),
+    specular: new Vec4([1, 1, 1, 1]),
+  })
 
   const phongSphere = WorldInstance.createEntity()
   phongSphere.addComponent(Position, new Vec3([0, 0, 0]))
-  phongSphere.addComponent(Orientation)
+  phongSphere.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
   phongSphere.addComponent(Material, {
     diffuse: new Vec4([1, 0, 1, 1]),
     specular: new Vec4([1, 1, 1, 1]),

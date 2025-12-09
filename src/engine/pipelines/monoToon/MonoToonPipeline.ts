@@ -1,4 +1,3 @@
-import { Entity } from '../../../ecs/Entity'
 import { Vec4 } from '../../../math/Vec4'
 import { computeMaterialBuffer, Material } from '../../components/Material'
 import { Mesh } from '../../components/Mesh'
@@ -11,6 +10,7 @@ import { Collector } from '../../systems/Collector'
 import { RootClipTransform } from '../../components/RootClipTransform'
 import { Position } from '../../components/Position'
 import { Light } from '../../components/Light'
+import { Entity } from 'reactive-ecs'
 
 export class MonoToonPipeline extends Pipeline {
   private lightCollector = new Collector([Light, Position, RootTransform])
@@ -99,17 +99,13 @@ export class MonoToonPipeline extends Pipeline {
       },
     })
 
-    super(renderPipeline, name)
+    super(renderPipeline, name, [Material, Mesh, MeshBuffer])
 
     this.OFFSET_ENTITY_BUFFER_SIZE_BYTES =
       Math.ceil(
         this.ENTITY_BUFFER_SIZE_BYTES /
           device.limits.minUniformBufferOffsetAlignment
       ) * device.limits.minUniformBufferOffsetAlignment
-
-    this.registerComponent(Material)
-    this.registerComponent(Mesh)
-    this.registerComponent(MeshBuffer)
 
     this.pipelineBuffer = this.createPipelineBuffer()
   }

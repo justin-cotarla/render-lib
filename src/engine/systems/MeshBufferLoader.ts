@@ -1,11 +1,10 @@
-import { System } from '../../ecs/System'
+import { System } from 'reactive-ecs'
 import { Mesh } from '../components/Mesh'
 import { MeshBuffer } from '../components/MeshBuffer'
 
 export class MeshBufferLoader extends System {
   constructor(readonly device: GPUDevice) {
-    super()
-    this.registerComponent(Mesh)
+    super([Mesh])
   }
 
   private computeVertexData = (mesh: Mesh): Float32Array => {

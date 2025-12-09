@@ -1,6 +1,6 @@
-import { System } from '../../ecs/System'
 import { PerspectiveCamera } from '../components/PerspectiveCamera'
 import { MouseControl } from '../components/MouseControl'
+import { System } from 'reactive-ecs'
 
 export class CanvasResizer extends System {
   private resizeObserver: ResizeObserver
@@ -41,10 +41,7 @@ export class CanvasResizer extends System {
     private readonly canvas: HTMLCanvasElement,
     readonly maxTextureDimension2D: GPUSupportedLimits['maxTextureDimension2D']
   ) {
-    super()
-
-    this.registerComponent(MouseControl)
-    this.registerComponent(PerspectiveCamera)
+    super([MouseControl, PerspectiveCamera])
 
     this.resizeObserver = this.setupResizeObserver()
     this.resizeObserver.observe(this.canvas)

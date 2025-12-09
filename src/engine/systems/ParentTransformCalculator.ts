@@ -1,5 +1,4 @@
-import { Entity } from '../../ecs/Entity'
-import { System } from '../../ecs/System'
+import { Entity, System } from 'reactive-ecs'
 import { Mat4 } from '../../math/Mat4'
 import { Vec3 } from '../../math/Vec3'
 import {
@@ -20,11 +19,7 @@ import { Position } from '../components/Position'
  */
 export class ParentTranformCalculator extends System {
   constructor() {
-    super()
-
-    this.registerComponent(ParentEntity)
-    this.registerComponent(Position)
-    this.registerComponent(Orientation)
+    super([ParentEntity, Position, Orientation])
   }
 
   private getLocalToParentTranslation = (position: Vec3): Mat4 => {

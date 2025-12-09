@@ -1,4 +1,4 @@
-import { Entity } from '../../../ecs/Entity'
+import { Entity } from 'reactive-ecs'
 import { FlatColor } from '../../components/FlatColor'
 import { MeshBuffer } from '../../components/MeshBuffer'
 import { Position } from '../../components/Position'
@@ -85,16 +85,13 @@ export class FlatPipeline extends Pipeline {
       },
     })
 
-    super(renderPipeline, name)
+    super(renderPipeline, name, [FlatColor, MeshBuffer])
 
     this.OFFSET_ENTITY_BUFFER_SIZE_BYTES =
       Math.ceil(
         this.ENTITY_BUFFER_SIZE_BYTES /
           device.limits.minUniformBufferOffsetAlignment
       ) * device.limits.minUniformBufferOffsetAlignment
-
-    this.registerComponent(FlatColor)
-    this.registerComponent(MeshBuffer)
 
     this.globalBuffer = this.createGlobalBuffer()
   }

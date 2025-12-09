@@ -1,4 +1,4 @@
-import { Component } from '../../ecs/Component'
+import { Component } from 'reactive-ecs'
 
 export type GlobalBuffer = {
   gpuBuffer: GPUBuffer

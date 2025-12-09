@@ -1,6 +1,4 @@
-import { ComponentData } from '../../ecs/Component'
-import { Entity } from '../../ecs/Entity'
-import { System } from '../../ecs/System'
+import { ComponentData, Entity, System } from 'reactive-ecs'
 import { Mat4 } from '../../math/Mat4'
 import {
   orthographicCameraToClipMatrix,
@@ -23,13 +21,12 @@ export class RootClipTransformCalculator extends System {
   constructor(
     readonly projectionType: 'perspective' | 'orthographic' = 'perspective'
   ) {
-    super()
-
-    this.cameraComponent =
+    const cameraComponent =
       projectionType === 'perspective' ? PerspectiveCamera : OrthographicCamera
 
-    this.registerComponent(this.cameraComponent)
-    this.registerComponent(LocalTransform)
+    super([cameraComponent, LocalTransform])
+
+    this.cameraComponent = cameraComponent
   }
 
   private getRootClipTransform(entity: Entity): Mat4 {

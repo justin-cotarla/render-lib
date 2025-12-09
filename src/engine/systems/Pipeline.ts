@@ -1,8 +1,6 @@
-import { System } from '../../ecs/System'
-import { Entity } from '../../ecs/Entity'
 import { ActivePipeline } from '../components/ActivePipeline'
-import { WorldInstance } from '../../ecs/World'
-import { Component } from '../../ecs/Component'
+import { WorldInstance } from '../World'
+import { Component, Entity, System } from 'reactive-ecs'
 import { RootTransform } from '../components/RootTransform'
 
 export abstract class Pipeline extends System {
@@ -19,15 +17,14 @@ export abstract class Pipeline extends System {
 
   constructor(
     readonly renderPipeline: GPURenderPipeline,
-    readonly name: string
+    readonly name: string,
+    components: Component<unknown>[]
   ) {
-    super()
-
-    this.registerComponent(RootTransform)
-
-    this._component = new Component(`PIPELINE_TAG_${name.toLocaleUpperCase()}`)
-
-    this.registerComponent(this._component)
+    const PipelineTag = new Component(
+      `PIPELINE_TAG_${name.toLocaleUpperCase()}`
+    )
+    super([...components, RootTransform, PipelineTag])
+    this._component = PipelineTag
 
     this.pipelineEntity = WorldInstance.createEntity()
     this.activate()

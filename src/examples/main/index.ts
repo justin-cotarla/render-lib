@@ -1,6 +1,6 @@
 import flatCubeModel from '../models/flat_cube.obj?raw'
 import sphereModel from '../models/sphere.obj?raw'
-import { WorldInstance } from '../../ecs/World'
+import { WorldInstance } from '../../engine/World'
 import { Force } from '../../engine/components/Force'
 import { KeyboardControl } from '../../engine/components/KeyboardControl'
 import { Light } from '../../engine/components/Light'
@@ -50,25 +50,45 @@ const start = async () => {
   const scene = new Scene()
 
   const player = WorldInstance.createEntity()
-  player.addComponent(PerspectiveCamera)
+  player.addComponent(PerspectiveCamera, {
+    nearPlane: 1,
+    farPlane: 100,
+    fov: 60,
+    aspectRatio: 1,
+  })
   player.addComponent(Position, new Vec3([0, 3, -20]))
-  player.addComponent(Orientation)
+  player.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
   player.addComponent(TransformTarget)
   player.addComponent(MouseControl)
   player.addComponent(Mass, 1)
-  player.addComponent(Force)
-  player.addComponent(LinearImpulse)
-  player.addComponent(Velocity)
+  player.addComponent(Force, new Vec3())
+  player.addComponent(LinearImpulse, new Vec3())
+  player.addComponent(Velocity, new Vec3())
   player.addComponent(KeyboardControl)
 
   const lightEntity = WorldInstance.createEntity()
   lightEntity.addComponent(Position, new Vec3([0, 10, 0]))
-  lightEntity.addComponent(Orientation)
-  lightEntity.addComponent(Light)
+  lightEntity.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
+  lightEntity.addComponent(Light, {
+    diffuse: new Vec4([1, 0, 0, 1]),
+    specular: new Vec4([1, 1, 1, 1]),
+  })
 
   const phongSphere = WorldInstance.createEntity()
   phongSphere.addComponent(Position, new Vec3([5, 1, 0]))
-  phongSphere.addComponent(Orientation)
+  phongSphere.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
   phongSphere.addComponent(Material, {
     diffuse: new Vec4([1, 0, 1, 1]),
     specular: new Vec4([1, 1, 1, 1]),
@@ -80,7 +100,11 @@ const start = async () => {
 
   const toonSphere = WorldInstance.createEntity()
   toonSphere.addComponent(Position, new Vec3([0, 1, 0]))
-  toonSphere.addComponent(Orientation)
+  toonSphere.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
   toonSphere.addComponent(Material, {
     diffuse: new Vec4([1, 1, 0, 1]),
     specular: new Vec4([1, 1, 1, 1]),
@@ -92,7 +116,11 @@ const start = async () => {
 
   const phongCube = WorldInstance.createEntity()
   phongCube.addComponent(Position, new Vec3([-6, 0, 5]))
-  phongCube.addComponent(Orientation)
+  phongCube.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
   phongCube.addComponent(Material, {
     diffuse: new Vec4([1, 0, 0, 1]),
     specular: new Vec4([1, 1, 1, 1]),

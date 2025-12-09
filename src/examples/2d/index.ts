@@ -1,4 +1,4 @@
-import { WorldInstance } from '../../ecs/World'
+import { WorldInstance } from '../../engine/World'
 import { Force } from '../../engine/components/Force'
 import { KeyboardControl } from '../../engine/components/KeyboardControl'
 import { LinearImpulse } from '../../engine/components/LinearImpulse'
@@ -46,7 +46,11 @@ const start = async () => {
     width: 10,
   })
   camera.addComponent(Position, new Vec3([0, 0, 0]))
-  camera.addComponent(Orientation)
+  camera.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
   camera.addComponent(TransformTarget)
 
   const red: FlatRectangle = {
@@ -93,11 +97,11 @@ const start = async () => {
   greenEntity.addComponent(flatPipeline.component)
   blueEntity.addComponent(flatPipeline.component)
 
-  redEntity.addComponent(LinearImpulse)
+  redEntity.addComponent(LinearImpulse, new Vec3())
   redEntity.addComponent(KeyboardControl)
-  redEntity.addComponent(Mass)
-  redEntity.addComponent(Force)
-  redEntity.addComponent(Velocity)
+  redEntity.addComponent(Mass, 1)
+  redEntity.addComponent(Force, new Vec3())
+  redEntity.addComponent(Velocity, new Vec3())
 
   scene.addNodes([camera, [redEntity, [greenEntity]], blueEntity])
 

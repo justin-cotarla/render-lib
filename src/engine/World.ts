@@ -1,4 +1,4 @@
-import { Entity } from './Entity'
+import { Entity } from 'reactive-ecs'
 
 class World {
   entityList: Entity[] = []

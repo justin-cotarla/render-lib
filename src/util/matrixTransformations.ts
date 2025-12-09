@@ -1,4 +1,4 @@
-import { ComponentData } from '../ecs/Component'
+import { ComponentData } from 'reactive-ecs'
 import { Orientation } from '../engine/components/Orientation'
 import { OrthographicCamera } from '../engine/components/OrthographicCamera'
 import { PerspectiveCamera } from '../engine/components/PerspectiveCamera'

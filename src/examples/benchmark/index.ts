@@ -25,7 +25,7 @@ import { KeyboardMover } from '../../engine/systems/KeyboardMover'
 import { Renderer } from '../../engine/systems/Renderer'
 import { averageFps } from '../../util/fps'
 import { getDevice } from '../../util/window'
-import { WorldInstance } from '../../ecs/World'
+import { WorldInstance } from '../../engine/World'
 import { Scene } from '../../engine/Scene'
 
 const canvas = document.querySelector('#canvas') as HTMLCanvasElement
@@ -51,21 +51,37 @@ const start = async () => {
   const scene = new Scene()
 
   const player = WorldInstance.createEntity()
-  player.addComponent(PerspectiveCamera)
+  player.addComponent(PerspectiveCamera, {
+    nearPlane: 1,
+    farPlane: 100,
+    fov: 60,
+    aspectRatio: 1,
+  })
   player.addComponent(Position, new Vec3([0, 0, -30]))
-  player.addComponent(Orientation)
+  player.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
   player.addComponent(TransformTarget)
   player.addComponent(MouseControl)
   player.addComponent(Mass, 1)
-  player.addComponent(Force)
-  player.addComponent(LinearImpulse)
-  player.addComponent(Velocity)
+  player.addComponent(Force, new Vec3())
+  player.addComponent(LinearImpulse, new Vec3())
+  player.addComponent(Velocity, new Vec3())
   player.addComponent(KeyboardControl)
 
   const lightEntity = WorldInstance.createEntity()
   lightEntity.addComponent(Position, new Vec3([0, 10, 0]))
-  lightEntity.addComponent(Orientation)
-  lightEntity.addComponent(Light)
+  lightEntity.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
+  lightEntity.addComponent(Light, {
+    diffuse: new Vec4([1, 0, 0, 1]),
+    specular: new Vec4([1, 1, 1, 1]),
+  })
 
   const meshCount = import.meta.env.VITE_BENCHMARK_COUNT
     ? parseInt(import.meta.env.VITE_BENCHMARK_COUNT, 10)
@@ -86,7 +102,11 @@ const start = async () => {
         Math.random() * 20,
       ])
     )
-    entity.addComponent(Orientation)
+    entity.addComponent(Orientation, {
+      bank: 0,
+      heading: 0,
+      pitch: 0,
+    })
     entity.addComponent(Material, {
       diffuse: rgb,
       specular: new Vec4([1, 1, 1, 1]),

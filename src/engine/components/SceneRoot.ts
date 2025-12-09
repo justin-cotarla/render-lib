@@ -1,3 +1,3 @@
-import { Component } from '../../ecs/Component'
+import { Component } from 'reactive-ecs'
 
-export const SceneRoot = new Component<never>('SCENE_ROOT')
+export const SceneRoot = new Component('SCENE_ROOT')

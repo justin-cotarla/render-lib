@@ -1,5 +1,5 @@
-import { Entity } from '../ecs/Entity'
-import { WorldInstance } from '../ecs/World'
+import { Entity } from 'reactive-ecs'
+import { WorldInstance } from '../engine/World'
 import { FlatColor } from '../engine/components/FlatColor'
 import { MeshBuffer } from '../engine/components/MeshBuffer'
 import { Orientation } from '../engine/components/Orientation'
@@ -37,7 +37,11 @@ export const loadFlatRectangle = (
   vertexBuffer.unmap()
 
   entity.addComponent(Position, new Vec3([x, y, 0]))
-  entity.addComponent(Orientation)
+  entity.addComponent(Orientation, {
+    bank: 0,
+    heading: 0,
+    pitch: 0,
+  })
   entity.addComponent(
     FlatColor,
     new Vec4([color.r / 255, color.g / 255, color.b / 255, 1])

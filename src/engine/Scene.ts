@@ -1,5 +1,5 @@
-import { Entity } from '../ecs/Entity'
-import { WorldInstance } from '../ecs/World'
+import { Entity } from 'reactive-ecs'
+import { WorldInstance } from './World'
 import { ChildrenEntities } from './components/ChildrenEntities'
 import { ParentEntity } from './components/ParentEntity'
 import { SceneRoot } from './components/SceneRoot'

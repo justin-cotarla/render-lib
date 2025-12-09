@@ -1,5 +1,4 @@
-import { Entity } from '../../ecs/Entity'
-import { System } from '../../ecs/System'
+import { Entity, System } from 'reactive-ecs'
 import { Mat4 } from '../../math/Mat4'
 import { LocalTransform } from '../components/LocalTransform'
 import { ParentEntity } from '../components/ParentEntity'
@@ -14,11 +13,7 @@ import { TransformTarget } from '../components/TransformTarget'
  */
 export class LocalTranformCalculator extends System {
   constructor() {
-    super()
-
-    this.registerComponent(TransformTarget)
-    this.registerComponent(ParentEntity)
-    this.registerComponent(ParentTransform)
+    super([TransformTarget, ParentEntity, ParentTransform])
   }
 
   private chainLocalTransform(entity: Entity, matrix: Mat4): void {

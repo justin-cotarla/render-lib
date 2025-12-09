@@ -1,6 +1,6 @@
 import { MeshBufferLoader } from './MeshBufferLoader'
-import { System } from '../../ecs/System'
 import { ActivePipeline } from '../components/ActivePipeline'
+import { System } from 'reactive-ecs'
 
 export class Renderer extends System {
   private meshBufferLoader: MeshBufferLoader
@@ -9,9 +9,7 @@ export class Renderer extends System {
     private readonly device: GPUDevice,
     private readonly context: GPUCanvasContext
   ) {
-    super()
-
-    this.registerComponent(ActivePipeline)
+    super([ActivePipeline])
 
     this.meshBufferLoader = new MeshBufferLoader(this.device)
   }

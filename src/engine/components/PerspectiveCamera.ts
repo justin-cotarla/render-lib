@@ -1,4 +1,4 @@
-import { DefaultComponent } from '../../ecs/DefaultComponent'
+import { Component } from 'reactive-ecs'
 
 export interface PerspectiveCamera {
   nearPlane: number
@@ -7,12 +7,6 @@ export interface PerspectiveCamera {
   aspectRatio: number
 }
 
-export const PerspectiveCamera = new DefaultComponent<PerspectiveCamera>(
-  'PERSPECTIVE_CAMERA',
-  {
-    nearPlane: 1,
-    farPlane: 100,
-    fov: 60,
-    aspectRatio: 1,
-  }
+export const PerspectiveCamera = new Component<PerspectiveCamera>(
+  'PERSPECTIVE_CAMERA'
 )

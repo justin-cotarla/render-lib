@@ -1,4 +1,4 @@
-import { System } from '../../ecs/System'
+import { System } from 'reactive-ecs'
 import { Mat3 } from '../../math/Mat3'
 import { eulerOrientationToMatrix } from '../../util/matrixTransformations'
 import { Force } from '../components/Force'
@@ -10,14 +10,7 @@ import { Velocity } from '../components/Velocity'
 
 export class ForceIntegrator extends System {
   constructor() {
-    super()
-
-    this.registerComponent(Force)
-    this.registerComponent(LinearImpulse)
-    this.registerComponent(Mass)
-    this.registerComponent(Velocity)
-    this.registerComponent(Position)
-    this.registerComponent(Orientation)
+    super([Force, LinearImpulse, Mass, Velocity, Position, Orientation])
   }
 
   public integrate(dt: number): void {

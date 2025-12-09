@@ -1,4 +1,4 @@
-import { DefaultComponent } from '../../ecs/DefaultComponent'
+import { Component } from 'reactive-ecs'
 
 export interface Orientation {
   bank: number
@@ -11,8 +11,4 @@ export interface Orientation {
  * Heading: Rotation about Y axis
  * Pitch: Rotation about X axis
  */
-export const Orientation = new DefaultComponent<Orientation>('ORIENTATION', {
-  bank: 0,
-  heading: 0,
-  pitch: 0,
-})
+export const Orientation = new Component<Orientation>('ORIENTATION')

@@ -1,3 +1,3 @@
-import { Component } from '../../ecs/Component'
+import { Component } from 'reactive-ecs'
 
-export const KeyboardControl = new Component<never>('KEYBOARD_CONTROL')
+export const KeyboardControl = new Component('KEYBOARD_CONTROL')

@@ -1,4 +1,4 @@
-import { Component } from '../../ecs/Component'
+import { Component } from 'reactive-ecs'
 import { Vec3 } from '../../math/Vec3'
 
 export interface Triangle {

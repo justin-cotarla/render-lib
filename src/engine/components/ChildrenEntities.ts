@@ -1,7 +1,3 @@
-import { DefaultComponent } from '../../ecs/DefaultComponent'
-import { Entity } from '../../ecs/Entity'
+import { Component, Entity } from 'reactive-ecs'
 
-export const ChildrenEntities = new DefaultComponent<Entity[]>(
-  'CHILDREN_ENTITIES',
-  []
-)
+export const ChildrenEntities = new Component<Entity[]>('CHILDREN_ENTITIES')

@@ -1,4 +1,4 @@
-import { DefaultComponent } from '../../ecs/DefaultComponent'
+import { Component } from 'reactive-ecs'
 import { Vec3 } from '../../math/Vec3'
 
-export const Force = new DefaultComponent<Vec3>('FORCE', new Vec3())
+export const Force = new Component<Vec3>('FORCE')

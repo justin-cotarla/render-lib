@@ -1,4 +1,4 @@
-import { System } from '../../ecs/System'
+import { System } from 'reactive-ecs'
 import { DirectionKey, KeyboardObserver } from '../../input/KeyboardObserver'
 import { Vec3 } from '../../math/Vec3'
 import { KeyboardControl } from '../components/KeyboardControl'
@@ -6,10 +6,7 @@ import { LinearImpulse } from '../components/LinearImpulse'
 
 export class KeyboardMover extends System {
   constructor() {
-    super()
-
-    this.registerComponent(KeyboardControl)
-    this.registerComponent(LinearImpulse)
+    super([KeyboardControl, LinearImpulse])
 
     this.setupKeyboardObserver()
   }

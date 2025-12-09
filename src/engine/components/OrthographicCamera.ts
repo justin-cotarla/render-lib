@@ -1,13 +1,8 @@
-import { DefaultComponent } from '../../ecs/DefaultComponent'
+import { Component } from 'reactive-ecs'
 
-export const OrthographicCamera = new DefaultComponent<{
+export const OrthographicCamera = new Component<{
   nearPlane: number
   farPlane: number
   width: number
   aspectRatio: number
-}>('ORTHOGRAPHIC_CAMERA', {
-  nearPlane: 0,
-  farPlane: 10,
-  width: 10,
-  aspectRatio: 1,
-})
+}>('ORTHOGRAPHIC_CAMERA')

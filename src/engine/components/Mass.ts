@@ -1,3 +1,3 @@
-import { DefaultComponent } from '../../ecs/DefaultComponent'
+import { Component } from 'reactive-ecs'
 
-export const Mass = new DefaultComponent<number>('MASS', 1)
+export const Mass = new Component<number>('MASS')

@@ -1,14 +1,8 @@
-import { Component } from '../../ecs/Component'
-import { Entity } from '../../ecs/Entity'
-import { System } from '../../ecs/System'
+import { Component, Entity, System } from 'reactive-ecs'
 
 export class Collector extends System {
   constructor(components: Component<unknown>[]) {
-    super()
-
-    components.forEach((component) => {
-      this.registerComponent(component)
-    })
+    super(components)
   }
 
   collect(): Entity[] {

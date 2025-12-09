@@ -1,7 +1,4 @@
-import { DefaultComponent } from '../../ecs/DefaultComponent'
+import { Component } from 'reactive-ecs'
 import { Mat4 } from '../../math/Mat4'
 
-export const LocalTransform = new DefaultComponent<Mat4>(
-  'LOCAL_TRANSFORM',
-  new Mat4().identity()
-)
+export const LocalTransform = new Component<Mat4>('LOCAL_TRANSFORM')

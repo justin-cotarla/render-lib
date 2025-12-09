@@ -1,3 +1,3 @@
-import { Component } from '../../ecs/Component'
+import { Component } from 'reactive-ecs'
 
 export const BindGroup = new Component<GPUBindGroup>('BIND_GROUP')

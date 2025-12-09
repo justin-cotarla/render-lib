@@ -1,5 +1,4 @@
-import { Entity } from '../../ecs/Entity'
-import { System } from '../../ecs/System'
+import { Entity, System } from 'reactive-ecs'
 import { Mat4 } from '../../math/Mat4'
 import { ChildrenEntities } from '../components/ChildrenEntities'
 import { ParentTransform } from '../components/ParentTransform'
@@ -14,10 +13,7 @@ import { SceneRoot } from '../components/SceneRoot'
  */
 export class RootTranformCalculator extends System {
   constructor() {
-    super()
-
-    this.registerComponent(SceneRoot)
-    this.registerComponent(ChildrenEntities)
+    super([SceneRoot, ChildrenEntities])
   }
 
   private setChildrenTransforms(entity: Entity, parentMatrix?: Mat4): void {
